@@ -257,11 +257,21 @@ export function PenerimaanBarangTab() {
       {
         accessorKey: "reference_number",
         header: "No. Referensi",
-        cell: ({ row }) => (
-          <span>
-            {row.original.reference_number ?? "—"}
-          </span>
-        ),
+        cell: ({ row }) => {
+          const ref = row.original.reference_number;
+          if (!ref) return <span>—</span>;
+          if (row.original.source_type === "purchase_order" && row.original.source_id) {
+            return (
+              <Link
+                href={`/dashboard/transaksi-pembelian/pesanan/${row.original.source_id}`}
+                className="font-medium text-blue-600 dark:text-blue-400 underline hover:text-blue-700"
+              >
+                {ref}
+              </Link>
+            );
+          }
+          return <span>{ref}</span>;
+        },
       },
       {
         id: "tanggal",

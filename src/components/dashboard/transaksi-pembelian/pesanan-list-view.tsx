@@ -184,7 +184,7 @@ export function PesananListView() {
         cell: ({ row }) => (
           <Link
             href={`/dashboard/transaksi-pembelian/pesanan/${row.original.id}`}
-            className="font-medium hover:text-primary hover:underline"
+            className="font-medium text-blue-600 dark:text-blue-400 underline hover:text-blue-700"
           >
             {row.original.po_number}
           </Link>

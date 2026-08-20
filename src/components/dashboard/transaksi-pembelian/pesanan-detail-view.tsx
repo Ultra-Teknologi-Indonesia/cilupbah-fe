@@ -11,6 +11,8 @@ import {
   ImageIcon,
   SquarePenIcon,
   HistoryIcon,
+  RotateCcwIcon,
+  Loader2Icon,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -35,6 +37,7 @@ import {
   usePurchaseOrderDetail,
   usePurchaseOrderItems,
   useDeletePurchaseOrder,
+  useRecreateInboundForPO,
 } from "@/hooks/transaksi-pembelian/use-purchase-orders";
 import { SimplePagination } from "@/components/ui/simple-pagination";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
@@ -83,6 +86,7 @@ export function PesananDetailView({ id }: { id: string }) {
     setPage(1);
   };
   const deleteMut = useDeletePurchaseOrder();
+  const recreateInboundMut = useRecreateInboundForPO();
 
   const [confirmAction, setConfirmAction] = useState<"delete" | null>(null);
   const [riwayatOpen, setRiwayatOpen] = useState(false);
@@ -135,12 +139,28 @@ export function PesananDetailView({ id }: { id: string }) {
           { label: po.po_number },
         ]}
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <StatusBadge
               domain="purchase-order"
               status={po.status}
               className="text-xs"
             />
+            {(po.status === "OPEN" || po.status === "PARTIAL_RECEIVED") && !po.active_inbound && (
+              <Button
+                size="sm"
+                variant="default"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+                disabled={recreateInboundMut.isPending}
+                onClick={() => recreateInboundMut.mutate(po.id)}
+              >
+                {recreateInboundMut.isPending ? (
+                  <Loader2Icon className="mr-2 size-4 animate-spin" />
+                ) : (
+                  <RotateCcwIcon className="mr-2 size-4" />
+                )}
+                Buat ulang penerimaan barang
+              </Button>
+            )}
             <Button
               variant="outline"
               size="sm"
@@ -170,6 +190,30 @@ export function PesananDetailView({ id }: { id: string }) {
         }
       />
 
+      {po.has_cancelled_inbound_only && !po.active_inbound && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50/80 p-3.5 text-xs text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/20 dark:text-amber-300">
+          <div className="flex items-center gap-2">
+            <RotateCcwIcon className="size-4 shrink-0" />
+            <span>
+              Dokumen penerimaan barang untuk PO ini sebelumnya telah dibatalkan atau dihapus. Klik tombol <strong>&quot;Buat ulang penerimaan barang&quot;</strong> untuk menerbitkan kembali dokumen penerimaan baru ke gudang.
+            </span>
+          </div>
+          <Button
+            size="sm"
+            className="bg-amber-600 hover:bg-amber-700 text-white shrink-0"
+            disabled={recreateInboundMut.isPending}
+            onClick={() => recreateInboundMut.mutate(po.id)}
+          >
+            {recreateInboundMut.isPending ? (
+              <Loader2Icon className="mr-1.5 size-3.5 animate-spin" />
+            ) : (
+              <RotateCcwIcon className="mr-1.5 size-3.5" />
+            )}
+            Buat ulang penerimaan barang
+          </Button>
+        </div>
+      )}
+
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
         <div className="flex flex-col gap-4">
           <LiquidGlass
@@ -186,6 +230,19 @@ export function PesananDetailView({ id }: { id: string }) {
                 value={formatDateLong(po.order_date)}
               />
               <DetailRow label="No. Referensi" value={po.ref_no} />
+              {po.active_inbound && (
+                <DetailRow
+                  label="No. Penerimaan"
+                  value={
+                    <Link
+                      href={`/dashboard/barang-masuk/penerimaan/${po.active_inbound.id}`}
+                      className="font-medium text-blue-600 dark:text-blue-400 underline hover:text-blue-700 inline-flex items-center gap-1"
+                    >
+                      {po.active_inbound.transaction_number}
+                    </Link>
+                  }
+                />
+              )}
               <DetailRow
                 label="Termin Pembayaran"
                 value={po.payment_term ? `${po.payment_term} hari` : null}

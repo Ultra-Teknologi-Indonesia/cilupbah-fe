@@ -58,6 +58,13 @@ export interface PurchaseOrder {
     total_accepted: number;
     total_rejected: number;
   };
+  active_inbound?: {
+    id: string;
+    transaction_number: string;
+    status: string;
+  } | null;
+  has_cancelled_inbound_only?: boolean;
+  inbounds_count?: number;
 }
 
 export type PurchaseOrderStatus =

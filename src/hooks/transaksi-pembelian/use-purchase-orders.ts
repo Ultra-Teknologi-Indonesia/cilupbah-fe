@@ -9,6 +9,7 @@ import {
 import { toast } from "sonner";
 import { apiError } from "@/lib/toast";
 import { PurchaseOrderService } from "@/services/transaksi-pembelian/purchase-order.service";
+import { InboundService } from "@/services/barang-masuk/inbound.service";
 import type {
   PurchaseOrderListParams,
   PurchaseOrderFormData,
@@ -98,5 +99,18 @@ export function useDeletePurchaseOrder() {
       qc.invalidateQueries({ queryKey: ["purchase-order"] });
     },
     onError: (err) => apiError(err, "Gagal menghapus pesanan"),
+  });
+}
+
+export function useRecreateInboundForPO() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (poId: string) => InboundService.receiveAdditional(poId),
+    onSuccess: () => {
+      toast.success("Penerimaan barang berhasil dibuat ulang");
+      qc.invalidateQueries({ queryKey: ["purchase-order"] });
+      qc.invalidateQueries({ queryKey: ["inbound"] });
+    },
+    onError: (err) => apiError(err, "Gagal membuat ulang penerimaan barang"),
   });
 }
