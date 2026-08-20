@@ -54,8 +54,9 @@ export function useLocationBinsInfinite(
     enabled: !!locationId,
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
-      const { current_page, last_page } = lastPage.meta;
-      return current_page < last_page ? current_page + 1 : undefined;
+      const currentPage = Number(lastPage?.meta?.current_page ?? 1);
+      const lastPageNum = Number(lastPage?.meta?.last_page ?? 1);
+      return currentPage < lastPageNum ? currentPage + 1 : undefined;
     },
 
     staleTime: 60_000,

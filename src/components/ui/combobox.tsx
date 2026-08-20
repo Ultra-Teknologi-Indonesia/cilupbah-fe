@@ -155,6 +155,15 @@ export function Combobox({
     return () => io.disconnect();
   }, [open, onLoadMore, hasMore, loadingMore, filtered.length]);
 
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    if (!onLoadMore || !hasMore || loadingMore) return;
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    if (scrollHeight - scrollTop - clientHeight <= 150) {
+      onLoadMore();
+    }
+  };
+
   const visibleBadges = wrap
     ? selectedValues
     : selectedValues.slice(0, maxVisible);
@@ -273,6 +282,7 @@ export function Combobox({
         </div>
         <div
           ref={scrollRef}
+          onScroll={handleScroll}
           className="min-h-0 flex-1 overflow-y-auto overscroll-contain"
           onWheel={(e) => e.stopPropagation()}
           onTouchMove={(e) => e.stopPropagation()}
