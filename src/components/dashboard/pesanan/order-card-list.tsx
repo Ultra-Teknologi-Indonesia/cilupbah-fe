@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Loader2Icon, SearchXIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -100,6 +101,24 @@ export function OrderCardList({
 }: OrderCardListProps) {
   const selectable = TABS_WITH_ACTIONS.has(tab);
 
+  // Progressive streaming render for large datasets (> 30 items) to prevent UI thread freezing
+  const [renderedCount, setRenderedCount] = useState(() => (orders.length > 40 ? 30 : orders.length));
+
+  useEffect(() => {
+    setRenderedCount(orders.length > 40 ? 30 : orders.length);
+  }, [orders]);
+
+  useEffect(() => {
+    if (renderedCount < orders.length) {
+      const handle = requestAnimationFrame(() => {
+        setRenderedCount((prev) => Math.min(prev + 40, orders.length));
+      });
+      return () => cancelAnimationFrame(handle);
+    }
+  }, [renderedCount, orders.length]);
+
+  const visibleOrders = orders.slice(0, renderedCount);
+
   function toggleOne(id: string, checked: boolean) {
     const next = new Set(selectedIds);
     if (checked) {
@@ -151,7 +170,7 @@ export function OrderCardList({
           isFetching && "opacity-60 pointer-events-none filter blur-[0.2px]",
         )}
       >
-        {orders.map((order) => (
+        {visibleOrders.map((order) => (
           <OrderCard
             key={order.id}
             order={order}
