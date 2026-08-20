@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Combobox } from "@/components/ui/combobox";
+import { Combobox, type ComboboxOption } from "@/components/ui/combobox";
 import {
   Table,
   TableBody,
@@ -29,7 +29,8 @@ import { PageTitle } from "@/components/dashboard/page-title";
 import { FormFooter } from "@/components/dashboard/shared/form-footer";
 import { UserSelect } from "@/components/dashboard/shared/user-select";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
-import { useLocationBins } from "@/hooks/manajemen-rak/use-location-bins";
+import { useLocationBinsInfinite } from "@/hooks/manajemen-rak/use-location-bins";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useCreateStockAdjustment } from "@/hooks/transaksi-stok/use-stock-adjustments";
 import {
   StockedProductPickerDialog,
@@ -70,6 +71,128 @@ function todayStr(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+function AdjustmentBinCombobox({
+  locationId,
+  availableBins,
+  value,
+  onChange,
+  disabled,
+}: {
+  locationId: string;
+  availableBins: LineBin[];
+  value: string;
+  onChange: (
+    binId: string,
+    binCode: string,
+    onHand: number,
+    avgCost?: number,
+  ) => void;
+  disabled?: boolean;
+}) {
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedValue(search, 250);
+
+  const {
+    data,
+    isLoading,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useLocationBinsInfinite(locationId || undefined, {
+    search: debouncedSearch.trim() || undefined,
+    perPage: 30,
+    sort: "bin_final_code",
+  });
+
+  const binMapRef = useMemo(
+    () => ({
+      current: new Map<
+        string,
+        { code: string; onHand: number; avgCost?: number }
+      >(),
+    }),
+    [],
+  );
+
+  const options: ComboboxOption[] = useMemo(() => {
+    const opts: ComboboxOption[] = [];
+    const addedIds = new Set<string>();
+
+    const term = debouncedSearch.trim().toLowerCase();
+    for (const b of availableBins) {
+      binMapRef.current.set(b.id, {
+        code: b.code,
+        onHand: b.onHand,
+        avgCost: b.avgCost,
+      });
+      if (!term || b.code.toLowerCase().includes(term)) {
+        opts.push({
+          value: b.id,
+          label: `${b.code} · ${b.onHand} stok`,
+        });
+        addedIds.add(b.id);
+      }
+    }
+
+    const rawItems = data?.pages.flatMap((p) => p.items) ?? [];
+    for (const lb of rawItems) {
+      if (!binMapRef.current.has(lb.id)) {
+        binMapRef.current.set(lb.id, { code: lb.binFinalCode, onHand: 0 });
+      }
+      if (!addedIds.has(lb.id)) {
+        opts.push({
+          value: lb.id,
+          label: `${lb.binFinalCode} · 0 stok`,
+        });
+        addedIds.add(lb.id);
+      }
+    }
+
+    if (
+      value &&
+      !opts.some((o) => o.value === value) &&
+      binMapRef.current.has(value)
+    ) {
+      const info = binMapRef.current.get(value)!;
+      opts.unshift({
+        value,
+        label: `${info.code} · ${info.onHand} stok`,
+      });
+    }
+
+    return opts;
+  }, [availableBins, data, debouncedSearch, value, binMapRef]);
+
+  return (
+    <Combobox
+      options={options}
+      value={value || null}
+      onChange={(v) => {
+        if (!v) {
+          onChange("", "", 0);
+          return;
+        }
+        const info = binMapRef.current.get(v);
+        onChange(v, info?.code ?? "", info?.onHand ?? 0, info?.avgCost);
+      }}
+      onQueryChange={setSearch}
+      loading={isLoading}
+      onLoadMore={() => {
+        if (hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      }}
+      hasMore={hasNextPage}
+      loadingMore={isFetchingNextPage}
+      placeholder="Scan / pilih rak"
+      searchPlaceholder="Scan / cari rak…"
+      emptyText={isLoading ? "Mencari rak…" : "Tidak ada rak di lokasi ini"}
+      disabled={disabled || !locationId}
+      className="h-9 min-w-[160px]"
+    />
+  );
+}
+
 export function BuatPenyesuaianView() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -91,14 +214,6 @@ export function BuatPenyesuaianView() {
   const scanRef = useRef<HTMLInputElement>(null);
 
   const { data: locData } = useLocations({ perPage: 100 });
-  const { data: locationBinsData } = useLocationBins(locationId || undefined, {
-    perPage: 200,
-  });
-  const locationBins = useMemo(
-    () => locationBinsData?.items ?? [],
-    [locationBinsData],
-  );
-
   const createMut = useCreateStockAdjustment();
 
   const locationOptions = useMemo(
@@ -530,27 +645,6 @@ export function BuatPenyesuaianView() {
                       : Number(l.delta);
                   const qtyAkhir = l.binOnHand + deltaNum;
 
-                  const binOptsForLine: { value: string; label: string }[] = [];
-                  const addedIds = new Set<string>();
-
-                  for (const b of l.availableBins) {
-                    binOptsForLine.push({
-                      value: b.id,
-                      label: `${b.code} · ${b.onHand} stok`,
-                    });
-                    addedIds.add(b.id);
-                  }
-
-                  for (const lb of locationBins) {
-                    if (!addedIds.has(lb.id)) {
-                      binOptsForLine.push({
-                        value: lb.id,
-                        label: `${lb.binFinalCode} · 0 stok`,
-                      });
-                      addedIds.add(lb.id);
-                    }
-                  }
-
                   return (
                     <TableRow key={l.itemId} className="bg-background/50">
                       <TableCell className="px-3 py-2.5">
@@ -586,39 +680,25 @@ export function BuatPenyesuaianView() {
                       </TableCell>
 
                       <TableCell className="px-3 py-2.5">
-                        <Combobox
-                          options={binOptsForLine}
+                        <AdjustmentBinCombobox
+                          locationId={locationId}
+                          availableBins={l.availableBins}
                           value={l.binId}
-                          onChange={(v) => {
-                            const pickedFromStock = l.availableBins.find(
-                              (b) => b.id === v,
-                            );
-                            const pickedFromLocation = locationBins.find(
-                              (b) => b.id === v,
-                            );
-                            const code =
-                              pickedFromStock?.code ??
-                              pickedFromLocation?.binFinalCode ??
-                              "";
-                            const onHand = pickedFromStock?.onHand ?? 0;
-                            const avgCost =
-                              pickedFromStock?.avgCost ?? l.binAvgCost ?? 0;
-
+                          onChange={(binId, binCode, onHand, avgCost) => {
+                            const effectiveAvgCost =
+                              avgCost ?? l.binAvgCost ?? 0;
                             updateLine(l.itemId, {
-                              binId: v ?? "",
-                              binCode: code,
+                              binId,
+                              binCode,
                               binOnHand: onHand,
-                              binAvgCost: avgCost,
+                              binAvgCost: effectiveAvgCost,
                               unitCost:
-                                avgCost != null
-                                  ? String(avgCost)
+                                effectiveAvgCost != null
+                                  ? String(effectiveAvgCost)
                                   : l.unitCost,
                             });
                           }}
-                          placeholder="Scan / pilih rak"
-                          searchPlaceholder="Scan / cari rak…"
-                          emptyText="Tidak ada rak di lokasi ini"
-                          className="h-9 min-w-[160px]"
+                          disabled={!locationId}
                         />
                       </TableCell>
 
