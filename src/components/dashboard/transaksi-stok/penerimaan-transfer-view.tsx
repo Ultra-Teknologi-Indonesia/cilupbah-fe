@@ -54,7 +54,7 @@ function DestinationBinCombobox({
   disabled?: boolean;
 }) {
   const [search, setSearch] = useState("");
-  const debouncedSearch = useDebouncedValue(search, 300);
+  const debouncedSearch = useDebouncedValue(search, 250);
 
   const {
     data,
@@ -68,30 +68,28 @@ function DestinationBinCombobox({
     sort: "bin_final_code",
   });
 
-  const [knownLabels, setKnownLabels] = useState<Record<string, string>>({});
+  const labelCacheRef = useMemo(() => ({ current: {} as Record<string, string> }), []);
 
   const options: ComboboxOption[] = useMemo(() => {
     const rawItems = data?.pages.flatMap((p) => p.items) ?? [];
-    const map: Record<string, string> = { ...knownLabels };
     for (const b of rawItems) {
-      map[b.id] = b.binFinalCode;
+      labelCacheRef.current[b.id] = b.binFinalCode;
     }
-    setKnownLabels(map);
 
     const list: ComboboxOption[] = rawItems.map((b) => ({
       value: b.id,
       label: b.binFinalCode,
     }));
 
-    if (value && !list.some((o) => o.value === value) && map[value]) {
+    if (value && !list.some((o) => o.value === value) && labelCacheRef.current[value]) {
       list.unshift({
         value,
-        label: map[value],
+        label: labelCacheRef.current[value],
       });
     }
 
     return list;
-  }, [data, value, knownLabels]);
+  }, [data, value, labelCacheRef]);
 
   return (
     <Combobox
@@ -100,7 +98,11 @@ function DestinationBinCombobox({
       onChange={onChange}
       onQueryChange={setSearch}
       loading={isLoading}
-      onLoadMore={() => fetchNextPage()}
+      onLoadMore={() => {
+        if (hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      }}
       hasMore={hasNextPage}
       loadingMore={isFetchingNextPage}
       placeholder={isLoading ? "Memuat…" : "Scan / pilih rak tujuan"}

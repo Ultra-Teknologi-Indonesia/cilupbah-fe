@@ -175,7 +175,10 @@ export function Combobox({
       open={open}
       onOpenChange={(o) => {
         setOpen(o);
-        if (o) setQuery("");
+        if (o) {
+          setQuery("");
+          onQueryChange?.("");
+        }
       }}
     >
       <PopoverTrigger asChild>
