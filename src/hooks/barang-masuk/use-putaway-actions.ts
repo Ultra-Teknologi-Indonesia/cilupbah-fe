@@ -196,3 +196,24 @@ export function useResetPutawayAssignment(putawayId: string) {
     onError: (err) => apiError(err, "Gagal reset putaway"),
   });
 }
+
+export function useUpdatePutawayItemNotes() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      putawayId,
+      itemId,
+      notes,
+    }: {
+      putawayId: string;
+      itemId: string;
+      notes: string | null;
+    }) => PutawayService.updateItemNotes(putawayId, itemId, notes),
+    onSuccess: (_, vars) => {
+      toast.success("Catatan item tersimpan");
+      qc.invalidateQueries({ queryKey: ["putaway", "items", vars.putawayId] });
+      qc.invalidateQueries({ queryKey: ["putaway", "detail", vars.putawayId] });
+    },
+    onError: (err) => apiError(err, "Gagal memperbarui catatan"),
+  });
+}

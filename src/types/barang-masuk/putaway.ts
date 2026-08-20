@@ -11,6 +11,7 @@ export interface PutawayItem {
   putaway_qty: number;
   batch_no: string | null;
   serial_no: string | null;
+  notes?: string | null;
   variant?: {
     id: string;
     sku: string;

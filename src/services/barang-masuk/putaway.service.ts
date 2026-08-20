@@ -199,6 +199,21 @@ export const PutawayService = {
     );
     return res.data;
   },
+
+  updateItemNotes: async (
+    putawayId: string,
+    itemId: string,
+    notes: string | null,
+  ) => {
+    const res = await fetchClient<ApiResponse<PutawayItem>>(
+      `/putaway/${putawayId}/items/${itemId}/notes`,
+      {
+        method: "PATCH",
+        data: { notes },
+      },
+    );
+    return res.data;
+  },
 };
 
 export type PutawayDeleteAction =

@@ -30,6 +30,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
@@ -60,6 +61,7 @@ import {
   usePutawayBins,
   useUnassignPutaway,
   useResetPutawayAssignment,
+  useUpdatePutawayItemNotes,
   type BinListItem,
 } from "@/hooks/barang-masuk/use-putaway-actions";
 import { useSetReceivedQty } from "@/hooks/barang-masuk/use-inbound";
@@ -587,13 +589,16 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                     <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       Qty
                     </TableHead>
+                    <TableHead className="min-w-[180px] text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Keterangan
+                    </TableHead>
                     <TableHead className="w-12 pr-5" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {visibleList.length === 0 ? (
                     <TableRow className="hover:bg-transparent">
-                      <TableCell colSpan={5} className="py-16 text-center">
+                      <TableCell colSpan={6} className="py-16 text-center">
                         <p className="text-sm text-muted-foreground">
                           Scan kode rak terlebih dahulu, lalu scan SKU produk.
                         </p>
@@ -715,6 +720,53 @@ interface PutawayItemRowProps {
   onRemovePlacement: (id: string) => void;
   onSaved?: () => void;
   onQtyCorrected?: () => void;
+}
+
+function ItemNotesInput({
+  putawayId,
+  itemId,
+  initialNotes,
+  disabled,
+}: {
+  putawayId: string;
+  itemId: string;
+  initialNotes?: string | null;
+  disabled?: boolean;
+}) {
+  const [notes, setNotes] = useState(initialNotes ?? "");
+  const updateNotesMut = useUpdatePutawayItemNotes();
+
+  useEffect(() => {
+    setNotes(initialNotes ?? "");
+  }, [initialNotes]);
+
+  const handleBlur = () => {
+    const trimmed = notes.trim() || null;
+    const prevTrimmed = (initialNotes ?? "").trim() || null;
+    if (trimmed !== prevTrimmed) {
+      updateNotesMut.mutate({
+        putawayId,
+        itemId,
+        notes: trimmed,
+      });
+    }
+  };
+
+  return (
+    <Input
+      value={notes}
+      onChange={(e) => setNotes(e.target.value)}
+      onBlur={handleBlur}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.currentTarget.blur();
+        }
+      }}
+      placeholder="Catatan koreksi SKU / reject…"
+      disabled={disabled || updateNotesMut.isPending}
+      className="h-8 w-full min-w-[150px] max-w-[240px] text-xs bg-background/60 focus-visible:bg-background"
+    />
+  );
 }
 
 function PutawayItemRow({
@@ -874,6 +926,15 @@ function PutawayItemRow({
           </div>
         </TableCell>
 
+        <TableCell className="min-w-[180px]">
+          <ItemNotesInput
+            putawayId={putawayId}
+            itemId={item.id}
+            initialNotes={item.notes}
+            disabled={!editable}
+          />
+        </TableCell>
+
         <TableCell className="pr-5">
           {effectivePlacements.length > 0 ? (
             <Button
@@ -896,7 +957,7 @@ function PutawayItemRow({
 
       {expanded && effectivePlacements.length > 0 && (
         <TableRow className="hover:bg-transparent">
-          <TableCell colSpan={5} className="border-t-0 pb-4 pl-16 pr-5 pt-0">
+          <TableCell colSpan={6} className="border-t-0 pb-4 pl-16 pr-5 pt-0">
             <div className="flex flex-col gap-2 rounded-xl border border-border/50 bg-muted/20 p-3">
               <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 Detail Penempatan

@@ -285,13 +285,16 @@ export function PutawayReviewView({ id }: PutawayReviewViewProps) {
                   <TableHead className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                     Qty
                   </TableHead>
+                  <TableHead className="min-w-[150px] text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    Keterangan
+                  </TableHead>
                   <TableHead className="w-12 pr-5" />
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {allItems.length === 0 ? (
                   <TableRow className="hover:bg-transparent">
-                    <TableCell colSpan={5} className="py-16 text-center">
+                    <TableCell colSpan={6} className="py-16 text-center">
                       <p className="text-sm text-muted-foreground">
                         Tidak ada item pada penempatan ini.
                       </p>
@@ -423,6 +426,14 @@ function ReviewItemRow({
           </div>
         </TableCell>
 
+        <TableCell className="min-w-[150px]">
+          {item.notes ? (
+            <span className="text-xs text-foreground">{item.notes}</span>
+          ) : (
+            <span className="text-xs text-muted-foreground">—</span>
+          )}
+        </TableCell>
+
         <TableCell className="pr-5">
           {multiBin ? (
             <Button
@@ -445,7 +456,7 @@ function ReviewItemRow({
 
       {expanded && multiBin && (
         <TableRow className="hover:bg-transparent">
-          <TableCell colSpan={5} className="border-t-0 pb-4 pl-16 pr-5 pt-0">
+          <TableCell colSpan={6} className="border-t-0 pb-4 pl-16 pr-5 pt-0">
             <div className="flex flex-col gap-2 rounded-xl border border-border/50 bg-muted/20 p-3">
               <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 Rincian Rak
