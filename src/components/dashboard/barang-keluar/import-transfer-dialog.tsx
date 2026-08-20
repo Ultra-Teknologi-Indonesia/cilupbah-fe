@@ -181,7 +181,14 @@ export function ImportTransferDialog({ open, onOpenChange, createdBy }: Props) {
         onOpenChange(o);
       }}
     >
-      <DialogContent className="flex h-[92vh] max-h-[920px] w-[96vw] max-w-6xl flex-col gap-0 overflow-hidden p-0">
+      <DialogContent
+        className={cn(
+          "flex flex-col gap-0 overflow-hidden p-0 duration-200",
+          preview
+            ? "h-[92vh] max-h-[920px] w-[96vw] max-w-[96vw] sm:max-w-[96vw] md:max-w-5xl lg:max-w-6xl xl:max-w-7xl sm:rounded-3xl"
+            : "h-auto max-h-[90vh] w-[92vw] max-w-xl sm:max-w-xl sm:rounded-3xl",
+        )}
+      >
         <DialogHeader className="shrink-0 border-b border-border/70 bg-background px-6 py-4">
           <DialogTitle className="text-xl font-semibold text-foreground">
             Import Transfer Keluar
