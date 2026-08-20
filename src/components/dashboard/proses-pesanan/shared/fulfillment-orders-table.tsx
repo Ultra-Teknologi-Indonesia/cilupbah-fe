@@ -794,6 +794,26 @@ export function FulfillmentOrdersTable({
     total: 0,
   };
 
+  // Progressive streaming render for large datasets (> 30 items) to prevent UI thread freezing
+  const [renderedCount, setRenderedCount] = React.useState(() =>
+    orders.length > 40 ? 30 : orders.length,
+  );
+
+  React.useEffect(() => {
+    setRenderedCount(orders.length > 40 ? 30 : orders.length);
+  }, [orders]);
+
+  React.useEffect(() => {
+    if (renderedCount < orders.length) {
+      const handle = requestAnimationFrame(() => {
+        setRenderedCount((prev) => Math.min(prev + 40, orders.length));
+      });
+      return () => cancelAnimationFrame(handle);
+    }
+  }, [renderedCount, orders.length]);
+
+  const visibleOrders = orders.slice(0, renderedCount);
+
   const selectableOrders = orders.filter((o) => o.status !== "cancelled");
   const pageIds = selectableOrders.map((o) => o.id);
   const allSelected =
@@ -1154,7 +1174,7 @@ export function FulfillmentOrdersTable({
               </div>
             )}
 
-            {orders.map((o) => (
+            {visibleOrders.map((o) => (
               <OrderCard
                 key={o.id}
                 order={o}
