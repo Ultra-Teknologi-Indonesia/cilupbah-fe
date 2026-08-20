@@ -92,17 +92,12 @@ function AdjustmentBinCombobox({
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 250);
 
-  const {
-    data,
-    isLoading,
-    hasNextPage,
-    fetchNextPage,
-    isFetchingNextPage,
-  } = useLocationBinsInfinite(locationId || undefined, {
-    search: debouncedSearch.trim() || undefined,
-    perPage: 30,
-    sort: "bin_final_code",
-  });
+  const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } =
+    useLocationBinsInfinite(locationId || undefined, {
+      search: debouncedSearch.trim() || undefined,
+      perPage: 30,
+      sort: "bin_final_code",
+    });
 
   const binMapRef = useMemo(
     () => ({
@@ -218,7 +213,10 @@ export function BuatPenyesuaianView() {
 
   const locationOptions = useMemo(
     () =>
-      (locData?.items ?? []).map((l) => ({ value: l.id, label: l.locationName })),
+      (locData?.items ?? []).map((l) => ({
+        value: l.id,
+        label: l.locationName,
+      })),
     [locData],
   );
 
@@ -310,9 +308,7 @@ export function BuatPenyesuaianView() {
         setLines((prev) => {
           if (prev.some((l) => l.itemId === variant.id)) return prev;
           const primary =
-            variant.primary_bin ??
-            variant.available_bins?.[0] ??
-            null;
+            variant.primary_bin ?? variant.available_bins?.[0] ?? null;
           return [
             ...prev,
             {
@@ -596,8 +592,7 @@ export function BuatPenyesuaianView() {
                 disabled={!locationId || scanning}
                 className={cn(
                   "h-10 pl-9 text-base transition-colors",
-                  scanFlash === "ok" &&
-                    "border-success ring-2 ring-success/30",
+                  scanFlash === "ok" && "border-success ring-2 ring-success/30",
                   scanFlash === "err" &&
                     "border-destructive ring-2 ring-destructive/30",
                 )}
