@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { useConnectedStores } from "@/hooks/channel/use-connected-stores";
 import { useOrderShippingProviders } from "@/hooks/pesanan/use-orders";
+import { OrderSortControl } from "./order-sort-control";
 import {
   CHANNEL_MAP,
   STATUS_FILTER_OPTIONS,
@@ -153,6 +154,8 @@ export function OrderFilters({
   onRefresh,
   isRefreshing,
   tab,
+  sortDir,
+  onSortDirChange,
 }: {
   query: string;
   onQueryChange: (v: string) => void;
@@ -163,6 +166,8 @@ export function OrderFilters({
   onRefresh?: () => void;
   isRefreshing?: boolean;
   tab?: OrderTab;
+  sortDir?: "asc" | "desc";
+  onSortDirChange?: (dir: "asc" | "desc") => void;
 }) {
   const { data: locData } = useLocations();
   const { data: storeData } = useConnectedStores();
@@ -249,6 +254,14 @@ export function OrderFilters({
       trailing={trailing}
       onRefresh={onRefresh}
       isRefreshing={isRefreshing}
+      sortControl={
+        sortDir && onSortDirChange ? (
+          <OrderSortControl
+            sortDir={sortDir}
+            onSortDirChange={onSortDirChange}
+          />
+        ) : undefined
+      }
     >
       {tab === "all" && (
         <Combobox

@@ -53,8 +53,15 @@ export const OrderService = {
     for (const s of params.status ?? []) sp.append("filter[status][]", s);
     if (params.page) sp.set("page", String(params.page));
     if (params.per_page) sp.set("per_page", String(params.per_page));
-    if (params.sort_by) sp.set("sort_by", params.sort_by);
-    if (params.sort_dir) sp.set("sort_dir", params.sort_dir);
+    if (params.sort) {
+      sp.set("sort", params.sort);
+    } else if (params.sort_dir) {
+      const prefix = params.sort_dir === "asc" ? "" : "-";
+      const field = params.sort_by || "transaction_date";
+      sp.set("sort", `${prefix}${field}`);
+    } else if (params.sort_by) {
+      sp.set("sort", params.sort_by);
+    }
 
     return fetchClient<ApiPaginated<Order>>(`/sales?${sp}`);
   },

@@ -20,6 +20,7 @@ export function FilterToolbar({
   onRefresh,
   isRefreshing = false,
   gridCols = 3,
+  sortControl,
   children,
   className,
 }: {
@@ -35,6 +36,7 @@ export function FilterToolbar({
   onRefresh?: () => void;
   isRefreshing?: boolean;
   gridCols?: 1 | 2 | 3 | 4;
+  sortControl?: React.ReactNode;
   children?: React.ReactNode;
   className?: string;
 }) {
@@ -123,6 +125,8 @@ export function FilterToolbar({
             )}
           </Button>
         )}
+
+        {sortControl}
 
         {hasFilter && onReset && (
           <button

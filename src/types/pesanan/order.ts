@@ -63,6 +63,7 @@ export interface OrderListParams {
   date_to?: string;
   page?: number;
   per_page?: number;
+  sort?: string;
   sort_by?: string;
   sort_dir?: "asc" | "desc";
 

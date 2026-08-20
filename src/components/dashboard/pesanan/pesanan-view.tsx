@@ -48,6 +48,11 @@ export function PesananView() {
   });
   const subFilter: SubFilter = (subValue || null) as SubFilter;
 
+  const [sortDir, setSortDir] = useUrlTab<"asc" | "desc">("sort_dir", "desc", {
+    validValues: ["asc", "desc"],
+    clearKeys: ["page"],
+  });
+
   const listSearch = useListState<{ _: string }>(
     { _: "" },
     { perPage: 12, debounceMs: 350 },
@@ -111,10 +116,11 @@ export function PesananView() {
         (filters.decision as OrderListParams["decision"]) || undefined,
       status: filters.status.length > 0 ? filters.status : undefined,
       shadow: (filters.shadow as OrderListParams["shadow"]) || undefined,
+      sort: sortDir === "asc" ? "transaction_date" : "-transaction_date",
       page: listSearch.page,
       per_page: listSearch.perPage,
     }),
-    [tab, subFilter, listSearch.debouncedSearch, listSearch.page, listSearch.perPage, filters],
+    [tab, subFilter, listSearch.debouncedSearch, listSearch.page, listSearch.perPage, filters, sortDir],
   );
 
   const { data, isLoading, isFetching, refetch } = useOrders(params);
@@ -209,6 +215,8 @@ export function PesananView() {
           onRefresh={() => refetch()}
           isRefreshing={isFetching}
           tab={tab}
+          sortDir={sortDir}
+          onSortDirChange={setSortDir}
           trailing={
             <div className="flex items-center gap-2">
               <Can permission="import-pesanan">
