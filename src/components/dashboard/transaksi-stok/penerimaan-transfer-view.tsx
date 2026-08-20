@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Combobox } from "@/components/ui/combobox";
+import { Combobox, type ComboboxOption } from "@/components/ui/combobox";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import {
   Table,
@@ -26,10 +26,11 @@ import { QtyConfirmInput } from "@/components/ui/qty-confirm-input";
 import {
   useBinTransferList,
   useBinTransferDetail,
-  useLocationBins,
   useReceiveBinTransfer,
   type BinTransferDetailItem,
 } from "@/hooks/transaksi-stok/use-bin-transfer";
+import { useLocationBinsInfinite } from "@/hooks/manajemen-rak/use-location-bins";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -39,6 +40,76 @@ interface ReceiveLine {
   itemId: string; 
   destBinId: string;
   qty: string;
+}
+
+function DestinationBinCombobox({
+  locationId,
+  value,
+  onChange,
+  disabled,
+}: {
+  locationId: string;
+  value: string;
+  onChange: (v: string | null) => void;
+  disabled?: boolean;
+}) {
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedValue(search, 300);
+
+  const {
+    data,
+    isLoading,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useLocationBinsInfinite(locationId || undefined, {
+    search: debouncedSearch.trim() || undefined,
+    perPage: 30,
+    sort: "bin_final_code",
+  });
+
+  const [knownLabels, setKnownLabels] = useState<Record<string, string>>({});
+
+  const options: ComboboxOption[] = useMemo(() => {
+    const rawItems = data?.pages.flatMap((p) => p.items) ?? [];
+    const map: Record<string, string> = { ...knownLabels };
+    for (const b of rawItems) {
+      map[b.id] = b.binFinalCode;
+    }
+    setKnownLabels(map);
+
+    const list: ComboboxOption[] = rawItems.map((b) => ({
+      value: b.id,
+      label: b.binFinalCode,
+    }));
+
+    if (value && !list.some((o) => o.value === value) && map[value]) {
+      list.unshift({
+        value,
+        label: map[value],
+      });
+    }
+
+    return list;
+  }, [data, value, knownLabels]);
+
+  return (
+    <Combobox
+      options={options}
+      value={value || null}
+      onChange={onChange}
+      onQueryChange={setSearch}
+      loading={isLoading}
+      onLoadMore={() => fetchNextPage()}
+      hasMore={hasNextPage}
+      loadingMore={isFetchingNextPage}
+      placeholder={isLoading ? "Memuat…" : "Scan / pilih rak tujuan"}
+      searchPlaceholder="Scan / cari rak…"
+      emptyText={isLoading ? "Mencari rak…" : "Tidak ada rak"}
+      disabled={disabled || !locationId}
+      className="h-9 min-w-[160px]"
+    />
+  );
 }
 
 export function PenerimaanTransferView() {
@@ -59,8 +130,6 @@ export function PenerimaanTransferView() {
     useBinTransferDetail(transferId);
 
   const locationId = trf?.location_id ?? "";
-  const { data: binData, isLoading: binsLoading } =
-    useLocationBins(locationId);
 
   const receiveMut = useReceiveBinTransfer();
 
@@ -72,15 +141,6 @@ export function PenerimaanTransferView() {
         hint: t.location?.location_name ?? undefined,
       })),
     [transitData],
-  );
-
-  const binOptions = useMemo(
-    () =>
-      (binData?.items ?? []).map((b) => ({
-        value: b.id,
-        label: b.binFinalCode,
-      })),
-    [binData],
   );
 
   const pendingItems: BinTransferDetailItem[] = useMemo(
@@ -350,19 +410,13 @@ export function PenerimaanTransferView() {
                           {remaining}
                         </TableCell>
                         <TableCell className="px-3 py-2.5">
-                          <Combobox
-                            options={binOptions}
+                          <DestinationBinCombobox
+                            locationId={locationId}
                             value={line?.destBinId ?? ""}
                             onChange={(v) =>
                               updateLine(it.id, { destBinId: v ?? "" })
                             }
-                            placeholder={
-                              binsLoading ? "Memuat…" : "Scan / pilih rak tujuan"
-                            }
-                            searchPlaceholder="Scan / cari rak…"
-                            emptyText="Tidak ada rak"
-                            disabled={binsLoading}
-                            className="h-9 min-w-[160px]"
+                            disabled={!locationId}
                           />
                         </TableCell>
                         <TableCell className="px-3 py-2.5 text-right">
