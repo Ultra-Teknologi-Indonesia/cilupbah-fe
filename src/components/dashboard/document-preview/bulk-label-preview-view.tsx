@@ -97,7 +97,9 @@ function ItemRow({ item }: { item: BulkLabelBatchItem }) {
         {item.courier_name ?? "—"}
       </TableCell>
       <TableCell className="align-top">
-        {isTransient ? (
+        {item.tracking_number ? (
+          <span className="font-mono text-xs">{item.tracking_number}</span>
+        ) : isTransient ? (
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Loader2 className="size-3 animate-spin" />
             <span>
@@ -106,8 +108,6 @@ function ItemRow({ item }: { item: BulkLabelBatchItem }) {
                 : "Mengambil…"}
             </span>
           </div>
-        ) : item.tracking_number ? (
-          <span className="font-mono text-xs">{item.tracking_number}</span>
         ) : (
           <span className="text-xs text-muted-foreground">—</span>
         )}

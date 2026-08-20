@@ -101,17 +101,17 @@ function ItemRow({ item }: { item: BulkLabelBatchItem }) {
         {item.courier_name ?? "—"}
       </TableCell>
       <TableCell className="align-top whitespace-nowrap">
-        {isTransient ? (
+        {item.tracking_number ? (
+          <span className="font-mono text-xs font-semibold text-foreground">
+            {item.tracking_number}
+          </span>
+        ) : isTransient ? (
           <div className="flex items-center gap-1.5 text-xs text-primary">
             <Loader2 className="size-3.5 animate-spin" />
             <span className="text-[11px] font-medium">
               {item.status === "waiting_awb" ? "Menarik resi…" : "Mengambil…"}
             </span>
           </div>
-        ) : item.tracking_number ? (
-          <span className="font-mono text-xs font-semibold text-foreground">
-            {item.tracking_number}
-          </span>
         ) : (
           <span className="text-xs text-muted-foreground">—</span>
         )}
