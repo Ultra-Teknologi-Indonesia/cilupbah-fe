@@ -53,6 +53,18 @@ export function PesananView() {
     clearKeys: ["page"],
   });
 
+  const [sortBy, setSortBy] = useUrlTab<string>("sort_by", "transaction_date", {
+    validValues: [
+      "transaction_date",
+      "created_at",
+      "delivery_deadline",
+      "salesorder_no",
+      "channel_order_no",
+      "grand_total",
+    ],
+    clearKeys: ["page"],
+  });
+
   const listSearch = useListState<{ _: string }>(
     { _: "" },
     { perPage: 12, debounceMs: 350 },
@@ -116,11 +128,11 @@ export function PesananView() {
         (filters.decision as OrderListParams["decision"]) || undefined,
       status: filters.status.length > 0 ? filters.status : undefined,
       shadow: (filters.shadow as OrderListParams["shadow"]) || undefined,
-      sort: sortDir === "asc" ? "transaction_date" : "-transaction_date",
+      sort: `${sortDir === "asc" ? "" : "-"}${sortBy || "transaction_date"}`,
       page: listSearch.page,
       per_page: listSearch.perPage,
     }),
-    [tab, subFilter, listSearch.debouncedSearch, listSearch.page, listSearch.perPage, filters, sortDir],
+    [tab, subFilter, listSearch.debouncedSearch, listSearch.page, listSearch.perPage, filters, sortDir, sortBy],
   );
 
   const { data, isLoading, isFetching, refetch } = useOrders(params);
@@ -217,6 +229,8 @@ export function PesananView() {
           tab={tab}
           sortDir={sortDir}
           onSortDirChange={setSortDir}
+          sortBy={sortBy}
+          onSortByChange={setSortBy}
           trailing={
             <div className="flex items-center gap-2">
               <Can permission="import-pesanan">

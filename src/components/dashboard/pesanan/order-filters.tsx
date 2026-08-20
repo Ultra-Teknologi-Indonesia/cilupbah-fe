@@ -156,6 +156,8 @@ export function OrderFilters({
   tab,
   sortDir,
   onSortDirChange,
+  sortBy,
+  onSortByChange,
 }: {
   query: string;
   onQueryChange: (v: string) => void;
@@ -168,6 +170,8 @@ export function OrderFilters({
   tab?: OrderTab;
   sortDir?: "asc" | "desc";
   onSortDirChange?: (dir: "asc" | "desc") => void;
+  sortBy?: string;
+  onSortByChange?: (by: string) => void;
 }) {
   const { data: locData } = useLocations();
   const { data: storeData } = useConnectedStores();
@@ -259,6 +263,8 @@ export function OrderFilters({
           <OrderSortControl
             sortDir={sortDir}
             onSortDirChange={onSortDirChange}
+            sortBy={sortBy}
+            onSortByChange={onSortByChange}
           />
         ) : undefined
       }
