@@ -26,6 +26,11 @@ import {
   useShipments,
 } from "@/hooks/proses-pesanan/use-fulfillment";
 import { formatShipmentLabel } from "@/lib/proses-pesanan/shipment-type";
+import {
+  playScanFeedback,
+  primeScanAudio,
+  scanFeedbackFromErrorCode,
+} from "@/lib/scan-feedback";
 import { apiError } from "@/lib/toast";
 import { ChannelBadge } from "../channel-badge";
 
@@ -62,16 +67,22 @@ export function MasukkanKePengirimanView() {
 
   const handleScan = async (e: React.FormEvent) => {
     e.preventDefault();
+    primeScanAudio();
     const value = barcode.trim();
     if (!value || !shipmentId) return;
 
     try {
       await scanOrder.mutateAsync({ shipmentId, barcode: value });
+      playScanFeedback("ok");
       toast.success(`Resi ${value} ditambahkan ke pengiriman.`);
       setBarcode("");
       scanRef.current?.focus();
     } catch (err) {
+      const code = (err as { errors?: { code?: string } })?.errors?.code;
+      playScanFeedback(scanFeedbackFromErrorCode(code));
       apiError(err, "Gagal menambahkan pesanan ke pengiriman.");
+      setBarcode("");
+      scanRef.current?.focus();
     }
   };
 
