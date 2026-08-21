@@ -28,10 +28,16 @@ import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { FormFooter } from "@/components/dashboard/shared/form-footer";
 import { UserSelect } from "@/components/dashboard/shared/user-select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { useLocationBinsInfinite } from "@/hooks/manajemen-rak/use-location-bins";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { useCreateStockAdjustment } from "@/hooks/transaksi-stok/use-stock-adjustments";
+import {
+  useCreateStockAdjustment,
+  useUpdateStockAdjustment,
+  useStockAdjustmentDetail,
+  useStockAdjustmentItems,
+} from "@/hooks/transaksi-stok/use-stock-adjustments";
 import {
   StockedProductPickerDialog,
   type StockedPickedProduct,
@@ -48,7 +54,7 @@ interface LineBin {
   id: string;
   code: string;
   onHand: number;
-  avgCost: number;
+  avgCost?: number;
 }
 
 interface LineDraft {
@@ -188,9 +194,26 @@ function AdjustmentBinCombobox({
   );
 }
 
-export function BuatPenyesuaianView() {
+export interface PenyesuaianFormPageProps {
+  mode?: "create" | "edit";
+  id?: string;
+}
+
+export function PenyesuaianFormPage({
+  mode = "create",
+  id,
+}: PenyesuaianFormPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const isEdit = mode === "edit" && Boolean(id);
+
+  // Edit queries
+  const { data: editDetail, isLoading: isLoadingDetail } =
+    useStockAdjustmentDetail(isEdit ? id! : "");
+  const { data: editItemsData, isLoading: isLoadingItems } =
+    useStockAdjustmentItems(isEdit ? id! : "", { per_page: 500 });
+
   const [locationId, setLocationId] = useState(
     () => searchParams.get("location_id") ?? "",
   );
@@ -210,6 +233,7 @@ export function BuatPenyesuaianView() {
 
   const { data: locData } = useLocations({ perPage: 100 });
   const createMut = useCreateStockAdjustment();
+  const updateMut = useUpdateStockAdjustment();
 
   const locationOptions = useMemo(
     () =>
@@ -220,6 +244,98 @@ export function BuatPenyesuaianView() {
     [locData],
   );
 
+  // Populate data in edit mode
+  const editPopulatedRef = useRef(false);
+  useEffect(() => {
+    if (!isEdit || editPopulatedRef.current) return;
+    if (!editDetail || !editItemsData) return;
+
+    editPopulatedRef.current = true;
+    setLocationId(editDetail.location_id ?? editDetail.location?.id ?? "");
+    setTransactionDate(
+      editDetail.transaction_date
+        ? editDetail.transaction_date.slice(0, 10)
+        : todayStr(),
+    );
+    setAdjustmentNo(editDetail.adjustment_no ?? "[auto]");
+    setNotes(editDetail.notes ?? "");
+    setCreatedBy(editDetail.created_by ?? "");
+
+    const loadedLines: LineDraft[] = (editItemsData.items ?? []).map((item) => {
+      const prod = item.product;
+      const sku = prod?.sku ?? "";
+      const name = prod?.product?.name ?? sku ?? "—";
+      const imageUrl =
+        prod?.media?.[0]?.url || prod?.product?.media?.[0]?.url || null;
+      const binId = item.bin_id ?? item.bin?.id ?? "";
+      const binCode = item.bin?.bin_final_code ?? "";
+      const systemQty = item.system_qty ?? 0;
+      const actualQty = item.actual_qty ?? 0;
+      const delta = String(actualQty - systemQty);
+      const unitCost =
+        item.unit_cost != null ? String(item.unit_cost) : "";
+
+      return {
+        itemId: item.item_id,
+        sku,
+        name,
+        variantLabel: sku,
+        thumbnail: imageUrl,
+        binId,
+        binCode,
+        binOnHand: systemQty,
+        binAvgCost: item.unit_cost != null ? Number(item.unit_cost) : 0,
+        delta,
+        unitCost,
+        notes: item.notes ?? "",
+        availableBins: binId
+          ? [
+              {
+                id: binId,
+                code: binCode,
+                onHand: systemQty,
+                avgCost: Number(item.unit_cost ?? 0),
+              },
+            ]
+          : [],
+      };
+    });
+
+    setLines(loadedLines);
+
+    // Asynchronously enhance available bins for loaded lines
+    if (editDetail.location_id) {
+      loadedLines.forEach(async (l) => {
+        if (!l.sku) return;
+        try {
+          const res = await InventoryStockService.bySku(
+            l.sku,
+            editDetail.location_id,
+          );
+          if (res?.data?.available_bins) {
+            setLines((prev) =>
+              prev.map((line) =>
+                line.itemId === l.itemId
+                  ? {
+                      ...line,
+                      availableBins: res.data.available_bins.map((b) => ({
+                        id: b.id,
+                        code: b.code,
+                        onHand: b.on_hand,
+                        avgCost: b.avg_cost,
+                      })),
+                    }
+                  : line,
+              ),
+            );
+          }
+        } catch {
+          // ignore
+        }
+      });
+    }
+  }, [isEdit, editDetail, editItemsData]);
+
   useEffect(() => {
     if (locationId) scanRef.current?.focus();
   }, [locationId]);
@@ -227,7 +343,7 @@ export function BuatPenyesuaianView() {
   const prefillAppliedRef = useRef(false);
 
   useEffect(() => {
-    if (prefillAppliedRef.current) return;
+    if (isEdit || prefillAppliedRef.current) return;
     const itemsParam = searchParams.get("items");
     const locParam = searchParams.get("location_id");
     if (!itemsParam || !locParam) return;
@@ -247,8 +363,6 @@ export function BuatPenyesuaianView() {
           InventoryStockService.bySku(e.sku, locParam).catch(() => null),
         ),
       );
-
-      let addedAny = false;
 
       setLines((prev) => {
         const existing = new Set(prev.map((l) => l.itemId));
@@ -285,38 +399,29 @@ export function BuatPenyesuaianView() {
           });
         });
 
-        addedAny = fresh.length > 0;
         return [...prev, ...fresh];
       });
-
-      if (addedAny) {
-        setNotes((prev) => prev || "Selisih penempatan (stok fiktif)");
-      }
     })();
-  }, [searchParams]);
+  }, [isEdit, searchParams]);
 
-  const addLinesFromPicker = async (products: StockedPickedProduct[]) => {
-    setPickerOpen(false);
-    setPickerSearch(undefined);
-    if (!locationId) return;
-
-    for (const p of products) {
+  const addLinesFromPicker = async (picked: StockedPickedProduct[]) => {
+    for (const p of picked) {
       if (lines.some((l) => l.itemId === p.itemId)) continue;
       try {
         const res = await InventoryStockService.bySku(p.sku, locationId);
         const variant = res.data;
+        const primary = variant.primary_bin ?? variant.available_bins?.[0];
+
         setLines((prev) => {
-          if (prev.some((l) => l.itemId === variant.id)) return prev;
-          const primary =
-            variant.primary_bin ?? variant.available_bins?.[0] ?? null;
+          if (prev.some((l) => l.itemId === p.itemId)) return prev;
           return [
             ...prev,
             {
               itemId: variant.id,
               sku: variant.sku,
               name: variant.product_name ?? variant.sku,
-              variantLabel: variant.variant_label ?? "",
-              thumbnail: variant.thumbnail_url ?? null,
+              variantLabel: variant.variant_label ?? p.variantLabel ?? "",
+              thumbnail: variant.thumbnail_url ?? p.thumbnail ?? null,
               binId: primary?.id ?? "",
               binCode: primary?.code ?? "",
               binOnHand: primary?.on_hand ?? 0,
@@ -362,20 +467,24 @@ export function BuatPenyesuaianView() {
     }
   };
 
-  const flash = (state: "ok" | "err") => {
-    setScanFlash(state);
-    playScanFeedback(state === "ok" ? "ok" : "error");
-    setTimeout(() => setScanFlash(null), 350);
-  };
-
-  const updateLine = (itemId: string, patch: Partial<LineDraft>) =>
+  const updateLine = (itemId: string, patch: Partial<LineDraft>) => {
     setLines((prev) =>
       prev.map((l) => (l.itemId === itemId ? { ...l, ...patch } : l)),
     );
-  const removeLine = (itemId: string) =>
-    setLines((prev) => prev.filter((l) => l.itemId !== itemId));
+  };
 
-  const handleScan = async () => {
+  const removeLine = (itemId: string) => {
+    setLines((prev) => prev.filter((l) => l.itemId !== itemId));
+  };
+
+  const flash = (type: "ok" | "err") => {
+    setScanFlash(type);
+    playScanFeedback(type === "ok" ? "ok" : "error");
+    setTimeout(() => setScanFlash(null), 350);
+  };
+
+  const handleScanSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     const q = scanCode.trim();
     if (!q || scanning) return;
 
@@ -417,7 +526,7 @@ export function BuatPenyesuaianView() {
         },
       ]);
       flash("ok");
-    } catch (err) {
+    } catch {
       flash("err");
     } finally {
       setScanning(false);
@@ -436,37 +545,85 @@ export function BuatPenyesuaianView() {
     lines.length > 0 &&
     validLines.length === lines.length;
 
+  const isSaving = createMut.isPending || updateMut.isPending;
+
   const handleSubmit = () => {
-    if (!canSubmit) return;
-    createMut.mutate(
-      {
-        transaction_date: transactionDate,
-        location_id: locationId,
-        adjustment_no:
-          adjustmentNo.trim() === "" || adjustmentNo.trim() === "[auto]"
-            ? undefined
-            : adjustmentNo.trim(),
-        notes: notes.trim() || undefined,
-        created_by: createdBy.trim(),
-        items: lines.map((l) => ({
-          item_id: l.itemId,
-          bin_id: l.binId || undefined,
-          actual_qty: l.binOnHand + Number(l.delta),
-          unit_cost: l.unitCost ? Number(l.unitCost) : undefined,
-          notes: l.notes.trim() || undefined,
-        })),
-      },
-      {
+    if (!canSubmit || isSaving) return;
+
+    const payload = {
+      transaction_date: transactionDate,
+      location_id: locationId,
+      adjustment_no:
+        adjustmentNo.trim() === "" || adjustmentNo.trim() === "[auto]"
+          ? undefined
+          : adjustmentNo.trim(),
+      notes: notes.trim() || undefined,
+      created_by: createdBy.trim(),
+      items: lines.map((l) => ({
+        item_id: l.itemId,
+        bin_id: l.binId || undefined,
+        actual_qty: l.binOnHand + Number(l.delta),
+        unit_cost: l.unitCost ? Number(l.unitCost) : undefined,
+        notes: l.notes.trim() || undefined,
+      })),
+    };
+
+    if (isEdit && id) {
+      updateMut.mutate(
+        { id, data: payload },
+        {
+          onSuccess: () =>
+            router.push(`/dashboard/transaksi-stok/penyesuaian/${id}`),
+        },
+      );
+    } else {
+      createMut.mutate(payload, {
         onSuccess: () => router.push(LIST_HREF),
-      },
-    );
+      });
+    }
   };
+
+  if (isEdit && (isLoadingDetail || isLoadingItems)) {
+    return (
+      <div className="flex flex-col gap-6">
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-48 w-full" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    );
+  }
+
+  const backHref = isEdit
+    ? `/dashboard/transaksi-stok/penyesuaian/${id}`
+    : LIST_HREF;
 
   return (
     <div className="flex flex-col gap-6">
       <PageTitle
-        title="Buat Penyesuaian Stok"
-        description="Koreksi jumlah stok riil gudang terhadap data sistem (+ / -)."
+        title={
+          isEdit
+            ? `Ubah Penyesuaian Stok: ${adjustmentNo}`
+            : "Buat Penyesuaian Stok"
+        }
+        description={
+          isEdit
+            ? "Perbarui rincian, tambah/hapus item, atau sesuaikan stok fisik."
+            : "Koreksi jumlah stok riil gudang terhadap data sistem (+ / -)."
+        }
+        backHref={backHref}
+        breadcrumb={[
+          { label: "Persediaan" },
+          { label: "Transaksi Stok", href: LIST_HREF },
+          ...(isEdit
+            ? [
+                {
+                  label: adjustmentNo,
+                  href: `/dashboard/transaksi-stok/penyesuaian/${id}`,
+                },
+                { label: "Ubah" },
+              ]
+            : [{ label: "Buat Penyesuaian" }]),
+        ]}
       />
 
       <LiquidGlass
@@ -502,6 +659,7 @@ export function BuatPenyesuaianView() {
                   setLocationId(v ?? "");
                   setLines([]);
                 }}
+                disabled={isEdit}
                 placeholder="Pilih lokasi…"
                 searchPlaceholder="Cari lokasi…"
                 className="h-9"
@@ -522,28 +680,26 @@ export function BuatPenyesuaianView() {
 
             <div className="flex flex-col gap-1.5">
               <Label className="text-xs text-muted-foreground">
-                Petugas / Pembuat
+                Dibuat Oleh
               </Label>
               <UserSelect
                 value={createdBy}
                 onChange={setCreatedBy}
-                defaultToSelf
-                placeholder="Pilih petugas…"
+                placeholder="Pilih pengguna…"
+                className="h-9"
               />
             </div>
-          </div>
 
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-xs text-muted-foreground">
-              Catatan / Alasan Penyesuaian
-            </Label>
-            <Textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Contoh: Stok opname berkala Q1, penyesuaian barang rusak, dsb."
-              rows={2}
-              className="resize-none text-xs"
-            />
+            <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-4">
+              <Label className="text-xs text-muted-foreground">Catatan</Label>
+              <Textarea
+                rows={2}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Contoh: Stok opname bulanan, barang rusak, dsb."
+                className="resize-none text-xs"
+              />
+            </div>
           </div>
         </div>
       </LiquidGlass>
@@ -554,127 +710,135 @@ export function BuatPenyesuaianView() {
         className="bg-white/40 dark:bg-white/[0.06]"
       >
         <div className="flex flex-col gap-4 px-5 py-5">
-          <Label className="text-sm font-medium">
-            Item Koreksi Stok <span className="text-destructive">*</span>
-          </Label>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold">Daftar Item Penyesuaian</p>
+              <p className="text-xs text-muted-foreground">
+                {lines.length} item dipilih • Masukkan selisih (+ / -) untuk
+                setiap rak
+              </p>
+            </div>
 
-          <div className="flex flex-col gap-1.5">
-            <div className="relative">
-              {scanning ? (
-                <Loader2Icon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 animate-spin text-primary" />
-              ) : (
-                <ScanBarcodeIcon
-                  className={cn(
-                    "pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 transition-colors",
-                    scanFlash === "ok"
-                      ? "text-success"
-                      : scanFlash === "err"
-                        ? "text-destructive"
-                        : "text-muted-foreground",
-                  )}
-                />
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPickerOpen(true)}
+                disabled={!locationId}
+                className="gap-1.5"
+              >
+                <PlusIcon className="size-4" /> Tambah Item
+              </Button>
+            </div>
+          </div>
+
+          <form onSubmit={handleScanSubmit} className="flex gap-2">
+            <div
+              className={cn(
+                "relative flex-1 rounded-md transition-all duration-300",
+                scanFlash === "ok" &&
+                  "ring-2 ring-emerald-500 bg-emerald-500/10",
+                scanFlash === "err" && "ring-2 ring-rose-500 bg-rose-500/10",
               )}
+            >
+              <ScanBarcodeIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
               <Input
                 ref={scanRef}
                 value={scanCode}
                 onChange={(e) => setScanCode(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleScan();
-                  }
-                }}
                 placeholder={
                   locationId
-                    ? "Scan / ketik SKU lalu Enter…"
-                    : "Pilih lokasi dulu untuk mulai scan…"
+                    ? "Scan barcode / SKU lalu Enter…"
+                    : "Pilih lokasi gudang terlebih dahulu…"
                 }
                 disabled={!locationId || scanning}
-                className={cn(
-                  "h-10 pl-9 text-base transition-colors",
-                  scanFlash === "ok" && "border-success ring-2 ring-success/30",
-                  scanFlash === "err" &&
-                    "border-destructive ring-2 ring-destructive/30",
-                )}
-                autoComplete="off"
+                className="h-10 pl-9 font-mono text-sm"
               />
             </div>
-            <p className="text-xs text-muted-foreground">
-              SKU exact match langsung tambah + rak utama auto-terisi. Rak bisa
-              di-scan lewat kolom Rak.
-            </p>
-          </div>
+            <Button
+              type="submit"
+              variant="outline"
+              disabled={!locationId || !scanCode.trim() || scanning}
+            >
+              {scanning ? (
+                <Loader2Icon className="size-4 animate-spin" />
+              ) : (
+                "Scan"
+              )}
+            </Button>
+          </form>
 
-          <Table containerClassName="rounded-xl border border-border/60">
-            <TableHeader className="bg-muted/40">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableHead className="min-w-[200px]">PRODUK</TableHead>
-                <TableHead className="min-w-[180px]">KODE RAK</TableHead>
-                <TableHead className="w-24 text-right">+/-</TableHead>
-                <TableHead className="w-24 text-right">ON HAND</TableHead>
-                <TableHead className="w-24 text-right">QTY AKHIR</TableHead>
-                <TableHead className="min-w-[180px]">KETERANGAN</TableHead>
-                <TableHead className="w-10" />
+                <TableHead className="w-12 text-center">#</TableHead>
+                <TableHead className="min-w-[220px]">Produk / SKU</TableHead>
+                <TableHead className="min-w-[180px]">Rak (Bin)</TableHead>
+                <TableHead className="w-32 text-right">Selisih (+ / -)</TableHead>
+                <TableHead className="w-24 text-right">Stok Sistem</TableHead>
+                <TableHead className="w-24 text-right">Stok Fisik</TableHead>
+                <TableHead className="min-w-[180px]">Catatan Baris</TableHead>
+                <TableHead className="w-12 text-center"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {lines.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={7}
-                    className="h-32 text-center text-muted-foreground"
+                    colSpan={8}
+                    className="py-12 text-center text-muted-foreground"
                   >
-                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                      <PackageSearchIcon className="size-7 opacity-40" />
-                      <p className="text-sm">
-                        Belum ada item. Scan SKU atau klik Tambah Item.
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <PackageSearchIcon className="size-8 text-muted-foreground/50" />
+                      <p className="text-sm">Belum ada item yang ditambahkan</p>
+                      <p className="text-xs">
+                        Gunakan tombol <strong>+ Tambah Item</strong> atau scan
+                        barcode produk untuk mulai menyesuaikan stok.
                       </p>
                     </div>
                   </TableCell>
                 </TableRow>
               ) : (
-                lines.map((l) => {
-                  const deltaNum =
-                    l.delta === "" || Number.isNaN(Number(l.delta))
-                      ? 0
-                      : Number(l.delta);
-                  const qtyAkhir = l.binOnHand + deltaNum;
+                lines.map((l, index) => {
+                  const d = Number(l.delta);
+                  const isInvalid =
+                    l.delta !== "" && (Number.isNaN(d) || d === 0);
+                  const qtyAkhir =
+                    l.delta === "" || Number.isNaN(d) ? "—" : l.binOnHand + d;
 
                   return (
-                    <TableRow key={l.itemId} className="bg-background/50">
-                      <TableCell className="px-3 py-2.5">
-                        <div className="flex max-w-[260px] items-center gap-3">
+                    <TableRow key={l.itemId}>
+                      <TableCell className="text-center font-mono text-xs text-muted-foreground align-top pt-3.5">
+                        {index + 1}
+                      </TableCell>
+
+                      <TableCell className="align-top py-2.5">
+                        <div className="flex items-center gap-3">
                           {l.thumbnail ? (
                             <Image
-                              unoptimized
-                              width={400}
-                              height={400}
                               src={l.thumbnail}
                               alt={l.name}
-                              className="h-11 w-11 shrink-0 rounded-xl border border-border object-cover"
+                              width={40}
+                              height={40}
+                              className="size-10 rounded-lg object-cover border border-border/40 shrink-0"
                             />
                           ) : (
-                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-muted">
-                              <PackageSearchIcon className="size-5 text-muted-foreground/40" />
+                            <div className="size-10 rounded-lg bg-muted/50 border border-border/40 shrink-0 flex items-center justify-center text-xs font-mono text-muted-foreground">
+                              SKU
                             </div>
                           )}
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-medium">
+                          <div className="flex flex-col min-w-0">
+                            <span className="font-medium text-sm truncate max-w-[220px]">
                               {l.name}
-                            </p>
-                            {l.variantLabel && (
-                              <p className="truncate text-xs text-muted-foreground">
-                                {l.variantLabel}
-                              </p>
-                            )}
-                            <p className="truncate font-mono text-2xs text-muted-foreground">
+                            </span>
+                            <span className="font-mono text-xs text-muted-foreground">
                               {l.sku}
-                            </p>
+                            </span>
                           </div>
                         </div>
                       </TableCell>
 
-                      <TableCell className="px-3 py-2.5">
+                      <TableCell className="align-top py-2.5">
                         <AdjustmentBinCombobox
                           locationId={locationId}
                           availableBins={l.availableBins}
@@ -693,48 +857,49 @@ export function BuatPenyesuaianView() {
                                   : l.unitCost,
                             });
                           }}
-                          disabled={!locationId}
                         />
                       </TableCell>
 
-                      <TableCell className="px-3 py-2.5 text-right align-top">
+                      <TableCell className="align-top py-2.5 text-right">
                         <Input
                           type="number"
                           value={l.delta}
                           onChange={(e) =>
                             updateLine(l.itemId, { delta: e.target.value })
                           }
-                          placeholder="0"
-                          className="h-9 w-20 text-right"
+                          placeholder="+/-"
+                          className={cn(
+                            "h-9 w-24 text-right font-mono text-xs",
+                            isInvalid && "border-destructive focus-visible:ring-destructive",
+                          )}
                         />
                       </TableCell>
 
-                      <TableCell className="px-3 py-2.5 text-right font-mono tabular-nums text-muted-foreground align-top">
+                      <TableCell className="align-top py-2.5 text-right font-mono text-xs text-muted-foreground pt-3.5">
                         {l.binOnHand}
                       </TableCell>
 
-                      <TableCell className="px-3 py-2.5 text-right font-mono tabular-nums font-semibold align-top">
+                      <TableCell className="align-top py-2.5 text-right font-mono text-xs font-semibold pt-3.5">
                         {qtyAkhir}
                       </TableCell>
 
-                      <TableCell className="px-3 py-2.5 align-top">
+                      <TableCell className="align-top py-2.5">
                         <Input
                           value={l.notes}
                           onChange={(e) =>
                             updateLine(l.itemId, { notes: e.target.value })
                           }
-                          placeholder="Alasan"
+                          placeholder="Alasan selisih…"
                           className="h-9 text-xs"
                         />
                       </TableCell>
 
-                      <TableCell className="px-3 py-2.5 text-center align-top">
+                      <TableCell className="align-top py-2.5 text-center">
                         <Button
-                          type="button"
                           variant="ghost"
-                          size="icon-sm"
+                          size="icon"
                           onClick={() => removeLine(l.itemId)}
-                          className="text-muted-foreground hover:text-destructive"
+                          className="size-8 text-muted-foreground hover:text-destructive"
                         >
                           <Trash2Icon className="size-4" />
                         </Button>
@@ -746,32 +911,29 @@ export function BuatPenyesuaianView() {
             </TableBody>
           </Table>
 
-          <div className="flex items-center justify-between">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPickerOpen(true)}
-              disabled={!locationId}
-              className="gap-1.5"
-            >
-              <PlusIcon className="size-4" /> Tambah Item
-            </Button>
-          </div>
+          {lines.length > 0 && (
+            <div className="flex items-center justify-between pt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPickerOpen(true)}
+                disabled={!locationId}
+                className="gap-1.5"
+              >
+                <PlusIcon className="size-4" /> Tambah Item Lainnya
+              </Button>
+            </div>
+          )}
         </div>
       </LiquidGlass>
 
       <FormFooter>
-        <Button variant="outline" onClick={() => router.push(LIST_HREF)}>
+        <Button variant="outline" onClick={() => router.push(backHref)}>
           Batal
         </Button>
-        <Button
-          onClick={handleSubmit}
-          disabled={!canSubmit || createMut.isPending}
-        >
-          {createMut.isPending && (
-            <Loader2Icon className="mr-2 size-4 animate-spin" />
-          )}
-          Simpan
+        <Button onClick={handleSubmit} disabled={!canSubmit || isSaving}>
+          {isSaving && <Loader2Icon className="mr-2 size-4 animate-spin" />}
+          {isEdit ? "Simpan Perubahan" : "Simpan Penyesuaian"}
         </Button>
       </FormFooter>
 
@@ -789,4 +951,8 @@ export function BuatPenyesuaianView() {
       />
     </div>
   );
+}
+
+export function BuatPenyesuaianView() {
+  return <PenyesuaianFormPage mode="create" />;
 }

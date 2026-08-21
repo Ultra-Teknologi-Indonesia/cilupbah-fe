@@ -6,6 +6,7 @@ export interface StockAdjustmentItem {
   system_qty: number;
   actual_qty: number;
   difference_qty: number;
+  unit_cost?: number | string | null;
   notes: string | null;
   product?: {
     id: string;

@@ -62,6 +62,14 @@ export const StockAdjustmentService = {
     return res.data;
   },
 
+  update: async (id: string, data: StockAdjustmentFormData) => {
+    const res = await fetchClient<ApiResponse<StockAdjustment>>(`${BASE}/${id}`, {
+      method: "PUT",
+      data,
+    });
+    return res.data;
+  },
+
   delete: async (id: string) => {
     await fetchClient(`${BASE}/${id}`, { method: "DELETE" });
   },
