@@ -132,11 +132,11 @@ export function DeleteOrderDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <TriangleAlertIcon className="size-4 text-destructive" />
-            {isBulk ? `Hapus ${orders.length} Pesanan` : "Hapus Pengambilan"}
+            {isBulk ? `Hapus ${orders.length} Pesanan` : "Hapus Pesanan dari Proses"}
           </DialogTitle>
           <DialogDescription>
-            Pilih alasan pesanan dihapus dari picking. Pesanan akan dipindah ke
-            Gagal Picking dan stok yang sudah di-pick dikembalikan ke rak asal.
+            Pilih alasan pesanan dihapus dari alur fulfillment. Pesanan akan
+            dikembalikan ke tahap sebelumnya sesuai proses saat ini.
           </DialogDescription>
         </DialogHeader>
 
@@ -149,9 +149,9 @@ export function DeleteOrderDialog({
           <div className="mt-2 text-xs text-muted-foreground">
             {isBulk ? "Semua pesanan" : "Pesanan"} akan{" "}
             <span className="font-semibold text-foreground">
-              masuk Gagal Picking
+              dikembalikan ke tahap sebelumnya
             </span>{" "}
-            & tidak lanjut ke packing.
+            dari alur proses fulfillment.
           </div>
         </div>
 
