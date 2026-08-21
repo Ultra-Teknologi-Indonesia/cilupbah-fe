@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   SimplePagination,
-  GRID_PAGE_SIZES,
+  TABLE_PAGE_SIZES,
 } from "@/components/ui/simple-pagination";
 import { OrderCard } from "./order-card";
 import type { Order, OrderTab, SubFilter } from "@/types/pesanan/order";
@@ -190,7 +190,7 @@ export function OrderCardList({
         onPageChange={onPageChange}
         perPage={perPage}
         onPerPageChange={onPerPageChange}
-        pageSizeOptions={GRID_PAGE_SIZES}
+        pageSizeOptions={TABLE_PAGE_SIZES}
         isFetching={isFetching}
         label="pesanan"
         total={total}

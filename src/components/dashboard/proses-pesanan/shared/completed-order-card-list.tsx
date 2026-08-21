@@ -6,7 +6,7 @@ import { PackageCheckIcon, RefreshCwIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   SimplePagination,
-  GRID_PAGE_SIZES,
+  TABLE_PAGE_SIZES,
 } from "@/components/ui/simple-pagination";
 import {
   FulfillmentFilterBar,
@@ -326,7 +326,7 @@ export function FulfillmentCardList({
             list.setPerPage(s);
             list.resetPage();
           }}
-          pageSizeOptions={GRID_PAGE_SIZES}
+          pageSizeOptions={TABLE_PAGE_SIZES}
           isFetching={isFetching}
           label="pesanan"
           total={meta.total}

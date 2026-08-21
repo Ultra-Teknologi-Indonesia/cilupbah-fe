@@ -17,7 +17,7 @@ import { BulkActionBar } from "@/components/ui/bulk-action-bar";
 import { Button } from "@/components/ui/button";
 import {
   SimplePagination,
-  GRID_PAGE_SIZES,
+  TABLE_PAGE_SIZES,
 } from "@/components/ui/simple-pagination";
 import { OrderTable } from "@/components/dashboard/proses-pesanan/shared/order-table";
 import { AmbilNoResiDialog } from "@/components/dashboard/proses-pesanan/shared/ambil-no-resi-dialog";
@@ -377,7 +377,7 @@ export function ReadyToProcessCardList() {
             list.setPerPage(s);
             list.resetPage();
           }}
-          pageSizeOptions={GRID_PAGE_SIZES}
+          pageSizeOptions={TABLE_PAGE_SIZES}
           isFetching={isFetching}
           label="pesanan"
           total={meta.total}

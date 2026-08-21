@@ -67,7 +67,7 @@ export function PesananView() {
 
   const listSearch = useListState<{ _: string }>(
     { _: "" },
-    { perPage: 12, debounceMs: 350 },
+    { perPage: 20, debounceMs: 350 },
   );
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
