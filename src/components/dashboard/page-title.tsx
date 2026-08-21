@@ -31,24 +31,27 @@ interface PageTitleProps {
 }
 
 let appNavigated = false;
-let previousPathname = "";
 
 if (typeof window !== "undefined") {
   const originalPushState = window.history.pushState;
   window.history.pushState = function (...args) {
     appNavigated = true;
-    previousPathname = window.location.pathname;
     return originalPushState.apply(window.history, args);
   };
-
-  window.addEventListener('popstate', () => {
-    appNavigated = false;
-  });
 }
 
-function canGoBackTo(targetPathname: string): boolean {
+function canGoBack(): boolean {
   if (typeof window === "undefined") return false;
-  return appNavigated && window.history.length > 1 && previousPathname === targetPathname;
+  if (appNavigated && window.history.length > 1) return true;
+  if (
+    typeof document !== "undefined" &&
+    document.referrer &&
+    document.referrer.startsWith(window.location.origin) &&
+    window.history.length > 1
+  ) {
+    return true;
+  }
+  return false;
 }
 
 export function PageTitle({
@@ -75,14 +78,9 @@ export function PageTitle({
         return;
       }
 
-      try {
-        const targetUrl = new URL(e.currentTarget.href);
-        if (canGoBackTo(targetUrl.pathname)) {
-          e.preventDefault();
-          router.back();
-        }
-      } catch {
-
+      if (canGoBack()) {
+        e.preventDefault();
+        router.back();
       }
     },
     [router],
@@ -117,7 +115,7 @@ export function PageTitle({
                       <BreadcrumbItem>
                         {item.href && !isLast ? (
                           <BreadcrumbLink asChild>
-                            <Link href={item.href} onClick={onBackClick}>
+                            <Link href={item.href}>
                               {item.label}
                             </Link>
                           </BreadcrumbLink>
