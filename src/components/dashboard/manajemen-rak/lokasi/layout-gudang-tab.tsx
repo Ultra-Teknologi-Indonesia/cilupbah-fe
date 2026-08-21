@@ -15,6 +15,10 @@ import {
   SparklesIcon,
   UploadIcon,
   DownloadIcon,
+  BoxesIcon,
+  PlusIcon,
+  XIcon,
+  ChevronDownIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -32,6 +36,12 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { SimplePagination } from "@/components/ui/simple-pagination";
 import {
   Tooltip,
@@ -74,6 +84,7 @@ import {
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useEligibleSkusInfinite } from "@/hooks/manajemen-rak/use-eligible-skus";
+import { useAssignBinSku } from "@/hooks/manajemen-rak/use-assign-bin-sku";
 import {
   useDownloadBinImportTemplate,
   useImportBins,
@@ -775,70 +786,309 @@ function SkuActions({
   );
 }
 
+function AddSkuToBinButton({
+  locationId,
+  binId,
+  binCode,
+  stagedVariantIds,
+  disabled,
+  onAssign,
+}: {
+  locationId: string;
+  binId: string;
+  binCode: string;
+  stagedVariantIds: Set<string>;
+  disabled?: boolean;
+  onAssign: (sku: PendingPutawaySku) => void;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const [rawQuery, setRawQuery] = React.useState("");
+  const [query, setQuery] = React.useState("");
+
+  React.useEffect(() => {
+    const t = setTimeout(() => setQuery(rawQuery), DEBOUNCE_MS);
+    return () => clearTimeout(t);
+  }, [rawQuery]);
+
+  const { data, isFetching, isFetchingNextPage, hasNextPage, fetchNextPage } =
+    useEligibleSkusInfinite(locationId, binId, query, open);
+
+  const pendingSkus = React.useMemo(
+    () => data?.pages.flatMap((p) => p.data) ?? [],
+    [data]
+  );
+
+  const options: ComboboxOption[] = React.useMemo(() => {
+    return pendingSkus
+      .filter((s) => !stagedVariantIds.has(s.variantId))
+      .map((s) => ({
+        value: s.variantId,
+        label: s.name,
+        hint: s.sku,
+        badgeLabel: s.sku,
+        imageUrl: s.thumbnail ?? undefined,
+      }));
+  }, [pendingSkus, stagedVariantIds]);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          size="xs"
+          disabled={disabled}
+          className="h-6 px-2 text-2xs font-semibold gap-1 border-dashed border-primary/40 text-primary hover:border-primary hover:bg-primary/5 hover:text-primary transition-all rounded-lg shadow-2xs cursor-pointer"
+        >
+          <PlusIcon className="size-3" />
+          <span>Tambah SKU</span>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        className="w-[320px] p-3 shadow-2xl rounded-2xl border bg-popover space-y-2.5 z-50"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+            <PlusIcon className="size-3.5 text-primary" />
+            <span>Tambah SKU ke Rak {binCode}</span>
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-xs"
+            onClick={() => setOpen(false)}
+            className="size-5 rounded-md text-muted-foreground hover:text-foreground"
+          >
+            <XIcon className="size-3" />
+          </Button>
+        </div>
+        <Combobox
+          options={options}
+          value={null}
+          placeholder="Cari SKU / nama produk..."
+          searchPlaceholder="Ketik untuk mencari..."
+          emptyText={isFetching && !isFetchingNextPage ? "Memuat data SKU..." : "Tidak ada SKU yang cocok"}
+          onChange={(val) => {
+            if (val) {
+              const selected = pendingSkus.find((s) => s.variantId === val);
+              if (selected) {
+                onAssign(selected);
+                setOpen(false);
+              }
+            }
+          }}
+          onQueryChange={setRawQuery}
+          loading={isFetching && !isFetchingNextPage}
+          onLoadMore={fetchNextPage}
+          hasMore={hasNextPage}
+          loadingMore={isFetchingNextPage}
+          wrap
+        />
+        <p className="text-2xs text-muted-foreground leading-tight">
+          Pilih produk/SKU untuk ditempatkan ke rak multi-SKU ini.
+        </p>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 function IsiRakCell({
   skus,
   actions,
+  allowsMultiSku,
+  binId,
+  binCode,
+  locationId,
+  stagedVariantIds,
+  disabled,
+  onAssignSku,
 }: {
   skus?: BinSkuEntry[];
   actions?: IsiRakActions;
+  allowsMultiSku?: boolean;
+  binId?: string;
+  binCode?: string;
+  locationId?: string;
+  stagedVariantIds?: Set<string>;
+  disabled?: boolean;
+  onAssignSku?: (sku: PendingPutawaySku) => void;
 }) {
+  const [popoverOpen, setPopoverOpen] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState("");
+
   if (!skus || skus.length === 0) {
-    return <span className="text-muted-foreground">—</span>;
+    return <span className="text-muted-foreground text-xs">—</span>;
   }
 
-  if (actions) {
-    return (
-      <div className="flex flex-col gap-1.5">
-        {skus.map((s) => (
-          <div
-            key={s.variantId}
-            className="flex items-center justify-between gap-2"
-          >
-            <div className="flex min-w-0 flex-col leading-tight">
-              <span
-                className="truncate text-sm font-medium max-w-[240px]"
-                title={s.name}
-              >
-                {s.name}
-              </span>
-              <CopyableSku sku={s.sku} />
-            </div>
-            <SkuActions sku={s} actions={actions} />
-          </div>
-        ))}
-      </div>
+  const filteredSkus = React.useMemo(() => {
+    if (!searchQuery.trim()) return skus;
+    const q = searchQuery.toLowerCase();
+    return skus.filter(
+      (s) =>
+        s.sku.toLowerCase().includes(q) ||
+        s.name.toLowerCase().includes(q)
     );
-  }
+  }, [skus, searchQuery]);
 
-  const [first, ...rest] = skus;
+  const VISIBLE_LIMIT = 2;
+  const visibleSkus = skus.slice(0, VISIBLE_LIMIT);
+  const hasMore = skus.length > VISIBLE_LIMIT;
+  const remainingCount = skus.length - VISIBLE_LIMIT;
 
   return (
-    <div className="flex flex-col leading-tight">
-      <span
-        className="truncate text-sm font-medium max-w-[240px]"
-        title={first.name}
-      >
-        {first.name}
-      </span>
-      <CopyableSku sku={first.sku} />
-      {rest.length > 0 && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span className="mt-0.5 text-xs text-muted-foreground cursor-help">
-              +{rest.length} SKU lain
+    <div className="flex flex-col gap-1.5">
+      {visibleSkus.map((s) => (
+        <div
+          key={s.variantId}
+          className="flex items-center justify-between gap-2 rounded-xl bg-muted/20 hover:bg-muted/40 transition-colors px-2 py-1 border border-border/40"
+        >
+          <div className="flex min-w-0 flex-col leading-tight">
+            <span
+              className="truncate text-xs font-medium text-foreground max-w-[200px]"
+              title={s.name}
+            >
+              {s.name}
             </span>
-          </TooltipTrigger>
-          <TooltipContent>
-            <div className="flex flex-col gap-1">
-              {rest.map((r) => (
-                <span key={r.variantId} className="text-xs">
-                  {r.name} ({r.sku})
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <CopyableSku sku={s.sku} />
+              {s.onHand > 0 && (
+                <span className="text-2xs text-muted-foreground font-medium">
+                  • {s.onHand} pcs
                 </span>
-              ))}
+              )}
             </div>
-          </TooltipContent>
-        </Tooltip>
-      )}
+          </div>
+          {actions && <SkuActions sku={s} actions={actions} />}
+        </div>
+      ))}
+
+      <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
+        {hasMore && (
+          <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                className="inline-flex items-center gap-1 px-2 py-0.5 text-2xs font-semibold rounded-lg bg-primary/10 text-primary hover:bg-primary/20 border border-primary/25 transition-all shadow-2xs cursor-pointer group"
+              >
+                <BoxesIcon className="size-3 transition-transform group-hover:scale-110" />
+                <span>+{remainingCount} SKU Lainnya</span>
+                <ChevronDownIcon className="size-2.5 opacity-70" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent
+              align="start"
+              className="w-[380px] p-0 shadow-2xl rounded-2xl border bg-popover z-50 overflow-hidden"
+            >
+              <div className="flex items-center justify-between border-b px-3.5 py-2.5 bg-muted/40">
+                <div className="flex items-center gap-1.5">
+                  <BoxesIcon className="size-4 text-primary" />
+                  <span className="text-xs font-bold text-foreground">
+                    Semua SKU di Rak {binCode || ""}
+                  </span>
+                </div>
+                <Badge variant="secondary" className="text-2xs px-2 py-0 font-bold">
+                  {skus.length} Total SKU
+                </Badge>
+              </div>
+
+              <div className="p-2.5 border-b bg-background">
+                <div className="relative">
+                  <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+                  <Input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Cari SKU atau nama produk..."
+                    className="h-7.5 pl-8 text-xs rounded-lg"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery("")}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      <XIcon className="size-3" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <ScrollArea className="max-h-[280px] p-2.5">
+                {filteredSkus.length === 0 ? (
+                  <div className="py-6 text-center text-xs text-muted-foreground">
+                    Tidak ada SKU yang cocok dengan pencarian
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-1.5">
+                    {filteredSkus.map((s) => (
+                      <div
+                        key={s.variantId}
+                        className="flex items-center justify-between gap-2 p-2 rounded-xl border border-border/50 bg-background/80 hover:bg-muted/40 transition-colors"
+                      >
+                        <div className="flex min-w-0 flex-col leading-tight">
+                          <span
+                            className="truncate text-xs font-medium text-foreground max-w-[210px]"
+                            title={s.name}
+                          >
+                            {s.name}
+                          </span>
+                          <div className="flex items-center gap-1.5 mt-1">
+                            <CopyableSku sku={s.sku} />
+                            {s.onHand > 0 && (
+                              <Badge
+                                variant="outline"
+                                className="text-2xs px-1.5 py-0 h-4 font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/40"
+                              >
+                                Stok: {s.onHand}
+                              </Badge>
+                            )}
+                            {s.reserved > 0 && (
+                              <Badge
+                                variant="outline"
+                                className="text-2xs px-1.5 py-0 h-4 font-semibold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/40"
+                              >
+                                Order: {s.reserved}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                        {actions && <SkuActions sku={s} actions={actions} />}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </ScrollArea>
+
+              {allowsMultiSku && locationId && binId && onAssignSku && (
+                <div className="p-2 border-t bg-muted/20 flex items-center justify-between">
+                  <span className="text-2xs text-muted-foreground">
+                    Rak ini mendukung multi-SKU
+                  </span>
+                  <AddSkuToBinButton
+                    locationId={locationId}
+                    binId={binId}
+                    binCode={binCode || ""}
+                    stagedVariantIds={stagedVariantIds ?? new Set()}
+                    disabled={disabled}
+                    onAssign={onAssignSku}
+                  />
+                </div>
+              )}
+            </PopoverContent>
+          </Popover>
+        )}
+
+        {allowsMultiSku && locationId && binId && onAssignSku && (
+          <AddSkuToBinButton
+            locationId={locationId}
+            binId={binId}
+            binCode={binCode || ""}
+            stagedVariantIds={stagedVariantIds ?? new Set()}
+            disabled={disabled}
+            onAssign={onAssignSku}
+          />
+        )}
+      </div>
     </div>
   );
 }
@@ -1236,6 +1486,31 @@ export function LayoutGudangTab({
   const stagedVariantIds = React.useMemo(
     () => new Set(Array.from(assignMap.values()).map((s) => s.variantId)),
     [assignMap],
+  );
+
+  const assignBinSku = useAssignBinSku(locationId);
+
+  const handleDirectOrStagedAssign = React.useCallback(
+    async (binId: string, binCode: string, sku: PendingPutawaySku) => {
+      if (serverMode && locationId) {
+        try {
+          await assignBinSku.mutateAsync({ binId, itemId: sku.variantId });
+          toast.success(
+            `SKU "${sku.sku}" berhasil ditambahkan ke rak ${binCode}.`,
+          );
+        } catch (err: any) {
+          toast.error(
+            err?.response?.data?.message ||
+              err?.message ||
+              "Gagal menambahkan SKU ke rak.",
+          );
+        }
+      } else {
+        handleAssignChange(binId, sku);
+        toast.success(`SKU "${sku.sku}" ditambahkan ke rak.`);
+      }
+    },
+    [serverMode, locationId, assignBinSku],
   );
 
   const handleAssignChange = (binId: string, sku: PendingPutawaySku | null) => {
@@ -1946,6 +2221,22 @@ export function LayoutGudangTab({
                         {b.skus && b.skus.length > 0 ? (
                           <IsiRakCell
                             skus={b.skus}
+                            allowsMultiSku={b.allowsMultiSku}
+                            binId={b.binId}
+                            binCode={b.binFinalCode}
+                            locationId={locationId}
+                            stagedVariantIds={stagedVariantIds}
+                            disabled={disabled || isPending || assignBinSku.isPending}
+                            onAssignSku={
+                              isSmallWarehouse && b.binId && !isPending && !b.isInbound
+                                ? (sku) =>
+                                    handleDirectOrStagedAssign(
+                                      b.binId!,
+                                      b.binFinalCode,
+                                      sku,
+                                    )
+                                : undefined
+                            }
                             actions={
                               isSmallWarehouse &&
                               b.binId &&
@@ -1964,7 +2255,7 @@ export function LayoutGudangTab({
                                         binCode: b.binFinalCode,
                                         sku,
                                       }),
-                                    disabled,
+                                    disabled: disabled || assignBinSku.isPending,
                                   }
                                 : undefined
                             }
@@ -1975,13 +2266,31 @@ export function LayoutGudangTab({
                             binId={b.binId}
                             staged={assignMap.get(b.binId) ?? null}
                             stagedVariantIds={stagedVariantIds}
-                            disabled={disabled}
+                            disabled={disabled || assignBinSku.isPending}
                             onChange={(sku) =>
                               handleAssignChange(b.binId!, sku)
                             }
                           />
                         ) : (
-                          <IsiRakCell skus={b.skus} />
+                          <IsiRakCell
+                            skus={b.skus}
+                            allowsMultiSku={b.allowsMultiSku}
+                            binId={b.binId}
+                            binCode={b.binFinalCode}
+                            locationId={locationId}
+                            stagedVariantIds={stagedVariantIds}
+                            disabled={disabled || assignBinSku.isPending}
+                            onAssignSku={
+                              isSmallWarehouse && b.binId && !isPending && !b.isInbound
+                                ? (sku) =>
+                                    handleDirectOrStagedAssign(
+                                      b.binId!,
+                                      b.binFinalCode,
+                                      sku,
+                                    )
+                                : undefined
+                            }
+                          />
                         )}
                       </TableCell>
                       <TableCell className="px-3 py-2.5 text-center">
