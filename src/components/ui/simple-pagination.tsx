@@ -84,7 +84,6 @@ export function SimplePagination({
               value={`${perPage}`}
               onValueChange={(v) => {
                 onPerPageChange!(Number(v));
-                handlePageChange(1);
               }}
             >
               <SelectTrigger
