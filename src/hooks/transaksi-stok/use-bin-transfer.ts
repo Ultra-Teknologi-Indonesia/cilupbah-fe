@@ -148,11 +148,26 @@ export function useBinTransferList(params: BinTransferListParams = {}) {
       const q = new URLSearchParams();
       if (params.perPage) q.set("per_page", String(params.perPage));
       if (params.page) q.set("page", String(params.page));
-      if (params.q) q.set("filter.q", params.q);
-      if (params.status) q.set("filter.status", params.status);
-      if (params.locationId) q.set("filter.location_id", params.locationId);
-      if (params.dateFrom) q.set("filter.date_from", params.dateFrom);
-      if (params.dateTo) q.set("filter.date_to", params.dateTo);
+      if (params.q) {
+        q.set("search", params.q);
+        q.set("filter_q", params.q);
+      }
+      if (params.status) {
+        q.set("status", params.status);
+        q.set("filter_status", params.status);
+      }
+      if (params.locationId) {
+        q.set("location_id", params.locationId);
+        q.set("filter_location_id", params.locationId);
+      }
+      if (params.dateFrom) {
+        q.set("date_from", params.dateFrom);
+        q.set("filter_date_from", params.dateFrom);
+      }
+      if (params.dateTo) {
+        q.set("date_to", params.dateTo);
+        q.set("filter_date_to", params.dateTo);
+      }
       const res = await fetchClient<Paginated<BinTransferListItem>>(
         `/inventory/bin-transfers?${q.toString()}`,
       );
