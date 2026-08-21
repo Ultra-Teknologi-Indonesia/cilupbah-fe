@@ -287,10 +287,10 @@ function FinancialSummary({ order }: { order: Order }) {
 
 const STEPS = [
   { key: "pending", label: "Dibuat" },
-  { key: "reserved", label: "Siap Proses" },
-  { key: "picked", label: "Dipick" },
-  { key: "packed", label: "Dikemas" },
-  { key: "shipped", label: "Dikirim" },
+  { key: "reserved", label: "Pengambilan - Belum Dimulai" },
+  { key: "picked", label: "Pengambilan - Selesai" },
+  { key: "packed", label: "Pengepakan - Selesai" },
+  { key: "shipped", label: "Pengiriman - Sedang Dikirim" },
 ];
 
 const STEP_ACTIONS: Record<string, string[]> = {

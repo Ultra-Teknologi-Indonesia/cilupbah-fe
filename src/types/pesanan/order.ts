@@ -307,22 +307,82 @@ export const STATUS_LABELS: Record<
       "text-orange-700 bg-orange-50 border-orange-300 dark:text-orange-300 dark:bg-orange-500/10 dark:border-orange-500/20",
   },
   reserved: {
-    label: "Siap Proses",
+    label: "Pengambilan - Belum Dimulai",
     className:
       "text-blue-700 bg-blue-50 border-blue-300 dark:text-blue-300 dark:bg-blue-500/10 dark:border-blue-500/20",
   },
+  "ready-to-process": {
+    label: "Pengambilan - Belum Dimulai",
+    className:
+      "text-blue-700 bg-blue-50 border-blue-300 dark:text-blue-300 dark:bg-blue-500/10 dark:border-blue-500/20",
+  },
+  "ready-to-pick": {
+    label: "Pengambilan - Siap Diambil",
+    className:
+      "text-indigo-700 bg-indigo-50 border-indigo-300 dark:text-indigo-300 dark:bg-indigo-500/10 dark:border-indigo-500/20",
+  },
+  "on-picking": {
+    label: "Pengambilan - Sedang Diproses",
+    className:
+      "text-indigo-700 bg-indigo-50 border-indigo-300 dark:text-indigo-300 dark:bg-indigo-500/10 dark:border-indigo-500/20",
+  },
+  "picking-diproses": {
+    label: "Pengambilan - Sedang Diproses",
+    className:
+      "text-indigo-700 bg-indigo-50 border-indigo-300 dark:text-indigo-300 dark:bg-indigo-500/10 dark:border-indigo-500/20",
+  },
   picked: {
-    label: "Dipick",
+    label: "Pengambilan - Selesai",
     className:
       "text-cyan-700 bg-cyan-50 border-cyan-300 dark:text-cyan-300 dark:bg-cyan-500/10 dark:border-cyan-500/20",
   },
+  "finish-pick": {
+    label: "Pengambilan - Selesai",
+    className:
+      "text-cyan-700 bg-cyan-50 border-cyan-300 dark:text-cyan-300 dark:bg-cyan-500/10 dark:border-cyan-500/20",
+  },
+  "on-packing": {
+    label: "Pengepakan - Sedang Diproses",
+    className:
+      "text-purple-700 bg-purple-50 border-purple-300 dark:text-purple-300 dark:bg-purple-500/10 dark:border-purple-500/20",
+  },
+  "packing-diproses": {
+    label: "Pengepakan - Sedang Diproses",
+    className:
+      "text-purple-700 bg-purple-50 border-purple-300 dark:text-purple-300 dark:bg-purple-500/10 dark:border-purple-500/20",
+  },
   packed: {
-    label: "Dikemas - Siap Dikirim",
+    label: "Pengepakan - Selesai",
+    className:
+      "text-purple-700 bg-purple-50 border-purple-300 dark:text-purple-300 dark:bg-purple-500/10 dark:border-purple-500/20",
+  },
+  "finish-pack": {
+    label: "Pengepakan - Selesai",
+    className:
+      "text-purple-700 bg-purple-50 border-purple-300 dark:text-purple-300 dark:bg-purple-500/10 dark:border-purple-500/20",
+  },
+  "ready-to-ship": {
+    label: "Pengiriman - Siap Dikirim",
     className:
       "text-purple-700 bg-purple-50 border-purple-300 dark:text-purple-300 dark:bg-purple-500/10 dark:border-purple-500/20",
   },
   shipped: {
-    label: "Dikirim",
+    label: "Pengiriman - Sedang Dikirim",
+    className:
+      "text-emerald-700 bg-emerald-50 border-emerald-300 dark:text-emerald-300 dark:bg-emerald-500/10 dark:border-emerald-500/20",
+  },
+  "in-transit": {
+    label: "Pengiriman - Sedang Dikirim",
+    className:
+      "text-emerald-700 bg-emerald-50 border-emerald-300 dark:text-emerald-300 dark:bg-emerald-500/10 dark:border-emerald-500/20",
+  },
+  completed: {
+    label: "Selesai",
+    className:
+      "text-emerald-700 bg-emerald-50 border-emerald-300 dark:text-emerald-300 dark:bg-emerald-500/10 dark:border-emerald-500/20",
+  },
+  delivered: {
+    label: "Selesai",
     className:
       "text-emerald-700 bg-emerald-50 border-emerald-300 dark:text-emerald-300 dark:bg-emerald-500/10 dark:border-emerald-500/20",
   },
