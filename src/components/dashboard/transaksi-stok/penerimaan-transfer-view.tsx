@@ -137,11 +137,13 @@ export function PenerimaanTransferView() {
 
   const transferOptions = useMemo(
     () =>
-      (transitData?.data ?? []).map((t) => ({
-        value: t.id,
-        label: t.transfer_number,
-        hint: t.location?.location_name ?? undefined,
-      })),
+      (transitData?.data ?? [])
+        .filter((t) => t.status !== "SELESAI")
+        .map((t) => ({
+          value: t.id,
+          label: t.transfer_number,
+          hint: t.location?.location_name ?? undefined,
+        })),
     [transitData],
   );
 
