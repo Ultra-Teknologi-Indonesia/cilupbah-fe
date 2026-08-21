@@ -43,7 +43,15 @@ export function apiError(err: unknown, fallbackTitle = "Terjadi kesalahan") {
   const validationSummary = extractValidationSummary(body.errors) ?? undefined;
 
   const title = beTitle ?? fallbackTitle;
-  const description = beMessage ?? validationSummary;
+  let description = beMessage ?? validationSummary;
+
+  if (validationSummary && beMessage && validationSummary !== beMessage) {
+    if (beTitle) {
+      description = `${beMessage} — ${validationSummary}`;
+    } else {
+      description = validationSummary;
+    }
+  }
 
   if (description && description !== title) {
     toast.error(title, { description });
