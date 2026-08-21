@@ -46,6 +46,7 @@ import { InventoryStockService } from "@/services/persediaan/inventory.service";
 import { OutboundTransferService } from "@/services/barang-keluar/outbound-transfer.service";
 import { cn } from "@/lib/utils";
 import { playScanFeedback } from "@/lib/scan-feedback";
+import { useAuthStore } from "@/store/use-auth-store";
 
 const LIST_HREF = "/dashboard/barang-keluar?tab=transfer";
 
@@ -91,6 +92,14 @@ function newRowId(): string {
 export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps) {
   const router = useRouter();
   const qc = useQueryClient();
+  const currentUser = useAuthStore((s) => s.user);
+  const isAdminOrOwner = Boolean(
+    currentUser?.roles?.some((r) =>
+      ["owner", "admin", "adm", "administrator"].includes(r.toLowerCase()),
+    ) ||
+      currentUser?.permissions?.includes("edit-transfer-keluar") ||
+      currentUser?.permissions?.includes("edit-barang-keluar"),
+  );
 
   const [transferNo, setTransferNo] = useState("[auto]");
   const [transferDate, setTransferDate] = useState(todayStr);
@@ -465,6 +474,10 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
     if (!id) return;
 
     await OutboundTransferService.updateDraft(id, {
+      transfer_number:
+        transferNo.trim() && transferNo.trim() !== "[auto]"
+          ? transferNo.trim()
+          : undefined,
       destination_location_id: destLocationId,
       notes: notes.trim() || undefined,
     });
@@ -566,7 +579,7 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
                   if (e.target.value.trim() === "") setTransferNo("[auto]");
                 }}
                 placeholder="[auto]"
-                disabled={mode === "edit"}
+                disabled={mode === "edit" && !isAdminOrOwner}
               />
             </div>
             <div className="flex flex-col gap-1.5">
