@@ -93,7 +93,7 @@ function SortableTableHead({
 
   const toggleSort = () => {
     if (isSorted === "desc") {
-      onSortingChange([]); 
+      onSortingChange([]);
     } else if (isSorted === "asc") {
       onSortingChange([{ id, desc: true }]);
     } else {
@@ -270,7 +270,8 @@ function OrderRow({
       <TableCell>
         <StatusBadge
           domain="sales-order"
-          status={order.status}
+          status={order.wms_status || order.status}
+          label={order.status_label}
           className="whitespace-nowrap text-xs font-semibold"
         />
       </TableCell>

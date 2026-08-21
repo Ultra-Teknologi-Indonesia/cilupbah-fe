@@ -1260,7 +1260,8 @@ export function OrderCard({
             </p>
             <StatusBadge
               domain="sales-order"
-              status={order.status}
+              status={order.wms_status || order.status}
+              label={order.status_label}
               className="text-xs font-semibold whitespace-nowrap"
             />
             {order.channel_status && (

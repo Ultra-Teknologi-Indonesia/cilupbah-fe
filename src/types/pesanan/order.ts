@@ -112,6 +112,8 @@ export interface Order {
   customer_name: string;
   transaction_date: string | null;
   status: OrderStatus;
+  status_label?: string | null;
+  wms_status?: string | null;
   status_history?: StatusHistoryEntry[];
   channel_status: string | null;
   channel_status_raw: string | null;

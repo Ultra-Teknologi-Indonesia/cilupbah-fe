@@ -854,7 +854,8 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
             <div className="flex items-center gap-1.5 ml-1">
               <StatusBadge
                 domain="sales-order"
-                status={order.status}
+                status={order.wms_status || order.status}
+                label={order.status_label}
                 className="text-xs font-semibold"
               />
               {order.channel_status && (
