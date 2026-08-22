@@ -197,6 +197,8 @@ export interface RawFulfillmentOrder {
   packer_name?: string | null;
   picklist_id?: string | null;
   picklist_no?: string | null;
+  invoice_id?: string | null;
+  invoice_no?: string | null;
   items?: RawFulfillmentOrderItem[] | null;
 }
 
@@ -251,6 +253,8 @@ export interface FulfillmentOrder {
   packerName: string | null;
   picklistId: string | null;
   picklistNo: string | null;
+  invoiceId?: string | null;
+  invoiceNo?: string | null;
   items: FulfillmentOrderItem[];
 }
 

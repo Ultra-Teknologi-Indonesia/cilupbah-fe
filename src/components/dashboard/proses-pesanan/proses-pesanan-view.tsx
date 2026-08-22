@@ -2,7 +2,29 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { PackageIcon, PlusIcon, ScanBarcodeIcon } from "lucide-react";
+import { PackageIcon, PlusIcon, ScanBarcodeIcon, FileTextIcon } from "lucide-react";
+
+function InvoiceLinkCell({
+  orderId,
+  invoiceNo,
+}: {
+  orderId: string;
+  invoiceNo?: string | null;
+}) {
+  const displayNo = invoiceNo || "Lihat Faktur";
+  return (
+    <Link
+      href={`/dashboard/document-preview/invoice/${orderId}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-1 font-mono text-xs font-medium text-primary hover:underline"
+      title="Buka Faktur Penjualan"
+    >
+      <FileTextIcon className="size-3.5 text-muted-foreground" />
+      <span>{displayNo}</span>
+    </Link>
+  );
+}
 
 import { useUrlTab } from "@/hooks/use-url-tab";
 
@@ -101,6 +123,16 @@ function FulfillmentBoard({ stage }: { stage: FulfillmentStage }) {
               ),
             },
             {
+              key: "invoice_no",
+              header: "No. Faktur",
+              cell: (o) => (
+                <InvoiceLinkCell
+                  orderId={o.id}
+                  invoiceNo={o.invoice_no}
+                />
+              ),
+            },
+            {
               key: "picker",
               header: "Picker",
               cell: (o) => (
@@ -136,6 +168,16 @@ function FulfillmentBoard({ stage }: { stage: FulfillmentStage }) {
                   />
                 ),
               },
+              {
+                key: "invoice_no",
+                header: "No. Faktur",
+                cell: (o) => (
+                  <InvoiceLinkCell
+                    orderId={o.id}
+                    invoiceNo={o.invoice_no}
+                  />
+                ),
+              },
             ]}
           />
         );
@@ -148,6 +190,16 @@ function FulfillmentBoard({ stage }: { stage: FulfillmentStage }) {
           emptyDescription="Pesanan yang sudah selesai dipacking akan muncul di sini."
           filterFields={["courier", "date", "label_printed"]}
           extraColumns={[
+            {
+              key: "invoice_no",
+              header: "No. Faktur",
+              cell: (o) => (
+                <InvoiceLinkCell
+                  orderId={o.id}
+                  invoiceNo={o.invoice_no}
+                />
+              ),
+            },
             {
               key: "packer",
               header: "Packer",

@@ -172,6 +172,8 @@ export interface Order {
   packer_name?: string | null;
   picklist_id?: string | null;
   picklist_no?: string | null;
+  invoice_id?: string | null;
+  invoice_no?: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -147,6 +147,8 @@ function mapOrder(raw: RawFulfillmentOrder): FulfillmentOrder {
     packerName: raw.packer_name ?? null,
     picklistId: raw.picklist_id ?? null,
     picklistNo: raw.picklist_no ?? null,
+    invoiceId: raw.invoice_id ?? null,
+    invoiceNo: raw.invoice_no ?? null,
     items: (raw.items ?? []).map((i) => ({
       id: i.id,
       sku: i.sku,

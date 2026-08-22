@@ -316,12 +316,28 @@ export function PickingProsesView({ id }: { id: string }) {
   const completeDialogOpen =
     !!pl && editable && allResolved && !completeDialogDismissed;
 
+  const redirectToInvoicePreview = () => {
+    const orderIds = Array.from(
+      new Set(items.map((it) => it.orderId).filter(Boolean)),
+    ) as string[];
+
+    if (orderIds.length === 1) {
+      router.push(`/dashboard/document-preview/invoice/${orderIds[0]}`);
+    } else if (orderIds.length > 1) {
+      router.push(
+        `/dashboard/document-preview/invoice-bulk/${orderIds.join(",")}`,
+      );
+    } else {
+      router.push(LIST_HREF);
+    }
+  };
+
   const handleCompletePicking = () => {
     completePicklist.mutate(id, {
       onSuccess: () => {
-        toast.success("Picking selesai.");
+        toast.success("Picking selesai. Membuka preview faktur...");
         setCompleteDialogDismissed(true);
-        router.push(LIST_HREF);
+        redirectToInvoicePreview();
       },
       onError: (e) => apiError(e, "Gagal menyelesaikan picking."),
     });
@@ -464,8 +480,8 @@ export function PickingProsesView({ id }: { id: string }) {
   const handleComplete = () => {
     completePicklist.mutate(id, {
       onSuccess: () => {
-        toast.success("Picking selesai.");
-        router.push(LIST_HREF);
+        toast.success("Picking selesai. Membuka preview faktur...");
+        redirectToInvoicePreview();
       },
       onError: (e) => apiError(e, "Gagal menyelesaikan picking."),
     });
