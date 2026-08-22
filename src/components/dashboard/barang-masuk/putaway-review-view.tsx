@@ -10,7 +10,9 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
   PenLineIcon,
+  HistoryIcon,
 } from "lucide-react";
+import { RiwayatPenempatanDialog } from "./riwayat-penempatan-dialog";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -78,6 +80,7 @@ function InfoField({ label, children }: { label: string; children: React.ReactNo
 
 export function PutawayReviewView({ id }: PutawayReviewViewProps) {
   const { data: putaway, isLoading } = usePutawayDetail(id);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   const allItems = useMemo<PutawayItem[]>(
     () => putaway?.items ?? [],
@@ -138,6 +141,16 @@ export function PutawayReviewView({ id }: PutawayReviewViewProps) {
         actions={
           putaway ? (
             <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setHistoryOpen(true)}
+                className="gap-1.5"
+              >
+                <HistoryIcon className="size-4 text-muted-foreground" />
+                <span>Riwayat</span>
+              </Button>
+
               {putaway.status === "COMPLETED" && (
                 <Button asChild variant="outline" size="sm">
                   <Link
@@ -316,6 +329,12 @@ export function PutawayReviewView({ id }: PutawayReviewViewProps) {
           </LiquidGlass>
         </div>
       )}
+
+      <RiwayatPenempatanDialog
+        putawayId={putaway?.id}
+        open={historyOpen}
+        onOpenChange={setHistoryOpen}
+      />
     </div>
   );
 }

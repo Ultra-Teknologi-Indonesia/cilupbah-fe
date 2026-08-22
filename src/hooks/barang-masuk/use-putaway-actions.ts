@@ -40,6 +40,15 @@ export function usePutawayDetail(id?: string) {
   });
 }
 
+export function usePutawayHistory(id?: string, enabled = true) {
+  return useQuery({
+    queryKey: ["putaway", "history", id],
+    queryFn: () => PutawayService.getHistory(id!),
+    enabled: !!id && enabled,
+    staleTime: STALE,
+  });
+}
+
 export function usePutawayItems(id?: string) {
   return useQuery({
     queryKey: ["putaway", "items", id],

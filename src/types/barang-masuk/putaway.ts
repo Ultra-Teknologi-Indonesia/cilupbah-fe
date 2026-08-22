@@ -97,3 +97,56 @@ export interface PutawayListParams {
   "filter[date_to]"?: string;
   sort?: string;
 }
+
+export interface PutawayActor {
+  id: string | null;
+  name: string;
+  email: string | null;
+}
+
+export interface PutawayLifecycleEvent {
+  type: "CREATED" | "ASSIGNED" | "STARTED" | "COMPLETED";
+  title: string;
+  description: string;
+  actor: PutawayActor | null;
+  target_user?: PutawayActor | null;
+  timestamp: string | null;
+}
+
+export interface PutawayPlacementHistory {
+  id: string;
+  sku: string;
+  product_name: string | null;
+  bin_code: string;
+  qty: number;
+  timestamp: string;
+  actor: PutawayActor | null;
+}
+
+export interface PutawayParticipant {
+  id: string;
+  name: string;
+  email: string | null;
+  status: string;
+  joined_at: string | null;
+  withdrawn_at: string | null;
+}
+
+export interface PutawayHistory {
+  putaway_id: string;
+  putaway_no: string;
+  status: PutawayStatus;
+  summary: {
+    creator: PutawayActor | null;
+    assigned_by: PutawayActor | null;
+    assigned_to: PutawayActor | null;
+    created_at: string | null;
+    started_at: string | null;
+    completed_at: string | null;
+    notes: string | null;
+  };
+  events: PutawayLifecycleEvent[];
+  placements: PutawayPlacementHistory[];
+  participants: PutawayParticipant[];
+}
+

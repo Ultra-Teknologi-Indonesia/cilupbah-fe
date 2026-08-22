@@ -64,6 +64,13 @@ export const PutawayService = {
     return res.data;
   },
 
+  getHistory: async (id: string) => {
+    const res = await fetchClient<ApiResponse<import("@/types/barang-masuk/putaway").PutawayHistory>>(
+      `/putaway/${id}/history`,
+    );
+    return res.data;
+  },
+
   getItems: async (id: string, limit = 50) => {
     const res = await fetchClient<ApiPaginated<PutawayItem>>(
       `/putaway/${id}/items?limit=${limit}`,
