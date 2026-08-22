@@ -1389,14 +1389,7 @@ export function LayoutGudangTab({
   onAssignmentsChange,
 }: LayoutGudangTabProps) {
   const serverMode = !!locationId;
-  const isSmallWarehouse =
-    serverMode &&
-    (isSmallWarehouseProp ??
-      (locationCode === "WH-KECIL" ||
-        locationCode === "O" ||
-        locationCode === "GK" ||
-        locationCode === "WH_KECIL" ||
-        (locationCode ? /kecil/i.test(locationCode) : false)));
+  const isSmallWarehouse = serverMode && Boolean(isSmallWarehouseProp);
 
   const [zoneCode, setZoneCode] = React.useState("");
   const [zoneIsNew, setZoneIsNew] = React.useState(false);

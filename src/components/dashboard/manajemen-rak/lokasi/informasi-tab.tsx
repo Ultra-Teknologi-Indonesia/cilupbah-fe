@@ -339,7 +339,7 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
 
       <Separator />
 
-      <div className="flex flex-wrap gap-6">
+      <div className="flex flex-wrap gap-6 items-start">
         <FormField
           control={form.control}
           name="isWarehouse"
@@ -356,6 +356,7 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="isPos"

@@ -157,6 +157,7 @@ export interface LocationPayload {
   coordinate?: string | null;
   default_warehouse_user?: string | null;
   is_warehouse?: boolean;
+  is_small_warehouse?: boolean;
   is_active?: boolean;
   is_pos?: boolean;
 }
