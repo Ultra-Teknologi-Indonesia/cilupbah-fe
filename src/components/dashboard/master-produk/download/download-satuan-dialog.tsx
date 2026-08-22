@@ -287,7 +287,6 @@ export function DownloadSatuanDialog({
         </DialogHeader>
 
         <div className="grid min-h-0 flex-1 md:grid-cols-[20rem_1fr]">
-
           <div className="flex min-w-0 flex-col gap-4 border-b border-border/60 p-6 md:border-b-0 md:border-r">
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium">Kata kunci</label>
@@ -416,7 +415,8 @@ export function DownloadSatuanDialog({
                   <div className="grid size-12 place-items-center rounded-2xl bg-muted/50">
                     <SearchIcon className="size-6" />
                   </div>
-                  Masukkan kata kunci/SKU, pilih toko (opsional), lalu tekan Cari Produk.
+                  Masukkan kata kunci/SKU, pilih toko (opsional), lalu tekan
+                  Cari Produk.
                 </div>
               ) : items.length === 0 ? (
                 <div className="flex h-full min-h-[20rem] flex-col items-center justify-center gap-2 px-6 text-center text-sm text-muted-foreground">
@@ -476,7 +476,9 @@ export function DownloadSatuanDialog({
                           </div>
                           <p className="truncate font-mono text-xs text-muted-foreground">
                             SKU: {item.sellerSku ?? "—"} ·{" "}
-                            {item.shopName ?? item.channelName ?? item.channelCode}
+                            {item.shopName ??
+                              item.channelName ??
+                              item.channelCode}
                           </p>
                         </div>
                         <Button

@@ -4,8 +4,6 @@ import { useState, useMemo, useCallback, Fragment } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
-  ArrowDownIcon,
-  ArrowUpIcon,
   PackageIcon,
   MapPinIcon,
   BoxIcon,
@@ -276,17 +274,11 @@ function QtyCell({ qty }: { qty: number }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-0.5 font-mono text-sm font-semibold tabular-nums",
+        "font-mono text-sm font-semibold tabular-nums",
         isPositive ? "text-success" : "text-destructive",
       )}
     >
-      {isPositive ? (
-        <ArrowUpIcon className="size-3" />
-      ) : (
-        <ArrowDownIcon className="size-3" />
-      )}
-      {isPositive ? "+" : ""}
-      {qty}
+      {isPositive ? `+${qty}` : qty}
     </span>
   );
 }
@@ -800,8 +792,11 @@ function BinSection({ itemId }: { itemId: string }) {
   const bins: BinInventory[] = useMemo(() => data?.data ?? [], [data]);
 
   const { data: locData } = useLocations({ perPage: 100 });
+  const searchParams = useSearchParams();
 
-  const [locationId, setLocationId] = useState("");
+  const [locationId, setLocationId] = useState(
+    () => searchParams.get("location_id") ?? "",
+  );
   const [zoneId, setZoneId] = useState("");
   const [floor, setFloor] = useState("");
   const [row, setRow] = useState("");
