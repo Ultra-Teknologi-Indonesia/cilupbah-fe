@@ -48,32 +48,32 @@ function EventIcon({ type }: { type: PutawayLifecycleEvent["type"] }) {
   switch (type) {
     case "CREATED":
       return (
-        <div className="grid size-8 place-items-center rounded-full bg-blue-500/10 text-blue-500 ring-4 ring-card">
-          <CalendarIcon className="size-4" />
+        <div className="grid size-9 place-items-center rounded-full bg-blue-500/15 text-blue-600 dark:text-blue-400 ring-4 ring-card shadow-xs border border-blue-500/30 shrink-0">
+          <CalendarIcon className="size-4.5" />
         </div>
       );
     case "ASSIGNED":
       return (
-        <div className="grid size-8 place-items-center rounded-full bg-amber-500/10 text-amber-500 ring-4 ring-card">
-          <UserIcon className="size-4" />
+        <div className="grid size-9 place-items-center rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 ring-4 ring-card shadow-xs border border-amber-500/30 shrink-0">
+          <UserIcon className="size-4.5" />
         </div>
       );
     case "STARTED":
       return (
-        <div className="grid size-8 place-items-center rounded-full bg-indigo-500/10 text-indigo-500 ring-4 ring-card">
-          <ClockIcon className="size-4" />
+        <div className="grid size-9 place-items-center rounded-full bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 ring-4 ring-card shadow-xs border border-indigo-500/30 shrink-0">
+          <ClockIcon className="size-4.5" />
         </div>
       );
     case "COMPLETED":
       return (
-        <div className="grid size-8 place-items-center rounded-full bg-emerald-500/10 text-emerald-500 ring-4 ring-card">
-          <CheckCircle2Icon className="size-4" />
+        <div className="grid size-9 place-items-center rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 ring-4 ring-card shadow-xs border border-emerald-500/30 shrink-0">
+          <CheckCircle2Icon className="size-4.5" />
         </div>
       );
     default:
       return (
-        <div className="grid size-8 place-items-center rounded-full bg-muted text-muted-foreground ring-4 ring-card">
-          <HistoryIcon className="size-4" />
+        <div className="grid size-9 place-items-center rounded-full bg-muted text-muted-foreground ring-4 ring-card shadow-xs border border-border shrink-0">
+          <HistoryIcon className="size-4.5" />
         </div>
       );
   }
@@ -88,19 +88,28 @@ export function RiwayatPenempatanDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col p-0 gap-0 overflow-hidden rounded-3xl">
-        {/* Dialog Header */}
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-border/60 bg-muted/20">
+      <DialogContent className="w-full sm:max-w-4xl lg:max-w-5xl max-h-[88vh] flex flex-col p-0 gap-0 overflow-hidden rounded-3xl">
+        {/* Dialog Header with pr-16 to avoid overlapping close button */}
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-border/60 bg-muted/20 pr-16">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5">
-              <div className="grid size-9 place-items-center rounded-2xl bg-primary/10 text-primary">
+            <div className="flex items-center gap-3">
+              <div className="grid size-10 place-items-center rounded-2xl bg-primary/10 text-primary shrink-0">
                 <HistoryIcon className="size-5" />
               </div>
               <div>
-                <DialogTitle className="text-base font-semibold text-foreground">
-                  Riwayat & Jejak Audit Penempatan
-                </DialogTitle>
-                <p className="text-xs text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <DialogTitle className="text-base font-semibold text-foreground">
+                    Riwayat & Jejak Audit Penempatan
+                  </DialogTitle>
+                  {history && (
+                    <StatusBadge
+                      domain="putaway"
+                      status={history.status}
+                      className="capitalize text-xs font-semibold px-2.5 py-0.5"
+                    />
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5">
                   Dokumen:{" "}
                   <span className="font-mono font-medium text-foreground">
                     {history?.putaway_no ?? "—"}
@@ -108,14 +117,6 @@ export function RiwayatPenempatanDialog({
                 </p>
               </div>
             </div>
-
-            {history && (
-              <StatusBadge
-                domain="putaway"
-                status={history.status}
-                className="capitalize text-xs font-semibold px-2.5 py-0.5"
-              />
-            )}
           </div>
         </DialogHeader>
 
@@ -141,22 +142,22 @@ export function RiwayatPenempatanDialog({
               {/* Top 3 Summary Cards */}
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 {/* Dibuat Oleh */}
-                <div className="rounded-2xl border border-border/60 bg-card p-3.5 flex flex-col justify-between">
-                  <div className="flex items-center justify-between text-muted-foreground mb-1.5">
+                <div className="rounded-2xl border border-border/60 bg-card p-4 flex flex-col justify-between shadow-2xs">
+                  <div className="flex items-center justify-between text-muted-foreground mb-2">
                     <span className="text-2xs font-semibold uppercase tracking-wider">
                       Dibuat Oleh
                     </span>
                     <CalendarIcon className="size-3.5 text-blue-500" />
                   </div>
                   <div>
-                    <div className="font-medium text-xs text-foreground truncate">
+                    <div className="font-semibold text-xs text-foreground truncate">
                       {history.summary.creator?.name ?? "System"}
                     </div>
-                    <div className="text-2xs text-muted-foreground truncate">
+                    <div className="text-2xs text-muted-foreground truncate mt-0.5">
                       {history.summary.creator?.email ?? "—"}
                     </div>
                   </div>
-                  <div className="mt-2 pt-2 border-t border-border/40 text-2xs text-muted-foreground">
+                  <div className="mt-2.5 pt-2.5 border-t border-border/40 text-2xs text-muted-foreground">
                     {history.summary.created_at
                       ? formatDateTime(history.summary.created_at)
                       : "—"}
@@ -164,47 +165,47 @@ export function RiwayatPenempatanDialog({
                 </div>
 
                 {/* Ditugaskan Oleh */}
-                <div className="rounded-2xl border border-border/60 bg-card p-3.5 flex flex-col justify-between">
-                  <div className="flex items-center justify-between text-muted-foreground mb-1.5">
+                <div className="rounded-2xl border border-border/60 bg-card p-4 flex flex-col justify-between shadow-2xs">
+                  <div className="flex items-center justify-between text-muted-foreground mb-2">
                     <span className="text-2xs font-semibold uppercase tracking-wider">
                       Ditugaskan Oleh
                     </span>
                     <UserIcon className="size-3.5 text-amber-500" />
                   </div>
                   <div>
-                    <div className="font-medium text-xs text-foreground truncate">
+                    <div className="font-semibold text-xs text-foreground truncate">
                       {history.summary.assigned_by?.name ??
                         history.summary.creator?.name ??
                         "—"}
                     </div>
-                    <div className="text-2xs text-muted-foreground truncate">
+                    <div className="text-2xs text-muted-foreground truncate mt-0.5">
                       {history.summary.assigned_by?.email ??
                         history.summary.creator?.email ??
                         "—"}
                     </div>
                   </div>
-                  <div className="mt-2 pt-2 border-t border-border/40 text-2xs text-muted-foreground">
+                  <div className="mt-2.5 pt-2.5 border-t border-border/40 text-2xs text-muted-foreground">
                     Pemberi Tugas
                   </div>
                 </div>
 
                 {/* Dikerjakan Oleh */}
-                <div className="rounded-2xl border border-border/60 bg-card p-3.5 flex flex-col justify-between">
-                  <div className="flex items-center justify-between text-muted-foreground mb-1.5">
+                <div className="rounded-2xl border border-border/60 bg-card p-4 flex flex-col justify-between shadow-2xs">
+                  <div className="flex items-center justify-between text-muted-foreground mb-2">
                     <span className="text-2xs font-semibold uppercase tracking-wider">
                       Dikerjakan Oleh
                     </span>
                     <PackageCheckIcon className="size-3.5 text-emerald-500" />
                   </div>
                   <div>
-                    <div className="font-medium text-xs text-foreground truncate">
+                    <div className="font-semibold text-xs text-foreground truncate">
                       {history.summary.assigned_to?.name ?? "Belum Ditugaskan"}
                     </div>
-                    <div className="text-2xs text-muted-foreground truncate">
+                    <div className="text-2xs text-muted-foreground truncate mt-0.5">
                       {history.summary.assigned_to?.email ?? "—"}
                     </div>
                   </div>
-                  <div className="mt-2 pt-2 border-t border-border/40 text-2xs text-muted-foreground">
+                  <div className="mt-2.5 pt-2.5 border-t border-border/40 text-2xs text-muted-foreground">
                     {history.summary.completed_at
                       ? `Selesai: ${formatDateTime(history.summary.completed_at)}`
                       : history.summary.started_at
@@ -244,40 +245,51 @@ export function RiwayatPenempatanDialog({
 
                 {/* Tab 1: Timeline */}
                 <TabsContent value="timeline" className="mt-4 space-y-4">
-                  <div className="relative pl-6 space-y-6 before:absolute before:left-3.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-border/80">
-                    {history.events.map((event, idx) => (
-                      <div key={idx} className="relative flex items-start gap-4">
-                        <div className="absolute -left-6 mt-0.5">
-                          <EventIcon type={event.type} />
-                        </div>
-                        <div className="flex-1 rounded-2xl border border-border/60 bg-card p-3.5 shadow-2xs">
-                          <div className="flex flex-wrap items-center justify-between gap-2">
-                            <h4 className="text-xs font-semibold text-foreground">
-                              {event.title}
-                            </h4>
-                            <span className="text-2xs text-muted-foreground">
-                              {event.timestamp
-                                ? formatDateTime(event.timestamp)
-                                : "—"}
-                            </span>
+                  <div className="space-y-4 pt-1">
+                    {history.events.map((event, idx) => {
+                      const isLast = idx === history.events.length - 1;
+                      return (
+                        <div key={idx} className="relative flex items-start gap-4">
+                          {/* Left: Icon node & vertical connector line */}
+                          <div className="relative flex flex-col items-center shrink-0 self-stretch">
+                            <EventIcon type={event.type} />
+                            {!isLast && (
+                              <div className="w-0.5 grow bg-border/80 my-1 min-h-[2rem]" />
+                            )}
                           </div>
-                          <p className="mt-1 text-xs text-muted-foreground">
-                            {event.description}
-                          </p>
 
-                          {event.actor && (
-                            <div className="mt-2.5 flex items-center gap-2 pt-2 border-t border-border/40 text-2xs text-muted-foreground">
-                              <span className="font-medium text-foreground">
-                                Oleh: {event.actor.name}
+                          {/* Right: Event card with clean spacing */}
+                          <div className="flex-1 rounded-2xl border border-border/60 bg-card p-4 shadow-2xs transition-colors hover:border-border">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <h4 className="text-sm font-semibold text-foreground">
+                                {event.title}
+                              </h4>
+                              <span className="text-xs font-mono text-muted-foreground">
+                                {event.timestamp
+                                  ? formatDateTime(event.timestamp)
+                                  : "—"}
                               </span>
-                              {event.actor.email && (
-                                <span>({event.actor.email})</span>
-                              )}
                             </div>
-                          )}
+                            <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
+                              {event.description}
+                            </p>
+
+                            {event.actor && (
+                              <div className="mt-3 flex items-center gap-2 pt-2.5 border-t border-border/40 text-xs text-muted-foreground">
+                                <span className="font-medium text-foreground">
+                                  Oleh: {event.actor.name}
+                                </span>
+                                {event.actor.email && (
+                                  <span className="text-muted-foreground/80">
+                                    ({event.actor.email})
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </TabsContent>
 
@@ -292,11 +304,11 @@ export function RiwayatPenempatanDialog({
                       <Table>
                         <TableHeader className="bg-muted/40">
                           <TableRow>
-                            <TableHead className="w-[180px]">SKU / Produk</TableHead>
-                            <TableHead className="w-[120px]">Kode Rak</TableHead>
-                            <TableHead className="w-[80px] text-right">Qty</TableHead>
-                            <TableHead className="w-[150px]">Waktu Scan</TableHead>
-                            <TableHead className="w-[140px]">Eksekutor</TableHead>
+                            <TableHead className="min-w-[220px]">SKU / Produk</TableHead>
+                            <TableHead className="min-w-[140px]">Kode Rak</TableHead>
+                            <TableHead className="min-w-[90px] text-right">Qty</TableHead>
+                            <TableHead className="min-w-[170px]">Waktu Scan</TableHead>
+                            <TableHead className="min-w-[150px]">Eksekutor</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -307,21 +319,21 @@ export function RiwayatPenempatanDialog({
                                   {p.sku}
                                 </div>
                                 {p.product_name && (
-                                  <div className="text-2xs text-muted-foreground truncate max-w-[160px]">
+                                  <div className="text-2xs text-muted-foreground truncate max-w-xs mt-0.5">
                                     {p.product_name}
                                   </div>
                                 )}
                               </TableCell>
                               <TableCell>
-                                <Badge variant="outline" className="font-mono text-2xs gap-1">
-                                  <MapPinIcon className="size-2.5 text-primary" />
+                                <Badge variant="outline" className="font-mono text-2xs gap-1.5 px-2.5 py-1">
+                                  <MapPinIcon className="size-3 text-primary" />
                                   <span>{p.bin_code}</span>
                                 </Badge>
                               </TableCell>
-                              <TableCell className="text-right font-semibold font-mono">
+                              <TableCell className="text-right font-bold font-mono text-xs">
                                 +{p.qty}
                               </TableCell>
-                              <TableCell className="text-2xs text-muted-foreground">
+                              <TableCell className="text-2xs font-mono text-muted-foreground">
                                 {formatDateTime(p.timestamp)}
                               </TableCell>
                               <TableCell>
