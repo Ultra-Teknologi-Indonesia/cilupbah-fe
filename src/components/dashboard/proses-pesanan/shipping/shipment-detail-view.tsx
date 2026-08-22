@@ -563,7 +563,6 @@ export function ShipmentDetailView({ id }: { id: string }) {
     }
   }, [isLoading, detail]);
 
-  // Global keydown listener so barcode scanner works automatically
   React.useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
       if (detail?.status !== "SCHEDULED") return;

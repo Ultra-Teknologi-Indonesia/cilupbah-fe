@@ -66,14 +66,12 @@ export function MasukkanKePengirimanView() {
     [shipmentsList.data?.items],
   );
 
-  // Auto-select first scheduled shipment if none selected from URL
   React.useEffect(() => {
     if (!shipmentId && shipmentsList.data?.items?.length) {
       setShipmentId(shipmentsList.data.items[0].id);
     }
   }, [shipmentId, shipmentsList.data?.items]);
 
-  // Keep scan input focused when shipment is selected or changes
   React.useEffect(() => {
     if (shipmentId) {
       const timer = setTimeout(() => {
@@ -83,7 +81,6 @@ export function MasukkanKePengirimanView() {
     }
   }, [shipmentId]);
 
-  // Global keydown listener to capture barcode scanner without clicking
   React.useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
       if (!shipmentId) return;
