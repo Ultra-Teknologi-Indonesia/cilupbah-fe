@@ -37,6 +37,8 @@ export interface RawLocation {
   is_system: boolean;
   is_locked: boolean;
   is_pos: boolean | null;
+  is_small_warehouse?: boolean;
+  enforces_strict_bin_sku?: boolean;
   village?: LocationVillage | null;
   bins?: RawLocationBin[];
   created_at?: string;
@@ -61,6 +63,8 @@ export interface Location {
   isSystem: boolean;
   isLocked: boolean;
   isPos: boolean;
+  isSmallWarehouse?: boolean;
+  enforcesStrictBinSku?: boolean;
   village?: LocationVillage | null;
   bins: LocationBin[];
   createdAt?: string;

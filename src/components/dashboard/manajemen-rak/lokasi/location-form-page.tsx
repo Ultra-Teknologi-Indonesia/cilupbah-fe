@@ -298,6 +298,7 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
                 disabled={locked}
                 locationId={mode === "edit" ? id : undefined}
                 locationCode={detail.data?.locationCode}
+                isSmallWarehouse={detail.data?.isSmallWarehouse ?? detail.data?.enforcesStrictBinSku}
                 initialBins={initialBins}
                 onApply={setAppliedPayload}
                 onBinsChange={(bins) => {

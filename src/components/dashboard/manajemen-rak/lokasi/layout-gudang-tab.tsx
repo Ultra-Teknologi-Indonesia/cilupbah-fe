@@ -1370,6 +1370,7 @@ interface LayoutGudangTabProps {
   disabled?: boolean;
   locationId?: string;
   locationCode?: string;
+  isSmallWarehouse?: boolean;
   initialBins?: BinDraft[];
   onApply: (payload: GenerateBinsPayload | null) => void;
 
@@ -1381,13 +1382,21 @@ export function LayoutGudangTab({
   disabled = false,
   locationId,
   locationCode,
+  isSmallWarehouse: isSmallWarehouseProp,
   initialBins,
   onApply,
   onBinsChange,
   onAssignmentsChange,
 }: LayoutGudangTabProps) {
   const serverMode = !!locationId;
-  const isSmallWarehouse = serverMode && locationCode === "WH-KECIL";
+  const isSmallWarehouse =
+    serverMode &&
+    (isSmallWarehouseProp ??
+      (locationCode === "WH-KECIL" ||
+        locationCode === "O" ||
+        locationCode === "GK" ||
+        locationCode === "WH_KECIL" ||
+        (locationCode ? /kecil/i.test(locationCode) : false)));
 
   const [zoneCode, setZoneCode] = React.useState("");
   const [zoneIsNew, setZoneIsNew] = React.useState(false);
