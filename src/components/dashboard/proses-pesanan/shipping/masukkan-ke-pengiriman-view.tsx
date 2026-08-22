@@ -43,6 +43,7 @@ export function MasukkanKePengirimanView() {
   const [shipmentId, setShipmentId] = React.useState(initialShipmentId);
   const [barcode, setBarcode] = React.useState("");
   const scanRef = React.useRef<HTMLInputElement>(null);
+  const isScanningRef = React.useRef(false);
 
   const shipmentsList = useShipments({
     status: "SCHEDULED",
@@ -65,24 +66,64 @@ export function MasukkanKePengirimanView() {
     [shipmentsList.data?.items],
   );
 
+  // Auto-select first scheduled shipment if none selected from URL
+  React.useEffect(() => {
+    if (!shipmentId && shipmentsList.data?.items?.length) {
+      setShipmentId(shipmentsList.data.items[0].id);
+    }
+  }, [shipmentId, shipmentsList.data?.items]);
+
+  // Keep scan input focused when shipment is selected or changes
+  React.useEffect(() => {
+    if (shipmentId) {
+      const timer = setTimeout(() => {
+        scanRef.current?.focus();
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [shipmentId]);
+
+  // Global keydown listener to capture barcode scanner without clicking
+  React.useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (!shipmentId) return;
+      const activeEl = document.activeElement;
+      const isInputOrTextarea =
+        activeEl instanceof HTMLInputElement ||
+        activeEl instanceof HTMLTextAreaElement ||
+        activeEl?.getAttribute("contenteditable") === "true";
+
+      if (!isInputOrTextarea && e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+        scanRef.current?.focus();
+      }
+    };
+
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    return () => window.removeEventListener("keydown", handleGlobalKeyDown);
+  }, [shipmentId]);
+
   const handleScan = async (e: React.FormEvent) => {
     e.preventDefault();
     primeScanAudio();
     const value = barcode.trim();
-    if (!value || !shipmentId) return;
+    if (!value || !shipmentId || isScanningRef.current) return;
+    isScanningRef.current = true;
 
     try {
       await scanOrder.mutateAsync({ shipmentId, barcode: value });
       playScanFeedback("ok");
       toast.success(`Resi ${value} ditambahkan ke pengiriman.`);
       setBarcode("");
-      scanRef.current?.focus();
     } catch (err) {
       const code = (err as { errors?: { code?: string } })?.errors?.code;
       playScanFeedback(scanFeedbackFromErrorCode(code));
       apiError(err, "Gagal menambahkan pesanan ke pengiriman.");
       setBarcode("");
-      scanRef.current?.focus();
+    } finally {
+      isScanningRef.current = false;
+      requestAnimationFrame(() => {
+        scanRef.current?.focus();
+      });
     }
   };
 
@@ -93,6 +134,10 @@ export function MasukkanKePengirimanView() {
       toast.success("Pesanan dihapus dari pengiriman.");
     } catch (err) {
       apiError(err, "Gagal menghapus pesanan dari pengiriman.");
+    } finally {
+      requestAnimationFrame(() => {
+        scanRef.current?.focus();
+      });
     }
   };
 
@@ -117,7 +162,10 @@ export function MasukkanKePengirimanView() {
             id="mkp-shipment"
             options={shipmentOptions}
             value={shipmentId || null}
-            onChange={(v) => setShipmentId(v ?? "")}
+            onChange={(v) => {
+              setShipmentId(v ?? "");
+              setTimeout(() => scanRef.current?.focus(), 50);
+            }}
             placeholder="Pilih no. pengiriman…"
             searchPlaceholder="Cari no. pengiriman…"
             emptyText="Belum ada pengiriman terjadwal."
@@ -144,7 +192,7 @@ export function MasukkanKePengirimanView() {
             value={barcode}
             onChange={(e) => setBarcode(e.target.value)}
             placeholder="Masukkan No. Pesanan/No. Resi"
-            disabled={!shipmentId || scanOrder.isPending}
+            disabled={!shipmentId}
             autoFocus
           />
           <Button

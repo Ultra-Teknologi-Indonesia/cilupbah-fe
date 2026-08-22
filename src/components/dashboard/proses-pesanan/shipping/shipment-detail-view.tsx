@@ -541,6 +541,7 @@ export function ShipmentDetailView({ id }: { id: string }) {
     orderNo: string | null;
   } | null>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const isScanningRef = React.useRef(false);
 
   const [page, setPage] = React.useState(1);
   const [perPage, setPerPage] = React.useState(20);
@@ -557,10 +558,29 @@ export function ShipmentDetailView({ id }: { id: string }) {
   const removeOrder = useRemoveOrderFromShipment();
 
   React.useEffect(() => {
-    if (!isLoading && detail) {
+    if (!isLoading && detail && detail.status === "SCHEDULED") {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [isLoading, detail]);
+
+  // Global keydown listener so barcode scanner works automatically
+  React.useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (detail?.status !== "SCHEDULED") return;
+      const activeEl = document.activeElement;
+      const isInputOrTextarea =
+        activeEl instanceof HTMLInputElement ||
+        activeEl instanceof HTMLTextAreaElement ||
+        activeEl?.getAttribute("contenteditable") === "true";
+
+      if (!isInputOrTextarea && e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+        inputRef.current?.focus();
+      }
+    };
+
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    return () => window.removeEventListener("keydown", handleGlobalKeyDown);
+  }, [detail?.status]);
 
   const [prevDebouncedSearch, setPrevDebouncedSearch] = React.useState(debouncedSearch);
   if (debouncedSearch !== prevDebouncedSearch) {
@@ -571,20 +591,24 @@ export function ShipmentDetailView({ id }: { id: string }) {
   const handleScan = async () => {
     primeScanAudio();
     const code = barcode.trim();
-    if (!code) return;
+    if (!code || isScanningRef.current) return;
+    isScanningRef.current = true;
 
     try {
       await scanOrder.mutateAsync({ shipmentId: id, barcode: code });
       playScanFeedback("ok");
       toast.success(`Pesanan ${code} ditambahkan.`);
       setBarcode("");
-      inputRef.current?.focus();
     } catch (err) {
       const code = (err as { errors?: { code?: string } })?.errors?.code;
       playScanFeedback(scanFeedbackFromErrorCode(code));
       apiError(err, "Gagal menambahkan pesanan.");
       setBarcode("");
-      inputRef.current?.focus();
+    } finally {
+      isScanningRef.current = false;
+      requestAnimationFrame(() => {
+        inputRef.current?.focus();
+      });
     }
   };
 
@@ -753,7 +777,7 @@ export function ShipmentDetailView({ id }: { id: string }) {
                   onKeyDown={handleKeyDown}
                   placeholder="Scan No. Pesanan / No. Resi…"
                   className="pl-9"
-                  disabled={scanOrder.isPending}
+                  autoFocus
                 />
               </div>
               <Button
