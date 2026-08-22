@@ -167,6 +167,17 @@ export function useChannelSearchPage() {
   });
 }
 
+export function useUnifiedChannelSearch() {
+  return useMutation({
+    mutationFn: (params: {
+      q: string;
+      shopIds?: string[];
+      limitPerShop?: number;
+    }) => DownloadService.searchUnified(params),
+    onError: (err) => apiError(err, "Gagal mencari produk lintas channel"),
+  });
+}
+
 export function useDownloadProduct() {
   const qc = useQueryClient();
   return useMutation({

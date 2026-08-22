@@ -150,7 +150,11 @@ export interface ChannelSearchItem {
   shopId: string;
   shopName: string | null;
   channelCode: string;
+  channelName?: string | null;
   alreadyDownloaded: boolean;
+  masterProductId?: string | null;
+  masterProductName?: string | null;
+  masterProductSku?: string | null;
 }
 
 interface RawChannelSearchItem {
@@ -161,7 +165,11 @@ interface RawChannelSearchItem {
   shop_id: string;
   shop_name: string | null;
   channel_code: string;
+  channel_name?: string | null;
   already_downloaded?: boolean;
+  master_product_id?: string | null;
+  master_product_name?: string | null;
+  master_product_sku?: string | null;
 }
 
 function mapSearchItem(raw: RawChannelSearchItem): ChannelSearchItem {
@@ -173,7 +181,11 @@ function mapSearchItem(raw: RawChannelSearchItem): ChannelSearchItem {
     shopId: raw.shop_id,
     shopName: raw.shop_name,
     channelCode: raw.channel_code,
+    channelName: raw.channel_name,
     alreadyDownloaded: raw.already_downloaded ?? false,
+    masterProductId: raw.master_product_id,
+    masterProductName: raw.master_product_name,
+    masterProductSku: raw.master_product_sku,
   };
 }
 
@@ -330,6 +342,58 @@ export const DownloadService = {
       items: (res.data ?? []).map(mapSearchItem),
       nextOffset: meta.next_offset ?? null,
       hasMore: !!meta.has_more,
+    };
+  },
+
+  searchUnified: async (params: {
+    q: string;
+    shopIds?: string[];
+    limitPerShop?: number;
+  }): Promise<{
+    items: ChannelSearchItem[];
+    meta: {
+      totalFound: number;
+      totalStores: number;
+      failedStores: {
+        shopId: string;
+        shopName: string;
+        channel: string;
+        error: string;
+      }[];
+    };
+  }> => {
+    const res = await fetchClient<ApiResponse<RawChannelSearchItem[]>>(
+      `/channel/download/search`,
+      {
+        method: "POST",
+        data: {
+          q: params.q,
+          shop_ids: params.shopIds,
+          limit_per_shop: params.limitPerShop ?? 20,
+        },
+      },
+    );
+    const rawMeta =
+      ((res as {
+        meta?: {
+          total_found?: number;
+          total_stores?: number;
+          failed_stores?: any[];
+        };
+      }).meta ?? {});
+
+    return {
+      items: (res.data ?? []).map(mapSearchItem),
+      meta: {
+        totalFound: rawMeta.total_found ?? (res.data ?? []).length,
+        totalStores: rawMeta.total_stores ?? (params.shopIds?.length ?? 0),
+        failedStores: (rawMeta.failed_stores ?? []).map((f: any) => ({
+          shopId: f.shop_id,
+          shopName: f.shop_name,
+          channel: f.channel,
+          error: f.error,
+        })),
+      },
     };
   },
 

@@ -34,7 +34,7 @@ import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-lo
 import { useConnectedStores } from "@/hooks/channel/use-connected-stores";
 import {
   channelSearchRowId,
-  useChannelSearchPage,
+  useUnifiedChannelSearch,
   useDownloadProduct,
   type ChannelSearchItem,
 } from "@/hooks/master-produk/use-download";
@@ -94,7 +94,7 @@ function StoreMultiSelect({
           >
             <StoreIcon className="size-4 shrink-0 text-muted-foreground" />
             {selectedCount === 0
-              ? "Pilih toko"
+              ? "Semua toko yang aktif"
               : `${selectedCount} toko dipilih`}
           </span>
           <ChevronsUpDownIcon className="size-4 shrink-0 text-muted-foreground" />
@@ -173,7 +173,7 @@ export function DownloadSatuanDialog({
 }) {
   const { data: stores = [] } = useConnectedStores();
   const downloadOne = useDownloadProduct();
-  const searchPage = useChannelSearchPage();
+  const unifiedSearch = useUnifiedChannelSearch();
 
   const [q, setQ] = React.useState("");
   const [selectedStores, setSelectedStores] = React.useState<
@@ -181,20 +181,11 @@ export function DownloadSatuanDialog({
   >({});
   const [items, setItems] = React.useState<ChannelSearchItem[]>([]);
   const [started, setStarted] = React.useState(false);
-  const [searching, setSearching] = React.useState(false);
-  const [loadingMore, setLoadingMore] = React.useState(false);
-  const [hasMore, setHasMore] = React.useState(false);
   const [rowSel, setRowSel] = React.useState<Record<string, boolean>>({});
   const [downloaded, setDownloaded] = React.useState<Record<string, boolean>>(
     {},
   );
   const [pending, setPending] = React.useState<Record<string, boolean>>({});
-
-  const cursorsRef = React.useRef<
-    Record<string, { channel: string; offset: number; done: boolean }>
-  >({});
-  const loadGuard = React.useRef(false);
-  const sentinelRef = React.useRef<HTMLDivElement | null>(null);
 
   const [prevOpen, setPrevOpen] = React.useState(open);
   if (prevOpen !== open) {
@@ -204,21 +195,11 @@ export function DownloadSatuanDialog({
       setSelectedStores({});
       setItems([]);
       setStarted(false);
-      setSearching(false);
-      setLoadingMore(false);
-      setHasMore(false);
       setRowSel({});
       setDownloaded({});
       setPending({});
     }
   }
-
-  React.useEffect(() => {
-    if (open) {
-      cursorsRef.current = {};
-      loadGuard.current = false;
-    }
-  }, [open]);
 
   const supportedStores = React.useMemo(
     () =>
@@ -229,86 +210,43 @@ export function DownloadSatuanDialog({
   );
   const chosen = supportedStores.filter((s) => selectedStores[s.shop_id]);
 
-  const loadMore = React.useCallback(async () => {
-    if (loadGuard.current) return;
-    const pendingStores = Object.entries(cursorsRef.current).filter(
-      ([, c]) => !c.done,
-    );
-    if (pendingStores.length === 0) {
-      setHasMore(false);
+  const handleSearch = async () => {
+    if (!q.trim()) {
+      toast("Masukkan kata kunci atau SKU yang ingin dicari");
       return;
     }
-    loadGuard.current = true;
-    try {
-      const failed: string[] = [];
-      const pages = await Promise.all(
-        pendingStores.map(([shopId, c]) =>
-          searchPage
-            .mutateAsync({ channel: c.channel, shopId, q, offset: c.offset, limit: 20 })
-            .then((page) => ({ shopId, page }))
-            .catch(() => {
-              failed.push(shopId);
-              return { shopId, page: null };
-            }),
-        ),
-      );
-      const fresh: ChannelSearchItem[] = [];
-      for (const { shopId, page } of pages) {
-        const c = cursorsRef.current[shopId];
-        if (!c) continue;
-        if (!page) {
-          c.done = true;
-          continue;
-        }
-        fresh.push(...page.items);
-        c.offset = page.nextOffset ?? c.offset;
-        c.done = !page.hasMore || page.nextOffset === null;
-      }
-      if (fresh.length) setItems((prev) => [...prev, ...fresh]);
-      setHasMore(Object.values(cursorsRef.current).some((c) => !c.done));
-      if (failed.length > 0) {
-        toast.error(`Gagal memuat dari ${failed.length} toko`);
-      }
-    } finally {
-      loadGuard.current = false;
-    }
-  }, [q, searchPage]);
 
-  const apply = async () => {
-    if (chosen.length === 0) {
-      toast("Pilih minimal satu toko");
-      return;
-    }
-    cursorsRef.current = Object.fromEntries(
-      chosen.map((s) => [
-        s.shop_id,
-        { channel: s.channel!.code, offset: 0, done: false },
-      ]),
-    );
     setStarted(true);
     setItems([]);
     setRowSel({});
-    setHasMore(true);
-    setSearching(true);
-    await loadMore();
-    setSearching(false);
-  };
 
-  React.useEffect(() => {
-    const el = sentinelRef.current;
-    if (!el || !hasMore || searching) return;
-    const obs = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting && !loadGuard.current) {
-          setLoadingMore(true);
-          loadMore().finally(() => setLoadingMore(false));
-        }
-      },
-      { rootMargin: "200px" },
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [hasMore, searching, loadMore]);
+    const targetShopIds =
+      chosen.length > 0
+        ? chosen.map((s) => s.shop_id)
+        : supportedStores.map((s) => s.shop_id);
+
+    try {
+      const res = await unifiedSearch.mutateAsync({
+        q: q.trim(),
+        shopIds: targetShopIds,
+      });
+
+      setItems(res.items);
+
+      if (res.meta.failedStores?.length > 0) {
+        toast.warning(
+          `${res.meta.failedStores.length} toko mengalami gangguan respon`,
+          {
+            description: res.meta.failedStores
+              .map((f) => `${f.shopName || f.shopId}: ${f.error}`)
+              .join(", "),
+          },
+        );
+      }
+    } catch {
+      // Error handled by hook apiError
+    }
+  };
 
   const runDownload = async (item: ChannelSearchItem) => {
     const id = channelSearchRowId(item);
@@ -360,7 +298,7 @@ export function DownloadSatuanDialog({
                   onChange={(e) => setQ(e.target.value)}
                   placeholder="Cari nama atau SKU"
                   className="h-10 rounded-xl pl-9"
-                  onKeyDown={(e) => e.key === "Enter" && apply()}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                 />
               </div>
             </div>
@@ -419,16 +357,16 @@ export function DownloadSatuanDialog({
             <Button
               variant="primary"
               className="mt-auto h-10 w-full rounded-xl"
-              onClick={apply}
-              disabled={searching}
+              onClick={handleSearch}
+              disabled={unifiedSearch.isPending}
             >
-              {searching ? (
+              {unifiedSearch.isPending ? (
                 <>
                   <Loader2Icon className="size-4 animate-spin" /> Mencari…
                 </>
               ) : (
                 <>
-                  <SearchIcon className="size-4" /> Terapkan
+                  <SearchIcon className="size-4" /> Cari Produk
                 </>
               )}
             </Button>
@@ -441,8 +379,8 @@ export function DownloadSatuanDialog({
                 Total{" "}
                 <span className="font-medium text-foreground tabular-nums">
                   {items.length}
-                  {hasMore ? "+" : ""}
-                </span>
+                </span>{" "}
+                ditemukan
               </span>
             </div>
 
@@ -468,28 +406,27 @@ export function DownloadSatuanDialog({
             )}
 
             <div className="min-h-[20rem] flex-1 overflow-y-auto">
-              {searching ? (
+              {unifiedSearch.isPending ? (
                 <div className="flex h-full min-h-[20rem] items-center justify-center text-sm text-muted-foreground">
                   <Loader2Icon className="mr-2 size-4 animate-spin" /> Mencari
-                  produk…
+                  produk lintas channel…
                 </div>
               ) : !started ? (
                 <div className="flex h-full min-h-[20rem] flex-col items-center justify-center gap-2 px-6 text-center text-sm text-muted-foreground">
                   <div className="grid size-12 place-items-center rounded-2xl bg-muted/50">
                     <SearchIcon className="size-6" />
                   </div>
-                  Pilih toko & masukkan kata kunci, lalu tekan Terapkan.
+                  Masukkan kata kunci/SKU, pilih toko (opsional), lalu tekan Cari Produk.
                 </div>
               ) : items.length === 0 ? (
                 <div className="flex h-full min-h-[20rem] flex-col items-center justify-center gap-2 px-6 text-center text-sm text-muted-foreground">
                   <div className="grid size-12 place-items-center rounded-2xl bg-muted/50">
                     <PackageIcon className="size-6" />
                   </div>
-                  Tidak ada produk yang cocok.
+                  Tidak ada produk yang cocok di toko-toko yang dipilih.
                 </div>
               ) : (
-                <>
-                  <ul className="divide-y divide-border/60">
+                <ul className="divide-y divide-border/60">
                   {items.map((item) => {
                     const id = channelSearchRowId(item);
                     const isDone = downloaded[id] || item.alreadyDownloaded;
@@ -522,17 +459,24 @@ export function DownloadSatuanDialog({
                           )}
                           <ChannelLogo
                             code={item.channelCode}
-                            name={item.channelCode}
+                            name={item.channelName || item.channelCode}
                             className="absolute -bottom-0.5 -right-0.5 size-4 rounded-md ring-2 ring-background"
                           />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="line-clamp-2 text-sm font-medium">
-                            {item.name}
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <p className="line-clamp-1 text-sm font-medium">
+                              {item.name}
+                            </p>
+                            {item.alreadyDownloaded && (
+                              <span className="shrink-0 rounded bg-emerald-500/10 px-1.5 py-0.5 text-3xs font-medium text-emerald-600 dark:text-emerald-400">
+                                Terhubung ke Master
+                              </span>
+                            )}
+                          </div>
                           <p className="truncate font-mono text-xs text-muted-foreground">
-                            {item.sellerSku ?? "—"} ·{" "}
-                            {item.shopName ?? item.channelCode}
+                            SKU: {item.sellerSku ?? "—"} ·{" "}
+                            {item.shopName ?? item.channelName ?? item.channelCode}
                           </p>
                         </div>
                         <Button
@@ -554,19 +498,7 @@ export function DownloadSatuanDialog({
                       </li>
                     );
                   })}
-                  </ul>
-                  <div
-                    ref={sentinelRef}
-                    className="flex items-center justify-center py-4 text-xs text-muted-foreground"
-                  >
-                    {loadingMore && (
-                      <>
-                        <Loader2Icon className="mr-2 size-4 animate-spin" />
-                        Memuat…
-                      </>
-                    )}
-                  </div>
-                </>
+                </ul>
               )}
             </div>
           </div>
