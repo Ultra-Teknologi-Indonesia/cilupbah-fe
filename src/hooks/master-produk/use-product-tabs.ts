@@ -99,3 +99,49 @@ export const useBulkVariants = (productId: string) => {
     },
   });
 };
+
+export const useUnlinkChannelMapping = (productId: string) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (mappingId: string) =>
+      ProductTabsService.unlinkChannelMapping(productId, mappingId),
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: ["master-produk", "channel-listings", productId],
+      });
+      qc.invalidateQueries({
+        queryKey: ["master-produk", "variants", productId],
+      });
+    },
+  });
+};
+
+export const useUnlinkVariantChannelMapping = (productId: string) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (variantMappingId: string) =>
+      ProductTabsService.unlinkVariantChannelMapping(productId, variantMappingId),
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: ["master-produk", "channel-listings", productId],
+      });
+      qc.invalidateQueries({
+        queryKey: ["master-produk", "variants", productId],
+      });
+    },
+  });
+};
+
+export const useResyncChannelMapping = (productId: string) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (mappingId: string) =>
+      ProductTabsService.resyncChannelMapping(productId, mappingId),
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: ["master-produk", "channel-listings", productId],
+      });
+    },
+  });
+};
+

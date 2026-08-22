@@ -58,7 +58,10 @@ function mapRow(r: RawVariantRow): VariantRow {
 }
 
 export interface ChannelListingItem {
+  productChannelMappingId: string | null;
+  variantChannelMappingId: string | null;
   channelShopId: string | null;
+  marketplaceShopId: string | null;
   shopName: string | null;
   channelName: string | null;
   channelCode: string | null;
@@ -80,7 +83,10 @@ interface RawChannelListingRow {
   sku: string;
   options?: Array<{ attribute_id: number; value: string }>;
   listings?: Array<{
+    product_channel_mapping_id?: string | null;
+    variant_channel_mapping_id?: string | null;
     channel_shop_id: string | null;
+    marketplace_shop_id?: string | null;
     shop_name: string | null;
     channel_name: string | null;
     channel_code: string | null;
@@ -208,7 +214,10 @@ export const ProductTabsService = {
         sku: r.sku,
         options: mapOptions(r.options),
         listings: (r.listings ?? []).map((l) => ({
+          productChannelMappingId: l.product_channel_mapping_id ?? null,
+          variantChannelMappingId: l.variant_channel_mapping_id ?? null,
           channelShopId: l.channel_shop_id,
+          marketplaceShopId: l.marketplace_shop_id ?? null,
           shopName: l.shop_name,
           channelName: l.channel_name,
           channelCode: l.channel_code,
@@ -222,6 +231,39 @@ export const ProductTabsService = {
       })),
       meta: res.meta,
     };
+  },
+
+  unlinkChannelMapping: async (
+    productId: string,
+    mappingId: string,
+  ): Promise<ApiResponse<{ success: boolean }>> => {
+    return fetchClient(`/products/${productId}/channel-mappings/${mappingId}`, {
+      method: "DELETE",
+    });
+  },
+
+  unlinkVariantChannelMapping: async (
+    productId: string,
+    variantMappingId: string,
+  ): Promise<ApiResponse<{ success: boolean }>> => {
+    return fetchClient(
+      `/products/${productId}/variant-channel-mappings/${variantMappingId}`,
+      {
+        method: "DELETE",
+      },
+    );
+  },
+
+  resyncChannelMapping: async (
+    productId: string,
+    mappingId: string,
+  ): Promise<ApiResponse<{ success: boolean }>> => {
+    return fetchClient(
+      `/products/${productId}/channel-mappings/${mappingId}/re-sync`,
+      {
+        method: "POST",
+      },
+    );
   },
 
   priceBook: async (
