@@ -81,7 +81,7 @@ function getPasswordStrength(password: string) {
 
 const baseSchema = z.object({
   name: z.string().min(1, "Nama pengguna wajib diisi"),
-  email: z.string().email("Format email tidak valid"),
+  email: z.string().email({ message: "Format email tidak valid" }),
   nik: z.string().optional().or(z.literal("")),
   roles: z.array(z.string()).min(1, "Pilih minimal satu peran"),
   location_ids: z.array(z.string()),
