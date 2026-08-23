@@ -92,10 +92,10 @@ const createSchema = baseSchema
     password: z
       .string()
       .min(8, "Password minimal 8 karakter")
-      .regex(/[A-Z]/, "Harus mengandung huruf besar")
-      .regex(/[a-z]/, "Harus mengandung huruf kecil")
-      .regex(/\d/, "Harus mengandung angka")
-      .regex(/[^A-Za-z0-9]/, "Harus mengandung karakter spesial"),
+      .regex(/[A-Z]/, { message: "Harus mengandung huruf besar" })
+      .regex(/[a-z]/, { message: "Harus mengandung huruf kecil" })
+      .regex(/\d/, { message: "Harus mengandung angka" })
+      .regex(/[^A-Za-z0-9]/, { message: "Harus mengandung karakter spesial" }),
     password_confirmation: z.string().min(1, "Konfirmasi password wajib diisi"),
   })
   .refine((d) => d.password === d.password_confirmation, {

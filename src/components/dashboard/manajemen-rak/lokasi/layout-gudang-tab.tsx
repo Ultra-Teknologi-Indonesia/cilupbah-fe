@@ -2269,9 +2269,17 @@ export function LayoutGudangTab({
                             staged={assignMap.get(b.binId) ?? null}
                             stagedVariantIds={stagedVariantIds}
                             disabled={disabled || assignBinSku.isPending}
-                            onChange={(sku) =>
-                              handleAssignChange(b.binId!, sku)
-                            }
+                            onChange={(sku) => {
+                              if (sku) {
+                                handleDirectOrStagedAssign(
+                                  b.binId!,
+                                  b.binFinalCode,
+                                  sku,
+                                );
+                              } else {
+                                handleAssignChange(b.binId!, null);
+                              }
+                            }}
                           />
                         ) : (
                           <IsiRakCell
