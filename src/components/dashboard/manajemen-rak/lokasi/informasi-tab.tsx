@@ -121,10 +121,7 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>
-                Detail Alamat
-                <Req />
-              </FormLabel>
+              <FormLabel>Detail Alamat</FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Cth: Blok, Unit No, Patokan"
@@ -143,10 +140,7 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
             name="provinceId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>
-                  Provinsi
-                  <Req />
-                </FormLabel>
+                <FormLabel>Provinsi</FormLabel>
                 <Combobox
                   options={toOptions(provinces.data)}
                   value={field.value}
@@ -169,10 +163,7 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
             name="cityId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>
-                  Kota
-                  <Req />
-                </FormLabel>
+                <FormLabel>Kota</FormLabel>
                 <Combobox
                   options={toOptions(cities.data)}
                   value={field.value}
@@ -194,10 +185,7 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
             name="districtId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>
-                  Kecamatan
-                  <Req />
-                </FormLabel>
+                <FormLabel>Kecamatan</FormLabel>
                 <Combobox
                   options={toOptions(districts.data)}
                   value={field.value}
@@ -218,10 +206,7 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
             name="villageId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>
-                  Kelurahan
-                  <Req />
-                </FormLabel>
+                <FormLabel>Kelurahan</FormLabel>
                 <Combobox
                   options={toOptions(villages.data)}
                   value={field.value}
@@ -254,10 +239,7 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
           name="postCode"
           render={({ field }) => (
             <FormItem className="sm:max-w-xs">
-              <FormLabel>
-                Kode Pos
-                <Req />
-              </FormLabel>
+              <FormLabel>Kode Pos</FormLabel>
               <FormControl>
                 <Input placeholder="Kode pos" disabled={disabled} {...field} />
               </FormControl>
@@ -277,10 +259,7 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>
-                  No. Telepon
-                  <Req />
-                </FormLabel>
+                <FormLabel>No. Telepon</FormLabel>
                 <FormControl>
                   <PhoneInput
                     value={field.value}
@@ -297,10 +276,7 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>
-                  Email
-                  <Req />
-                </FormLabel>
+                <FormLabel>Email</FormLabel>
                 <FormControl>
                   <Input
                     type="email"

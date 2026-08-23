@@ -65,8 +65,8 @@ const createDefaults: LocationFormValues = {
 
 function toFormValues(loc: Location): LocationFormValues {
   return {
-    locationName: loc.locationName,
-    locationCode: loc.locationCode,
+    locationName: loc.locationName ?? "",
+    locationCode: loc.locationCode ?? "",
     address: loc.address ?? "",
     coordinate: loc.coordinate ?? "",
     provinceId: loc.village?.district?.city?.province?.id ?? "",
@@ -77,23 +77,23 @@ function toFormValues(loc: Location): LocationFormValues {
     phone: loc.phone ?? "",
     email: loc.email ?? "",
     defaultWarehouseUser: loc.defaultWarehouseUser ?? "",
-    isWarehouse: loc.isWarehouse,
-    isActive: loc.isActive,
-    isPos: loc.isPos,
+    isWarehouse: Boolean(loc.isWarehouse),
+    isActive: Boolean(loc.isActive),
+    isPos: Boolean(loc.isPos),
   };
 }
 
 function buildPayload(values: LocationFormValues): LocationPayload {
   return {
-    location_code: values.locationCode,
-    location_name: values.locationName,
-    address: values.address,
+    location_code: values.locationCode.trim(),
+    location_name: values.locationName.trim(),
+    address: values.address?.trim() || null,
     village_id: values.villageId || null,
-    post_code: values.postCode,
-    phone: values.phone,
-    email: values.email,
-    coordinate: values.coordinate || null,
-    default_warehouse_user: values.defaultWarehouseUser || null,
+    post_code: values.postCode?.trim() || null,
+    phone: values.phone?.trim() || null,
+    email: values.email?.trim() || null,
+    coordinate: values.coordinate?.trim() || null,
+    default_warehouse_user: values.defaultWarehouseUser?.trim() || null,
     is_warehouse: values.isWarehouse,
     is_active: values.isActive,
     is_pos: values.isPos,
@@ -126,18 +126,11 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
     defaultValues: createDefaults,
   });
 
-  const [prefilled, setPrefilled] = React.useState(false);
-  const [prevData, setPrevData] = React.useState(detail.data);
-  const [prevMode, setPrevMode] = React.useState(mode);
-
-  if (mode !== prevMode || detail.data !== prevData) {
-    setPrevMode(mode);
-    setPrevData(detail.data);
-    if (mode === "edit" && detail.data && !prefilled) {
-      setPrefilled(true);
+  React.useEffect(() => {
+    if (mode === "edit" && detail.data) {
       form.reset(toFormValues(detail.data));
     }
-  }
+  }, [mode, detail.data, form]);
 
   const locked = mode === "edit" && Boolean(detail.data?.isLocked);
   const layoutEnabled = layoutSetting.data?.useWarehouseLayout ?? false;
@@ -221,9 +214,11 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
         apiError(err, "Gagal menyimpan lokasi.");
       }
     },
-    () => {
+    (errors) => {
+      const errorKeys = Object.keys(errors);
+      const firstError = errorKeys.length > 0 ? (errors as Record<string, { message?: string }>)[errorKeys[0]]?.message : null;
       setSection("informasi");
-      toast.error("Lengkapi field wajib di tab Informasi Lokasi.");
+      toast.error(firstError || "Lengkapi field wajib di tab Informasi Lokasi.");
     },
   );
 

@@ -5,28 +5,34 @@ import { PHONE_E164_REGEX } from "@/lib/phone";
 export const locationFormSchema = z.object({
   locationName: z.string().min(1, "Nama lokasi wajib diisi").max(255),
   locationCode: z.string().min(1, "Kode lokasi wajib diisi").max(50),
-  address: z.string().min(1, "Detail alamat wajib diisi"),
+  address: z.string().max(500).optional().or(z.literal("")),
   coordinate: z.string().max(100).optional().or(z.literal("")),
-  provinceId: z.string().min(1, "Provinsi wajib dipilih"),
-  cityId: z.string().min(1, "Kota wajib dipilih"),
-  districtId: z.string().min(1, "Kecamatan wajib dipilih"),
-  villageId: z.string().min(1, "Kelurahan wajib dipilih"),
-  postCode: z.string().min(1, "Kode pos wajib diisi").max(20),
+  provinceId: z.string().optional().or(z.literal("")),
+  cityId: z.string().optional().or(z.literal("")),
+  districtId: z.string().optional().or(z.literal("")),
+  villageId: z.string().optional().or(z.literal("")),
+  postCode: z.string().max(20).optional().or(z.literal("")),
   phone: z
     .string()
-    .min(1, "No. telepon wajib diisi")
-    .regex(PHONE_E164_REGEX, "Format No. Telepon tidak valid")
-    .max(30),
+    .optional()
+    .or(z.literal(""))
+    .refine((val) => !val || PHONE_E164_REGEX.test(val), {
+      message: "Format No. Telepon tidak valid. Gunakan format internasional (contoh: +628123456789)",
+    }),
   email: z
     .string()
-    .min(1, "Email wajib diisi")
-    .email("Format email tidak valid")
-    .max(255),
+    .optional()
+    .or(z.literal(""))
+    .refine((val) => !val || z.string().email().safeParse(val).success, {
+      message: "Format email tidak valid",
+    }),
   defaultWarehouseUser: z
     .string()
-    .email("Format email tidak valid")
     .optional()
-    .or(z.literal("")),
+    .or(z.literal(""))
+    .refine((val) => !val || z.string().email().safeParse(val).success, {
+      message: "Format email tidak valid",
+    }),
   isWarehouse: z.boolean(),
   isActive: z.boolean(),
   isPos: z.boolean(),

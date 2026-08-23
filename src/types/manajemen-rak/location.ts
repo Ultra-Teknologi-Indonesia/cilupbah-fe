@@ -152,8 +152,8 @@ export interface LocationPayload {
   address?: string | null;
   village_id?: string | null;
   post_code?: string | null;
-  phone: string;
-  email: string;
+  phone?: string | null;
+  email?: string | null;
   coordinate?: string | null;
   default_warehouse_user?: string | null;
   is_warehouse?: boolean;
