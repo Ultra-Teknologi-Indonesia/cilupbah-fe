@@ -94,8 +94,16 @@ export interface RawConnectedStore {
   handover_method: HandoverMethod;
   catalog_pull_enabled: boolean;
   catalog_push_enabled: boolean;
-  integration: { status: IntegrationStatus; note?: string; action?: ChannelStoreAction | null };
-  order_sync: { status: OrderSyncStatus; note?: string | null; action?: ChannelStoreAction | null };
+  integration: {
+    status: IntegrationStatus;
+    note?: string;
+    action?: ChannelStoreAction | null;
+  };
+  order_sync: {
+    status: OrderSyncStatus;
+    note?: string | null;
+    action?: ChannelStoreAction | null;
+  };
   last_order_synced_at: string | null;
   token_expires_at: string | null;
   channel: { id: string; code: string; name: string } | null;

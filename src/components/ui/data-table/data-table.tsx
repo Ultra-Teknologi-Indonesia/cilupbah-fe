@@ -162,7 +162,7 @@ export function DataTable<TData, TValue>({
       setInternalSorting(updater);
       if (onSortingChange) {
         onSortingChange(
-          typeof updater === "function" ? updater(sorting) : updater
+          typeof updater === "function" ? updater(sorting) : updater,
         );
       }
     },
@@ -170,7 +170,7 @@ export function DataTable<TData, TValue>({
       setInternalPagination(updater);
       if (onPaginationChange) {
         onPaginationChange(
-          typeof updater === "function" ? updater(pagination) : updater
+          typeof updater === "function" ? updater(pagination) : updater,
         );
       }
     },

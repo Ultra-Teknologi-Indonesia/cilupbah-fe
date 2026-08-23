@@ -3,14 +3,7 @@
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import {
-  Eye,
-  EyeOff,
-  Loader2,
-  LogOut,
-  Monitor,
-  ShieldOff,
-} from "lucide-react";
+import { Eye, EyeOff, Loader2, LogOut, Monitor, ShieldOff } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -187,8 +180,7 @@ function UbahKataSandiCard() {
   );
 }
 
-interface PasswordInputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+interface PasswordInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   show: boolean;
   onToggle: () => void;
 }

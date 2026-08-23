@@ -5,11 +5,16 @@ import { useState, useMemo, useCallback } from "react";
 import { useListState } from "@/hooks/use-list-state";
 import { useUrlTab } from "@/hooks/use-url-tab";
 import Link from "next/link";
-import { CornerDownLeftIcon,
+import {
+  CornerDownLeftIcon,
   CheckCircleIcon,
   XCircleIcon,
   FlagIcon,
-  PlusIcon, Loader2Icon, RefreshCwIcon, DownloadIcon } from "lucide-react";
+  PlusIcon,
+  Loader2Icon,
+  RefreshCwIcon,
+  DownloadIcon,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -442,7 +447,11 @@ export function ReturChannelTab() {
         className="bg-white/30 dark:bg-white/[0.04]"
       >
         <div className="flex flex-wrap items-center justify-between gap-2 px-5 pt-4 sm:px-6">
-          <Tabs value={subTab} onValueChange={(val) => handleSubTabChange(val as ReturSubTab)} className="flex flex-col gap-4">
+          <Tabs
+            value={subTab}
+            onValueChange={(val) => handleSubTabChange(val as ReturSubTab)}
+            className="flex flex-col gap-4"
+          >
             <TabsList variant="line" className="h-auto">
               {SUB_TABS.map(({ key, label }) => (
                 <TabsTrigger key={key} value={key}>
@@ -481,9 +490,7 @@ export function ReturChannelTab() {
           searchPlaceholder="Cari no. resi, no. pesanan, no. retur, pelanggan..."
           align="end"
           onReset={
-            list.hasActiveFilter || !!list.search
-              ? list.resetAll
-              : undefined
+            list.hasActiveFilter || !!list.search ? list.resetAll : undefined
           }
           hasFilter={list.hasActiveFilter || !!list.search}
           activeCount={list.activeFilterCount}
@@ -530,7 +537,11 @@ export function ReturChannelTab() {
             onPaginationChange={list.onPaginationChange}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
-              <EmptyState icon={CornerDownLeftIcon} title="Belum ada retur" description="Retur dari channel online akan tampil di sini." />
+              <EmptyState
+                icon={CornerDownLeftIcon}
+                title="Belum ada retur"
+                description="Retur dari channel online akan tampil di sini."
+              />
             }
           />
         </div>

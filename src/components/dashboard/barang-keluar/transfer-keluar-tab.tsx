@@ -24,7 +24,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Combobox } from "@/components/ui/combobox";
 import { DateRangePicker } from "@/components/ui/date-picker";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
-import type { ColumnDef, Table as TableInstance, SortingState } from "@tanstack/react-table";
+import type {
+  ColumnDef,
+  Table as TableInstance,
+  SortingState,
+} from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -264,7 +268,11 @@ function TransferTable({
           }}
           tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
           emptyState={
-            <EmptyState icon={ArrowRightLeftIcon} title="Belum ada transfer keluar" description="Transfer antar lokasi yang keluar akan tampil di sini." />
+            <EmptyState
+              icon={ArrowRightLeftIcon}
+              title="Belum ada transfer keluar"
+              description="Transfer antar lokasi yang keluar akan tampil di sini."
+            />
           }
         />
       </div>
@@ -390,7 +398,8 @@ export function TransferKeluarTab() {
 
         const succeeded = results
           .filter(
-            (r): r is PromiseFulfilledResult<string> => r.status === "fulfilled",
+            (r): r is PromiseFulfilledResult<string> =>
+              r.status === "fulfilled",
           )
           .map((r) => r.value);
         const failedCount = results.length - succeeded.length;
@@ -493,45 +502,45 @@ export function TransferKeluarTab() {
     (item: InventoryTransfer) => {
       const missingBin = hasMissingBin(item);
       return (
-      <div className="flex items-center gap-1">
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={() => handlePrint(item)}
-          disabled={printingId === item.id || missingBin}
-          aria-label="Cetak Surat Jalan & kirim"
-          title={
-            missingBin
-              ? "Pilih rak asal untuk semua item dulu"
-              : "Cetak Surat Jalan & kirim"
-          }
-        >
-          {printingId === item.id ? (
-            <Loader2Icon className="size-3.5 animate-spin" />
-          ) : (
-            <PrinterIcon className="size-3.5" />
-          )}
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={() => handleEdit(item)}
-          aria-label="Ubah transfer"
-          title="Ubah transfer"
-        >
-          <PencilIcon className="size-3.5" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={() => setDeleteTarget(item)}
-          aria-label="Hapus transfer"
-          title="Hapus transfer"
-          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-        >
-          <Trash2Icon className="size-3.5" />
-        </Button>
-      </div>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => handlePrint(item)}
+            disabled={printingId === item.id || missingBin}
+            aria-label="Cetak Surat Jalan & kirim"
+            title={
+              missingBin
+                ? "Pilih rak asal untuk semua item dulu"
+                : "Cetak Surat Jalan & kirim"
+            }
+          >
+            {printingId === item.id ? (
+              <Loader2Icon className="size-3.5 animate-spin" />
+            ) : (
+              <PrinterIcon className="size-3.5" />
+            )}
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => handleEdit(item)}
+            aria-label="Ubah transfer"
+            title="Ubah transfer"
+          >
+            <PencilIcon className="size-3.5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => setDeleteTarget(item)}
+            aria-label="Hapus transfer"
+            title="Hapus transfer"
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+          >
+            <Trash2Icon className="size-3.5" />
+          </Button>
+        </div>
       );
     },
     [handlePrint, handleEdit, printingId],
@@ -662,7 +671,11 @@ export function TransferKeluarTab() {
         className="bg-white/30 dark:bg-white/[0.04]"
       >
         <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-4 sm:px-5">
-          <Tabs value={subTab} onValueChange={(val) => handleSubTabChange(val as SubTab)} className="flex flex-col gap-4">
+          <Tabs
+            value={subTab}
+            onValueChange={(val) => handleSubTabChange(val as SubTab)}
+            className="flex flex-col gap-4"
+          >
             <TabsList variant="line" className="h-auto">
               {SUB_TABS.map(({ key, label }) => (
                 <TabsTrigger key={key} value={key}>
@@ -698,9 +711,7 @@ export function TransferKeluarTab() {
           searchPlaceholder="Cari no. transfer..."
           align="end"
           onReset={
-            list.hasActiveFilter || !!list.search
-              ? list.resetAll
-              : undefined
+            list.hasActiveFilter || !!list.search ? list.resetAll : undefined
           }
           hasFilter={list.hasActiveFilter || !!list.search}
           activeCount={list.activeFilterCount}

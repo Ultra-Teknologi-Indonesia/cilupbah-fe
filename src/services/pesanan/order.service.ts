@@ -31,7 +31,8 @@ export const OrderService = {
     if (params.channel) sp.set("filter[channel]", params.channel);
     if (params.store_id) sp.set("filter[store_id]", params.store_id);
     if (params.location_id) sp.set("filter[location_id]", params.location_id);
-    if (params.content_type) sp.set("filter[content_type]", params.content_type);
+    if (params.content_type)
+      sp.set("filter[content_type]", params.content_type);
     if (params.date_from) sp.set("filter[date_from]", params.date_from);
     if (params.shipping_provider) {
       if (Array.isArray(params.shipping_provider)) {

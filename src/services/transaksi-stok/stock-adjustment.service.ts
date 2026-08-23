@@ -63,10 +63,13 @@ export const StockAdjustmentService = {
   },
 
   update: async (id: string, data: StockAdjustmentFormData) => {
-    const res = await fetchClient<ApiResponse<StockAdjustment>>(`${BASE}/${id}`, {
-      method: "PUT",
-      data,
-    });
+    const res = await fetchClient<ApiResponse<StockAdjustment>>(
+      `${BASE}/${id}`,
+      {
+        method: "PUT",
+        data,
+      },
+    );
     return res.data;
   },
 
@@ -82,11 +85,7 @@ export const StockAdjustmentService = {
   },
 
   bulkPdf: async (ids: string[]): Promise<Blob> => {
-    return fetchBlobPost(
-      `${BASE}/bulk/pdf`,
-      { ids },
-      "application/pdf",
-    );
+    return fetchBlobPost(`${BASE}/bulk/pdf`, { ids }, "application/pdf");
   },
 
   bulkDelete: async (ids: string[]): Promise<BulkDeleteResult> => {

@@ -54,9 +54,7 @@ export function ProductVariantCell({
           (copyableSku ? (
             <CopySku sku={sku} className="self-start" />
           ) : (
-            <span className="font-mono text-2xs text-foreground/80">
-              {sku}
-            </span>
+            <span className="font-mono text-2xs text-foreground/80">{sku}</span>
           ))}
       </div>
     </div>

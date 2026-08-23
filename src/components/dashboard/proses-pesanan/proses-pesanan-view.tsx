@@ -2,7 +2,12 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { PackageIcon, PlusIcon, ScanBarcodeIcon, FileTextIcon } from "lucide-react";
+import {
+  PackageIcon,
+  PlusIcon,
+  ScanBarcodeIcon,
+  FileTextIcon,
+} from "lucide-react";
 
 function InvoiceLinkCell({
   orderId,
@@ -126,10 +131,7 @@ function FulfillmentBoard({ stage }: { stage: FulfillmentStage }) {
               key: "invoice_no",
               header: "No. Faktur",
               cell: (o) => (
-                <InvoiceLinkCell
-                  orderId={o.id}
-                  invoiceNo={o.invoice_no}
-                />
+                <InvoiceLinkCell orderId={o.id} invoiceNo={o.invoice_no} />
               ),
             },
             {
@@ -172,10 +174,7 @@ function FulfillmentBoard({ stage }: { stage: FulfillmentStage }) {
                 key: "invoice_no",
                 header: "No. Faktur",
                 cell: (o) => (
-                  <InvoiceLinkCell
-                    orderId={o.id}
-                    invoiceNo={o.invoice_no}
-                  />
+                  <InvoiceLinkCell orderId={o.id} invoiceNo={o.invoice_no} />
                 ),
               },
             ]}
@@ -194,10 +193,7 @@ function FulfillmentBoard({ stage }: { stage: FulfillmentStage }) {
               key: "invoice_no",
               header: "No. Faktur",
               cell: (o) => (
-                <InvoiceLinkCell
-                  orderId={o.id}
-                  invoiceNo={o.invoice_no}
-                />
+                <InvoiceLinkCell orderId={o.id} invoiceNo={o.invoice_no} />
               ),
             },
             {
@@ -285,7 +281,10 @@ function FulfillmentBoard({ stage }: { stage: FulfillmentStage }) {
           </div>
 
           <div className="flex items-center gap-2">
-            <div id="proses-pesanan-filter-portal" className="flex flex-wrap items-center gap-2" />
+            <div
+              id="proses-pesanan-filter-portal"
+              className="flex flex-wrap items-center gap-2"
+            />
             {showAdHocPickingButton && (
               <Button asChild variant="primary" size="sm" className="h-9">
                 <Link href="/dashboard/proses-pesanan/picking/proses-pesanan">

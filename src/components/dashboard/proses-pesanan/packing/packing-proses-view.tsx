@@ -121,7 +121,8 @@ function OrderPackCard({
 }) {
   const packed = pl.items.reduce((s, i) => s + i.qtyPacked, 0);
   const total = pl.items.reduce((s, i) => s + i.qtyOrdered, 0);
-  const done = pl.items.length > 0 && pl.items.every((i) => i.qtyPacked >= i.qtyOrdered);
+  const done =
+    pl.items.length > 0 && pl.items.every((i) => i.qtyPacked >= i.qtyOrdered);
 
   return (
     <div
@@ -264,9 +265,7 @@ export function PackingProsesView() {
   const detailQueries = usePacklistDetails(packlistIds);
   const packlists = React.useMemo(
     () =>
-      detailQueries
-        .map((q) => q.data)
-        .filter((d): d is PacklistDetail => !!d),
+      detailQueries.map((q) => q.data).filter((d): d is PacklistDetail => !!d),
     [detailQueries],
   );
   const anyDetailLoading = detailQueries.some((q) => q.isLoading);
@@ -356,12 +355,9 @@ export function PackingProsesView() {
                 isInstant: pl.isInstant,
               })
             ) {
-
               printWithDriverCall.mutate({ orderId: pl.orderId });
             }
-            const remaining = packlistIdsRef.current.filter(
-              (x) => x !== pl.id,
-            );
+            const remaining = packlistIdsRef.current.filter((x) => x !== pl.id);
             setPacklistIds(remaining);
             if (remaining.length === 0) {
               setTimeout(() => orderScanRef.current?.focus(), 60);
@@ -379,8 +375,7 @@ export function PackingProsesView() {
   }, [packlists, packItem.isPending, completePacklist, printWithDriverCall]);
 
   const pickerList = React.useMemo(() => pickers.data ?? [], [pickers.data]);
-  const checkerName =
-    pickerList.find((p) => p.id === checkerId)?.name ?? null;
+  const checkerName = pickerList.find((p) => p.id === checkerId)?.name ?? null;
 
   const packerOptions = React.useMemo(
     () =>
@@ -482,8 +477,7 @@ export function PackingProsesView() {
             return;
           }
         }
-      } catch {
-      }
+      } catch {}
     }
     playScanFeedback("sku_mismatch");
     toast.error(`SKU/Barcode "${code}" tidak ditemukan di sesi ini.`);
@@ -543,7 +537,6 @@ export function PackingProsesView() {
       ) : (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_420px]">
           <div className="flex min-w-0 flex-col gap-4">
-
             <div className="rounded-2xl border border-border bg-card p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2 text-sm">
@@ -637,7 +630,9 @@ export function PackingProsesView() {
             ) : anyDetailLoading && packlists.length === 0 ? (
               <div className="flex items-center justify-center gap-2 rounded-2xl border border-border bg-card py-16">
                 <Loader2Icon className="size-4 animate-spin text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Memuat item…</span>
+                <span className="text-sm text-muted-foreground">
+                  Memuat item…
+                </span>
               </div>
             ) : (
               packlists.map((pl) => (

@@ -18,7 +18,9 @@ export default function Home() {
   };
 
   const item: Variants = {
-    hidden: reduce ? { opacity: 0 } : { opacity: 0, y: 24, filter: "blur(6px)" },
+    hidden: reduce
+      ? { opacity: 0 }
+      : { opacity: 0, y: 24, filter: "blur(6px)" },
     show: {
       opacity: 1,
       y: 0,
@@ -29,7 +31,6 @@ export default function Home() {
 
   return (
     <main className="relative flex min-h-[100dvh] flex-col overflow-hidden bg-background font-sans">
-
       <div
         aria-hidden
         className="pointer-events-none absolute -top-40 left-1/2 size-[42rem] -translate-x-1/2 rounded-full bg-primary/10 blur-[140px]"
@@ -82,7 +83,10 @@ export default function Home() {
             tersinkronisasi otomatis dan siap dijalankan.
           </motion.p>
 
-          <motion.div variants={item} className="mt-9 w-full sm:mt-10 sm:w-auto">
+          <motion.div
+            variants={item}
+            className="mt-9 w-full sm:mt-10 sm:w-auto"
+          >
             <Link
               href="/login"
               className="group inline-flex w-full items-center justify-center gap-3 rounded-full bg-primary py-2.5 pl-6 pr-2.5 text-base font-medium text-primary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-primary/90 active:scale-[0.98] sm:w-auto sm:py-2 sm:pr-2"

@@ -149,8 +149,7 @@ export function useStartDownload() {
         queryKey: ["master-produk", "download-transactions"],
       });
     },
-    onError: (err) =>
-      apiError(err, "Gagal memulai download"),
+    onError: (err) => apiError(err, "Gagal memulai download"),
   });
 }
 
@@ -193,7 +192,6 @@ export function useDownloadProduct() {
       });
       qc.invalidateQueries({ queryKey: ["master-produk"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal mengunduh produk"),
+    onError: (err) => apiError(err, "Gagal mengunduh produk"),
   });
 }

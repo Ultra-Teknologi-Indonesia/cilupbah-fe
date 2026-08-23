@@ -14,10 +14,7 @@ export const NotificationService = {
       "/notifications",
       {
         method: "GET",
-        params: params as Record<
-          string,
-          string | number | boolean | undefined
-        >,
+        params: params as Record<string, string | number | boolean | undefined>,
       },
     );
     return {

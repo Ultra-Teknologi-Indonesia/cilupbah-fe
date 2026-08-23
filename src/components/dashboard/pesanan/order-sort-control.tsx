@@ -54,7 +54,8 @@ export function OrderSortControl({
   };
 
   const activeFieldLabel =
-    SORT_FIELD_OPTIONS.find((f) => f.value === sortBy)?.label ?? "Tgl. Transaksi";
+    SORT_FIELD_OPTIONS.find((f) => f.value === sortBy)?.label ??
+    "Tgl. Transaksi";
 
   const isCustomSort = sortBy !== "transaction_date" || isAsc;
 
@@ -93,7 +94,9 @@ export function OrderSortControl({
             ) : (
               <>
                 <ArrowDownWideNarrowIcon className="size-3.5 shrink-0 transition-transform" />
-                <span>{sortBy === "transaction_date" ? "Terbaru" : activeFieldLabel}</span>
+                <span>
+                  {sortBy === "transaction_date" ? "Terbaru" : activeFieldLabel}
+                </span>
               </>
             )}
           </Button>
@@ -108,7 +111,8 @@ export function OrderSortControl({
               title="Pilih kolom pengurutan lainnya"
               className={cn(
                 "h-9 w-7 rounded-l-none rounded-r-full p-0 border-l border-border/40 hover:bg-black/5 dark:hover:bg-white/5",
-                isCustomSort && "border-primary/30 text-primary hover:text-primary",
+                isCustomSort &&
+                  "border-primary/30 text-primary hover:text-primary",
               )}
             >
               <ChevronDownIcon className="size-3.5 opacity-70" />
@@ -116,7 +120,10 @@ export function OrderSortControl({
           </DropdownMenuTrigger>
         </div>
 
-        <DropdownMenuContent align="end" className="w-56 rounded-2xl p-1.5 shadow-xl">
+        <DropdownMenuContent
+          align="end"
+          className="w-56 rounded-2xl p-1.5 shadow-xl"
+        >
           <DropdownMenuLabel className="px-2 py-1.5 text-xs text-muted-foreground font-normal">
             Urutkan Berdasarkan
           </DropdownMenuLabel>
@@ -134,7 +141,9 @@ export function OrderSortControl({
                 )}
               >
                 <span>{opt.label}</span>
-                {isSelected && <CheckIcon className="size-3.5 text-primary shrink-0" />}
+                {isSelected && (
+                  <CheckIcon className="size-3.5 text-primary shrink-0" />
+                )}
               </DropdownMenuItem>
             );
           })}

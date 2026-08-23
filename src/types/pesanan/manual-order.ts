@@ -1,6 +1,4 @@
-export type DeliveryMethod =
-  | "COURIER"
-  | "SELF_PICKUP";
+export type DeliveryMethod = "COURIER" | "SELF_PICKUP";
 
 export interface ManualOrderItemPayload {
   item_id: string;

@@ -34,9 +34,7 @@ import {
   useMapAttributeToChannel,
 } from "@/hooks/kategori-merek/use-kategori";
 import { useListState } from "@/hooks/use-list-state";
-import type {
-  CategoryAttributeItem,
-} from "@/types/kategori-merek/kategori";
+import type { CategoryAttributeItem } from "@/types/kategori-merek/kategori";
 
 const CHANNELS = [
   { code: "shopee", name: "Shopee" },
@@ -143,7 +141,8 @@ export function AtributVariasiView({
         <div className="px-5 py-5 sm:px-6">
           {isLoading ? (
             <div className="flex items-center justify-center gap-2 py-16 text-muted-foreground">
-              <Loader2Icon className="size-4 animate-spin" /></div>
+              <Loader2Icon className="size-4 animate-spin" />
+            </div>
           ) : isError ? (
             <div className="py-16 text-center text-sm text-destructive">
               Gagal memuat data {label.toLowerCase()}.
@@ -334,7 +333,8 @@ function ChannelAttributeSelect({
   if (isLoading) {
     return (
       <div className="flex items-center gap-1 text-muted-foreground">
-        <Loader2Icon className="size-3 animate-spin" /></div>
+        <Loader2Icon className="size-3 animate-spin" />
+      </div>
     );
   }
 

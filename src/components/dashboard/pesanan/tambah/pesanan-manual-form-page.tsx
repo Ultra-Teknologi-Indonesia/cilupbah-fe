@@ -256,10 +256,7 @@ export function PesananManualFormPage() {
   }
 
   const totals = useMemo(() => {
-    const subTotal = items.reduce(
-      (acc, it) => acc + it.qty * it.price,
-      0,
-    );
+    const subTotal = items.reduce((acc, it) => acc + it.qty * it.price, 0);
     const totalItemDisc = items.reduce((acc, it) => {
       const gross = it.qty * it.price;
       const percentDisc = (gross * it.discPercent) / 100;
@@ -267,7 +264,10 @@ export function PesananManualFormPage() {
       return acc + disc;
     }, 0);
     const itemShipping = items.reduce((acc, it) => acc + it.shippingFee, 0);
-    const netShipping = Math.max(0, shippingCost + itemShipping - shippingDiscount);
+    const netShipping = Math.max(
+      0,
+      shippingCost + itemShipping - shippingDiscount,
+    );
     const additionalFee =
       serviceFee - sellerVoucher + insuranceCost + orderProcessingFee;
     const netSub = subTotal - totalItemDisc - otherDiscount;
@@ -394,7 +394,6 @@ export function PesananManualFormPage() {
 
       <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
         <div className="flex flex-col gap-5">
-
           <LiquidGlass
             radius={16}
             intensity="subtle"
@@ -566,7 +565,8 @@ export function PesananManualFormPage() {
                         const percentDisc = (gross * it.discPercent) / 100;
                         const disc =
                           it.discAmount > 0 ? it.discAmount : percentDisc;
-                        const total = Math.max(0, gross - disc) + it.shippingFee;
+                        const total =
+                          Math.max(0, gross - disc) + it.shippingFee;
                         return (
                           <TableRow key={it.key}>
                             <TableCell className="w-[260px] min-w-[200px] max-w-[300px] whitespace-normal align-top">

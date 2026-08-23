@@ -36,7 +36,8 @@ export function AssignmentLockBanner({
       <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm">
         <CheckCircle2Icon className="size-4 shrink-0 text-success" />
         <span className="text-muted-foreground">
-          Sudah selesai oleh <span className="font-medium text-foreground">{assignedToName}</span>.
+          Sudah selesai oleh{" "}
+          <span className="font-medium text-foreground">{assignedToName}</span>.
           Kamu bisa mengoreksi qty dari sini.
         </span>
       </div>

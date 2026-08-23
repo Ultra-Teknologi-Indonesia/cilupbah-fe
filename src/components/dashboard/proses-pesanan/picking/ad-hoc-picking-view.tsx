@@ -294,7 +294,6 @@ export function AdHocPickingView() {
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
-
         <aside className="flex flex-col gap-4">
           <div className="rounded-2xl border border-border bg-card p-4">
             <div className="text-xs text-muted-foreground">

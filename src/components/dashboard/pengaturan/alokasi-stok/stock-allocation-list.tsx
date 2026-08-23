@@ -33,9 +33,7 @@ function StockAllocationRow({
   });
 
   const [mode, setMode] = useState<StockSourceMode>(store.stockSourceMode);
-  const [locationId, setLocationId] = useState<string | null>(
-    store.locationId,
-  );
+  const [locationId, setLocationId] = useState<string | null>(store.locationId);
   const [synced, setSynced] = useState({
     mode: store.stockSourceMode,
     locationId: store.locationId,
@@ -95,9 +93,7 @@ function StockAllocationRow({
           name={store.channelName}
           className="size-8 rounded-xl"
         />
-        <span className="truncate text-sm font-medium">
-          {store.storeName}
-        </span>
+        <span className="truncate text-sm font-medium">{store.storeName}</span>
       </div>
 
       <div className="flex flex-wrap items-center gap-3">

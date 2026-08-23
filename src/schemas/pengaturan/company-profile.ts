@@ -11,7 +11,10 @@ export const companyProfileSchema = z.object({
   postalCode: z.string().trim().max(16).nullish(),
   phone: z.string().trim().max(32).nullish(),
   email: z
-    .union([z.literal(""), z.string().email({ message: "Format email tidak valid" })])
+    .union([
+      z.literal(""),
+      z.string().email({ message: "Format email tidak valid" }),
+    ])
     .nullish(),
   logoMediaId: z.string().uuid().nullish(),
   signatureMediaId: z.string().uuid().nullish(),

@@ -5,14 +5,16 @@ import { useState, useMemo, useCallback } from "react";
 import { useListState } from "@/hooks/use-list-state";
 import { useUrlTab } from "@/hooks/use-url-tab";
 import Link from "next/link";
-import { PlusIcon,
+import {
+  PlusIcon,
   PencilIcon,
   Trash2Icon,
   LockIcon,
   UsersIcon,
   TruckIcon,
   ArrowLeftRightIcon,
-  UploadIcon } from "lucide-react";
+  UploadIcon,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -252,7 +254,10 @@ export function KontakPemasokView() {
   }
 
   const filterTabs = (
-    <Tabs value={typeFilter || ""} onValueChange={(val) => handleTypeFilter(val as TypeFilter)}>
+    <Tabs
+      value={typeFilter || ""}
+      onValueChange={(val) => handleTypeFilter(val as TypeFilter)}
+    >
       <TabsList variant="line" className="h-auto">
         {TYPE_TABS.map(({ key, label, icon: Icon }) => (
           <TabsTrigger key={key} value={key}>
@@ -311,9 +316,7 @@ export function KontakPemasokView() {
           <Combobox
             options={categoryOptions}
             value={filters.category_id}
-            onChange={(v) =>
-              setFilters({ ...filters, category_id: v ?? "" })
-            }
+            onChange={(v) => setFilters({ ...filters, category_id: v ?? "" })}
             placeholder="Kategori"
             searchPlaceholder="Cari kategori"
             className="h-9 bg-background"
@@ -321,9 +324,7 @@ export function KontakPemasokView() {
           <Combobox
             options={statusOptions}
             value={filters.status}
-            onChange={(v) =>
-              setFilters({ ...filters, status: v ?? "" })
-            }
+            onChange={(v) => setFilters({ ...filters, status: v ?? "" })}
             placeholder="Status"
             searchPlaceholder="Cari status"
             className="h-9 bg-background"
@@ -343,7 +344,11 @@ export function KontakPemasokView() {
             onPaginationChange={onPaginationChange}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
-              <EmptyState icon={TruckIcon} title="Belum ada kontak pemasok" description="Buat pemasok baru untuk mulai mengelola kontak." />
+              <EmptyState
+                icon={TruckIcon}
+                title="Belum ada kontak pemasok"
+                description="Buat pemasok baru untuk mulai mengelola kontak."
+              />
             }
           />
         </div>

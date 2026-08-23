@@ -27,7 +27,9 @@ export function FaqTab() {
 
   const [query, setQuery] = React.useState("");
   const [activeCat, setActiveCat] = React.useState<FaqCategory | "all">("all");
-  const [openIds, setOpenIds] = React.useState<string[]>(focusId ? [focusId] : []);
+  const [openIds, setOpenIds] = React.useState<string[]>(
+    focusId ? [focusId] : [],
+  );
 
   const itemRefs = React.useRef<Map<string, HTMLDivElement | null>>(new Map());
 
@@ -52,7 +54,8 @@ export function FaqTab() {
     return FAQ_ITEMS.filter((item) => {
       if (activeCat !== "all" && item.category !== activeCat) return false;
       if (!q) return true;
-      const hay = `${item.question} ${item.answer} ${(item.tags ?? []).join(" ")}`.toLowerCase();
+      const hay =
+        `${item.question} ${item.answer} ${(item.tags ?? []).join(" ")}`.toLowerCase();
       return hay.includes(q);
     });
   }, [query, activeCat]);
@@ -112,7 +115,8 @@ export function FaqTab() {
           )}
         </div>
         <div className="text-xs text-muted-foreground tabular-nums">
-          <span className="font-medium text-foreground">{filtered.length}</span> / {totalCount} FAQ
+          <span className="font-medium text-foreground">{filtered.length}</span>{" "}
+          / {totalCount} FAQ
         </div>
       </div>
 
@@ -149,7 +153,9 @@ export function FaqTab() {
             return (
               <section key={cat.key} className="flex flex-col gap-3">
                 <div className="flex items-center gap-2">
-                  <h2 className="text-sm font-semibold text-foreground">{cat.label}</h2>
+                  <h2 className="text-sm font-semibold text-foreground">
+                    {cat.label}
+                  </h2>
                   <Badge variant="outline" className="rounded-full">
                     {items.length}
                   </Badge>
@@ -174,7 +180,10 @@ export function FaqTab() {
                             isFocus && "ring-2 ring-primary/40",
                           )}
                         >
-                          <Accordion.Item value={item.id} className="rounded-xl">
+                          <Accordion.Item
+                            value={item.id}
+                            className="rounded-xl"
+                          >
                             <Accordion.Header className="flex">
                               <Accordion.Trigger
                                 className={cn(

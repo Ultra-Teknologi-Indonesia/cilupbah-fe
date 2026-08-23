@@ -92,7 +92,9 @@ export function ResetAssignmentDialog({
           <div className="space-y-2">
             <Label htmlFor="reset-note">
               Alasan reset <span className="text-destructive">*</span>{" "}
-              <span className="text-xs text-muted-foreground">(min. 10 karakter)</span>
+              <span className="text-xs text-muted-foreground">
+                (min. 10 karakter)
+              </span>
             </Label>
             <Textarea
               id="reset-note"

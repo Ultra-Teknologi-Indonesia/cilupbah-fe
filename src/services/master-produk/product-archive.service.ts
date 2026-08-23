@@ -22,7 +22,8 @@ function mapArchived(raw: RawArchivedItem): ArchivedProduct {
     thumbnail: raw.thumbnail,
     isBundle: raw.is_bundle,
     totalVariants: raw.total_variants,
-    totalComponents: raw.total_components ?? (raw.is_bundle ? raw.total_variants : undefined),
+    totalComponents:
+      raw.total_components ?? (raw.is_bundle ? raw.total_variants : undefined),
     archivedAt: raw.archived_at,
     archivedBy: raw.archived_by,
     archiveReason: raw.archive_reason,

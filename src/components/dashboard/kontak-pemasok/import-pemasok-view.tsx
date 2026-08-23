@@ -1,13 +1,16 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { UploadIcon,
+import {
+  UploadIcon,
   FileSpreadsheetIcon,
   CheckCircle2Icon,
   XCircleIcon,
   SaveIcon,
   AlertTriangleIcon,
-  FileDownIcon, Loader2Icon } from "lucide-react";
+  FileDownIcon,
+  Loader2Icon,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -133,7 +136,6 @@ export function ImportPemasokDialog({
           <div className="flex flex-col gap-4 p-6">
             {showUploadStep && (
               <>
-
                 <div
                   className={cn(
                     "flex items-center gap-3 rounded-lg border px-4 py-3 transition-colors cursor-pointer",
@@ -191,7 +193,6 @@ export function ImportPemasokDialog({
 
             {result && (
               <>
-
                 <div className="grid gap-3 sm:grid-cols-3">
                   <div className="rounded-xl border border-border/40 p-3">
                     <p className="text-xs text-muted-foreground">Total Baris</p>

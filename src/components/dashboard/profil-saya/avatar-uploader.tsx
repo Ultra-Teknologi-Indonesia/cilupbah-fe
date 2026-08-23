@@ -14,10 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  useRemoveAvatar,
-  useUploadAvatar,
-} from "@/hooks/auth/use-profile";
+import { useRemoveAvatar, useUploadAvatar } from "@/hooks/auth/use-profile";
 import { getInitials } from "@/lib/format";
 
 const MAX_BYTES = 2 * 1024 * 1024;

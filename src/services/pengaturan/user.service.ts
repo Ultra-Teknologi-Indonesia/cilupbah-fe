@@ -57,7 +57,15 @@ function mapRole(raw: RawRole): Role {
 }
 
 export const UserService = {
-  lookup: async (params: { q?: string; search?: string; role?: string | string[]; page?: number; perPage?: number } = {}) => {
+  lookup: async (
+    params: {
+      q?: string;
+      search?: string;
+      role?: string | string[];
+      page?: number;
+      perPage?: number;
+    } = {},
+  ) => {
     const qs = new URLSearchParams();
     const query = params.q ?? params.search;
     if (query) qs.set("q", query);
@@ -71,15 +79,17 @@ export const UserService = {
       }
     }
 
-    const res = await fetchClient<ApiPaginated<{
-      id: string;
-      user_id?: string;
-      name: string;
-      email: string;
-      roles?: string[];
-      avatar_url?: string | null;
-      last_login?: string | null;
-    }>>(`/users/lookup?${qs.toString()}`);
+    const res = await fetchClient<
+      ApiPaginated<{
+        id: string;
+        user_id?: string;
+        name: string;
+        email: string;
+        roles?: string[];
+        avatar_url?: string | null;
+        last_login?: string | null;
+      }>
+    >(`/users/lookup?${qs.toString()}`);
 
     return {
       items: (res.data ?? []).map((u) => ({
@@ -156,7 +166,10 @@ export const UserService = {
 
   bulkDelete: async (
     ids: string[],
-  ): Promise<{ deleted: string[]; failed: { id: string; message: string }[] }> => {
+  ): Promise<{
+    deleted: string[];
+    failed: { id: string; message: string }[];
+  }> => {
     const results = await Promise.allSettled(
       ids.map((id) => UserService.delete(id)),
     );

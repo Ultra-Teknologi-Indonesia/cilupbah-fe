@@ -246,7 +246,9 @@ export function PicklistReportDialog({
           ) : (
             <>
               <div className="flex flex-col gap-2">
-                <Label className="text-xs text-muted-foreground">Picklist</Label>
+                <Label className="text-xs text-muted-foreground">
+                  Picklist
+                </Label>
                 <Combobox
                   options={picklistOptions}
                   value={picklistId}

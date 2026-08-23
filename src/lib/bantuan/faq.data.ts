@@ -15,7 +15,6 @@ export const FAQ_CATEGORIES: { key: FaqCategory; label: string }[] = [
 ];
 
 export const FAQ_ITEMS: FaqItem[] = [
-
   {
     id: "umum-01",
     category: "umum",
@@ -44,7 +43,8 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     id: "umum-04",
     category: "umum",
-    question: "Apa beda peran Owner, Admin, Manager, Gudang, Kasir, dan Finance?",
+    question:
+      "Apa beda peran Owner, Admin, Manager, Gudang, Kasir, dan Finance?",
     answer:
       "Peran menentukan modul yang bisa diakses. **Owner** = seluruh akses termasuk hapus. **Admin** = seluruh akses kecuali beberapa aksi sensitif. **Manager** = laporan + persetujuan. **Gudang** = penerimaan, penempatan, picking, packing. **Kasir** = pesanan manual + pembayaran. **Finance** = keuangan + retur + laporan. Detail lengkap ada di *Pengaturan → Peran / RBAC*.",
     relatedManualSlug: "pengaturan/rbac",
@@ -68,7 +68,8 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     id: "umum-07",
     category: "umum",
-    question: "Bagaimana melihat perangkat yang sedang login dan logout paksa perangkat lain?",
+    question:
+      "Bagaimana melihat perangkat yang sedang login dan logout paksa perangkat lain?",
     answer:
       "Profil Saya → tab **Sesi & Riwayat**. Daftar sesi aktif menunjukkan perangkat, browser, IP, dan waktu terakhir. Klik **Logout** di baris tertentu untuk mengakhiri sesi di perangkat itu.",
     relatedManualSlug: "profil-saya/sesi-riwayat",
@@ -124,7 +125,8 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     id: "pesanan-07",
     category: "pesanan",
-    question: "Kenapa pesanan Shopee/Lazada/TikTok/WooCommerce tidak masuk otomatis?",
+    question:
+      "Kenapa pesanan Shopee/Lazada/TikTok/WooCommerce tidak masuk otomatis?",
     answer:
       "Umumnya: (1) token kedaluwarsa — buka *Integrasi Channel*, refresh token. (2) Webhook tidak aktif — cek status webhook di detail toko. (3) Toko dinonaktifkan. (4) Untuk WC: pastikan Basic Auth (consumer key/secret) benar dan URL toko dapat diakses publik.",
     relatedManualSlug: "integrasi-channel/koneksi",
@@ -399,7 +401,8 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     id: "retur-02",
     category: "retur",
-    question: "Apa arti status marketplace NO_RETURN_NEEDED / SELLER_WIN / SELLER_REFUSE_RETURN?",
+    question:
+      "Apa arti status marketplace NO_RETURN_NEEDED / SELLER_WIN / SELLER_REFUSE_RETURN?",
     answer:
       "Ketiganya = *dispute_outcome final* dari channel. Bukan berarti tidak ada retur; wajib input laporan retur bulanan untuk audit walau outcome menolak.",
   },
@@ -513,7 +516,7 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     id: "trb-01",
     category: "troubleshooting",
-    question: "Muncul \"Terjadi kesalahan\" — langkah pertama?",
+    question: 'Muncul "Terjadi kesalahan" — langkah pertama?',
     answer:
       "1. Cek **Notifikasi** untuk pesan error detail. 2. Cek *Aktivitas Impex* untuk proses async. 3. Refresh (F5). 4. Jika berulang, screenshot + kirim ke Admin (sertakan URL & waktu).",
   },
@@ -555,7 +558,8 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     id: "trb-07",
     category: "troubleshooting",
-    question: "Tombol Kembali membawa saya ke halaman berbeda dari yang diharapkan?",
+    question:
+      "Tombol Kembali membawa saya ke halaman berbeda dari yang diharapkan?",
     answer:
       "Tombol *Kembali* memakai `router.back()` + fallback breadcrumb. Jika alur unik (mis. deeplink), fallback ke parent breadcrumb dipakai. Ini disengaja untuk konsistensi.",
   },

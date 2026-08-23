@@ -60,14 +60,18 @@ export function BulkRequestCancelDialog({
     if (source === "lazada") {
       const shops = Array.from(new Set(eligible.map((o) => o.channel_shop_id)));
       if (shops.length > 1) {
-        return { error: "Untuk Lazada, pilih pesanan dari satu toko yang sama." };
+        return {
+          error: "Untuk Lazada, pilih pesanan dari satu toko yang sama.",
+        };
       }
       return { source };
     }
     if (source === "tiktok") {
       const groups = Array.from(
         new Set(
-          eligible.map((o) => tiktokStatusGroup(o.channel_status_raw, o.is_paid)),
+          eligible.map((o) =>
+            tiktokStatusGroup(o.channel_status_raw, o.is_paid),
+          ),
         ),
       );
       if (groups.length > 1) {

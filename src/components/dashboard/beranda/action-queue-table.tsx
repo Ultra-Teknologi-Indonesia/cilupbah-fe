@@ -64,7 +64,10 @@ export function ActionQueueTable({
   const handleProcessAll = () =>
     moveToReady.mutate(
       items.map((it) => it.id),
-      { onSuccess: () => queryClient.invalidateQueries({ queryKey: ["dashboard"] }) },
+      {
+        onSuccess: () =>
+          queryClient.invalidateQueries({ queryKey: ["dashboard"] }),
+      },
     );
 
   return (
@@ -114,7 +117,11 @@ export function ActionQueueTable({
           ))}
         </div>
       ) : items.length === 0 ? (
-        <EmptyState icon={Icon} title="Antrian bersih" description={emptyMessage} />
+        <EmptyState
+          icon={Icon}
+          title="Antrian bersih"
+          description={emptyMessage}
+        />
       ) : (
         <ScrollArea orientation="both" viewportClassName="max-h-[19rem]">
           <Table scrollContainer={false}>
@@ -130,7 +137,12 @@ export function ActionQueueTable({
             </TableHeader>
             <TableBody>
               {items.map((row) => (
-                <QueueRow key={row.id} queue={queue} row={row} onOpen={router.push} />
+                <QueueRow
+                  key={row.id}
+                  queue={queue}
+                  row={row}
+                  onOpen={router.push}
+                />
               ))}
             </TableBody>
           </Table>
@@ -181,10 +193,7 @@ function QueueRow({
       <TableCell className="text-muted-foreground">
         {formatDate(row.transaction_date)}
       </TableCell>
-      <TableCell
-        className="text-right"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
         <QueueRowActions queue={queue} row={row} />
       </TableCell>
     </TableRow>

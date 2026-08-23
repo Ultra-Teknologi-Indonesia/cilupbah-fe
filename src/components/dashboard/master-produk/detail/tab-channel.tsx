@@ -145,7 +145,10 @@ function ListingRow({
           {listing.shopName ?? "Tanpa nama toko"}
         </span>
         {listing.externalProductId && (
-          <CopyableId value={listing.externalProductId} label="ID Marketplace" />
+          <CopyableId
+            value={listing.externalProductId}
+            label="ID Marketplace"
+          />
         )}
       </div>
 
@@ -388,7 +391,8 @@ export function TabChannel({ productId }: { productId: string }) {
         `Sinkronisasi ke toko ${listing.shopName ?? "channel"} berhasil dijadwalkan.`,
       );
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Gagal menjadwalkan sinkronisasi";
+      const msg =
+        err instanceof Error ? err.message : "Gagal menjadwalkan sinkronisasi";
       toast.error(msg);
     }
   };
@@ -543,7 +547,11 @@ export function TabChannel({ productId }: { productId: string }) {
                     <div className="flex items-center gap-2">
                       <ChannelLogo
                         code={item.listing.channelCode as ChannelCode}
-                        name={item.listing.channelName ?? item.listing.channelCode ?? "Channel"}
+                        name={
+                          item.listing.channelName ??
+                          item.listing.channelCode ??
+                          "Channel"
+                        }
                         className="size-5 shrink-0 text-2xs"
                       />
                       <div className="flex flex-col min-w-0">
@@ -691,9 +699,18 @@ export function TabChannel({ productId }: { productId: string }) {
             <span>Catatan Keamanan Data:</span>
           </p>
           <ul className="mt-1.5 list-disc list-inside space-y-0.5 text-2xs">
-            <li>Master produk dan varian SKU internal di sistem <strong>tidak akan terhapus</strong>.</li>
-            <li>Persediaan fisik dan saldo stok di gudang tetap <strong>100% aman</strong>.</li>
-            <li>Anda dapat menautkan kembali produk ini kapan saja dengan melakukan download/sinkron ulang.</li>
+            <li>
+              Master produk dan varian SKU internal di sistem{" "}
+              <strong>tidak akan terhapus</strong>.
+            </li>
+            <li>
+              Persediaan fisik dan saldo stok di gudang tetap{" "}
+              <strong>100% aman</strong>.
+            </li>
+            <li>
+              Anda dapat menautkan kembali produk ini kapan saja dengan
+              melakukan download/sinkron ulang.
+            </li>
           </ul>
         </div>
       </ConfirmDialog>

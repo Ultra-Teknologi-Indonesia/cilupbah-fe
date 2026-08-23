@@ -163,9 +163,9 @@ export const SalesReturnService = {
   },
 
   getChannelRejectReasons: async (id: string) => {
-    const res = await fetchClient<
-      ApiResponse<{ id: string; text: string }[]>
-    >(`/sales/returns/${id}/channel-reject-reasons`);
+    const res = await fetchClient<ApiResponse<{ id: string; text: string }[]>>(
+      `/sales/returns/${id}/channel-reject-reasons`,
+    );
     return res.data ?? [];
   },
 

@@ -145,22 +145,23 @@ export function PesananDetailView({ id }: { id: string }) {
               status={po.status}
               className="text-xs"
             />
-            {(po.status === "OPEN" || po.status === "PARTIAL_RECEIVED") && !po.active_inbound && (
-              <Button
-                size="sm"
-                variant="default"
-                className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
-                disabled={recreateInboundMut.isPending}
-                onClick={() => recreateInboundMut.mutate(po.id)}
-              >
-                {recreateInboundMut.isPending ? (
-                  <Loader2Icon className="mr-2 size-4 animate-spin" />
-                ) : (
-                  <RotateCcwIcon className="mr-2 size-4" />
-                )}
-                Buat ulang penerimaan barang
-              </Button>
-            )}
+            {(po.status === "OPEN" || po.status === "PARTIAL_RECEIVED") &&
+              !po.active_inbound && (
+                <Button
+                  size="sm"
+                  variant="default"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+                  disabled={recreateInboundMut.isPending}
+                  onClick={() => recreateInboundMut.mutate(po.id)}
+                >
+                  {recreateInboundMut.isPending ? (
+                    <Loader2Icon className="mr-2 size-4 animate-spin" />
+                  ) : (
+                    <RotateCcwIcon className="mr-2 size-4" />
+                  )}
+                  Buat ulang penerimaan barang
+                </Button>
+              )}
             <Button
               variant="outline"
               size="sm"
@@ -195,7 +196,10 @@ export function PesananDetailView({ id }: { id: string }) {
           <div className="flex items-center gap-2">
             <RotateCcwIcon className="size-4 shrink-0" />
             <span>
-              Dokumen penerimaan barang untuk PO ini sebelumnya telah dibatalkan atau dihapus. Klik tombol <strong>&quot;Buat ulang penerimaan barang&quot;</strong> untuk menerbitkan kembali dokumen penerimaan baru ke gudang.
+              Dokumen penerimaan barang untuk PO ini sebelumnya telah dibatalkan
+              atau dihapus. Klik tombol{" "}
+              <strong>&quot;Buat ulang penerimaan barang&quot;</strong> untuk
+              menerbitkan kembali dokumen penerimaan baru ke gudang.
             </span>
           </div>
           <Button
@@ -324,7 +328,8 @@ export function PesananDetailView({ id }: { id: string }) {
                       item.product?.name ?? item.description ?? "—";
                     const imageUrl =
                       item.variant?.media?.[0]?.url ??
-                      (item.variant as { thumbnail?: string | null })?.thumbnail ??
+                      (item.variant as { thumbnail?: string | null })
+                        ?.thumbnail ??
                       item.product?.media?.[0]?.url ??
                       item.product?.image_url;
                     return (
@@ -335,7 +340,10 @@ export function PesananDetailView({ id }: { id: string }) {
                         <TableCell className="px-3 py-2.5">
                           <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border bg-muted/50">
                             {imageUrl ? (
-                              <Image unoptimized width={400} height={400}
+                              <Image
+                                unoptimized
+                                width={400}
+                                height={400}
                                 src={imageUrl}
                                 alt={productDisplayName}
                                 className="h-full w-full object-cover"
@@ -514,8 +522,8 @@ export function PesananDetailView({ id }: { id: string }) {
                     </div>
                     {po.qc_summary.total_rejected > 0 && (
                       <p className="text-2xs text-muted-foreground">
-                        Arahkan kursor ke badge &ldquo;Ditolak&rdquo; pada
-                        tabel produk untuk melihat alasan penolakan.
+                        Arahkan kursor ke badge &ldquo;Ditolak&rdquo; pada tabel
+                        produk untuk melihat alasan penolakan.
                       </p>
                     )}
                   </>

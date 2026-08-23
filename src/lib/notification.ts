@@ -30,12 +30,7 @@ import {
 import type { AppNotification } from "@/types/notification";
 
 export type NotificationDomain =
-  | "pesanan"
-  | "gudang"
-  | "stok"
-  | "retur"
-  | "integrasi"
-  | "sistem";
+  "pesanan" | "gudang" | "stok" | "retur" | "integrasi" | "sistem";
 
 export type NotificationSeverity = "info" | "warning" | "critical";
 

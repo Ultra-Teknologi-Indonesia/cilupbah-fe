@@ -16,7 +16,6 @@ export function useReceivePurchaseOrder() {
       qc.invalidateQueries({ queryKey: ["purchase-order"] });
       qc.invalidateQueries({ queryKey: ["inbound"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal menyimpan penerimaan"),
+    onError: (err) => apiError(err, "Gagal menyimpan penerimaan"),
   });
 }

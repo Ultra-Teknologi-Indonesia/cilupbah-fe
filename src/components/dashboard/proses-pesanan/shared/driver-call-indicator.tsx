@@ -12,7 +12,8 @@ import {
 import { useRetryDriverCall } from "@/hooks/proses-pesanan/use-driver-call";
 import type { DriverCallStatus as ShipmentDriverCallStatus } from "@/types/proses-pesanan/fulfillment";
 
-export type DriverCallStatus = "pending" | "success" | "failed" | null | undefined;
+export type DriverCallStatus =
+  "pending" | "success" | "failed" | null | undefined;
 
 interface DriverCallIndicatorProps {
   orderId: string;
@@ -99,7 +100,9 @@ export function DriverCallIndicator({
               "inline-flex items-center gap-1 rounded text-xs font-medium text-destructive hover:underline disabled:opacity-60",
               className,
             )}
-            aria-label={message ?? "Panggilan driver Shopee gagal — klik untuk coba lagi"}
+            aria-label={
+              message ?? "Panggilan driver Shopee gagal — klik untuk coba lagi"
+            }
           >
             {disabled ? (
               <Loader2 className="size-4 animate-spin" />
@@ -116,7 +119,9 @@ export function DriverCallIndicator({
               <div className="mt-1 text-rose-200">Alasan: {message}</div>
             ) : null}
             {attempted ? (
-              <div className="mt-1 opacity-80">Percobaan terakhir: {attempted}</div>
+              <div className="mt-1 opacity-80">
+                Percobaan terakhir: {attempted}
+              </div>
             ) : null}
           </div>
         </TooltipContent>
@@ -170,7 +175,9 @@ export function ShipmentDriverBadge({
             <div className="text-xs">
               {driverName && <div>Driver: {driverName}</div>}
               {driverPhone && <div>HP: {driverPhone}</div>}
-              {attempted && <div className="opacity-80">Dipanggil: {attempted}</div>}
+              {attempted && (
+                <div className="opacity-80">Dipanggil: {attempted}</div>
+              )}
             </div>
           </TooltipContent>
         </Tooltip>
@@ -199,7 +206,9 @@ export function ShipmentDriverBadge({
             <div className="text-xs">
               {driverName && <div>Driver: {driverName}</div>}
               {driverPhone && <div>HP: {driverPhone}</div>}
-              {attempted && <div className="opacity-80">Dipanggil: {attempted}</div>}
+              {attempted && (
+                <div className="opacity-80">Dipanggil: {attempted}</div>
+              )}
             </div>
           </TooltipContent>
         </Tooltip>

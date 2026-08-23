@@ -76,7 +76,9 @@ export function DataTablePagination<TData>({
         </div>
 
         <div className="flex w-[8.5rem] items-center justify-center gap-1.5 text-sm font-medium">
-          <span>Halaman {pageCount === 0 ? 0 : pageIndex + 1} dari {pageCount}</span>
+          <span>
+            Halaman {pageCount === 0 ? 0 : pageIndex + 1} dari {pageCount}
+          </span>
           {isFetching && (
             <Loader2Icon className="size-3.5 animate-spin text-primary" />
           )}

@@ -1,7 +1,4 @@
-
-
 export interface PermissionActionCell {
-
   action: string;
 
   label: string;

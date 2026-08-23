@@ -71,7 +71,8 @@ export function PenjualanReturDialog({
       {
         from: formatDateISO(startDate),
         to: formatDateISO(endDate),
-        location_ids: pickLocation && locationIds.length ? locationIds : undefined,
+        location_ids:
+          pickLocation && locationIds.length ? locationIds : undefined,
       },
       {
         onSuccess: () => {
@@ -89,7 +90,8 @@ export function PenjualanReturDialog({
         <DialogHeader>
           <DialogTitle>Retur Penjualan</DialogTitle>
           <DialogDescription>
-            Retur penjualan per barang (1 baris per item retur) dalam format Excel.
+            Retur penjualan per barang (1 baris per item retur) dalam format
+            Excel.
           </DialogDescription>
         </DialogHeader>
 

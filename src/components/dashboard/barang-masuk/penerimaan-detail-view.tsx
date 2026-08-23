@@ -110,8 +110,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
     inbound.once_received_at == null;
   const sessionLock = inbound?.edit_lock?.locked ?? false;
   const isLocked = legacyAssignmentLock || sessionLock;
-  const canEdit =
-    !!inbound && inbound.status !== "CANCELLED" && !isLocked;
+  const canEdit = !!inbound && inbound.status !== "CANCELLED" && !isLocked;
 
   const { data: me } = useMe();
   const roles = React.useMemo(() => me?.roles ?? [], [me]);
@@ -130,7 +129,11 @@ export function PenerimaanDetailView({ id }: { id: string }) {
 
   const canFinalize = React.useMemo(() => {
     if (!inbound) return false;
-    if (!roles.some((r) => ["owner", "admin", "kepala gudang", "leader inbound"].includes(r))) {
+    if (
+      !roles.some((r) =>
+        ["owner", "admin", "kepala gudang", "leader inbound"].includes(r),
+      )
+    ) {
       return false;
     }
     return ["DRAFT", "PARTIAL"].includes(inbound.status);
@@ -222,9 +225,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
             editLock={inbound.edit_lock}
             receivingStartedAt={inbound.receiving_started_at ?? null}
             canWithdraw={canUnassign}
-            onWithdraw={(userId) =>
-              withdrawMutation.mutate({ userId })
-            }
+            onWithdraw={(userId) => withdrawMutation.mutate({ userId })}
           />
           <div className="flex items-center justify-end gap-2 print:hidden">
             <Button
@@ -419,20 +420,20 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                       const imageUrl =
                         item.variant?.media?.[0]?.url ??
                         item.variant?.product?.media?.[0]?.url;
-                      const discrepancy =
-                        item.received_qty - item.expected_qty;
+                      const discrepancy = item.received_qty - item.expected_qty;
                       const rejectedQty = item.rejected_qty ?? 0;
                       const isOpen = openItemId === item.id;
                       return (
                         <React.Fragment key={item.id}>
-                          <TableRow
-                            className="border-b border-border/20 last:border-0"
-                          >
+                          <TableRow className="border-b border-border/20 last:border-0">
                             <TableCell className="px-3 py-2.5">
                               <div className="flex items-start gap-3">
                                 <div className="size-10 shrink-0 overflow-hidden rounded-xl border bg-muted/50">
                                   {imageUrl ? (
-                                    <Image unoptimized width={400} height={400}
+                                    <Image
+                                      unoptimized
+                                      width={400}
+                                      height={400}
                                       src={imageUrl}
                                       alt={productName}
                                       className="h-full w-full object-cover"
@@ -471,7 +472,9 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                                   minQty={item.putaway_qty ?? 0}
                                   disabled={!canEdit}
                                   saving={savingItemId === item.id}
-                                  onSave={(qty) => saveReceivedQty(item.id, qty)}
+                                  onSave={(qty) =>
+                                    saveReceivedQty(item.id, qty)
+                                  }
                                 />
                               </div>
                               {rejectedQty > 0 && (
@@ -532,10 +535,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                           </TableRow>
                           {isOpen && (
                             <TableRow className="border-b border-border/20 bg-muted/20 hover:bg-muted/20">
-                              <TableCell
-                                colSpan={7}
-                                className="px-5 py-4"
-                              >
+                              <TableCell colSpan={7} className="px-5 py-4">
                                 <KronologiPenerimaanItem
                                   inboundId={inbound.id}
                                   itemId={item.id}
@@ -577,7 +577,9 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                                 {d}
                               </Badge>
                             ) : (
-                              <span className="font-semibold text-foreground">0</span>
+                              <span className="font-semibold text-foreground">
+                                0
+                              </span>
                             );
                           })()}
                         </TableCell>
@@ -670,7 +672,9 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                           {a.started_at ? formatDateTime(a.started_at) : "—"}
                         </TableCell>
                         <TableCell className="px-3 py-2.5 text-muted-foreground">
-                          {a.completed_at ? formatDateTime(a.completed_at) : "—"}
+                          {a.completed_at
+                            ? formatDateTime(a.completed_at)
+                            : "—"}
                         </TableCell>
                         <TableCell className="max-w-[200px] truncate whitespace-normal px-3 py-2.5 text-xs text-muted-foreground">
                           {a.notes ?? ""}

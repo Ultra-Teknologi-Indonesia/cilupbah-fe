@@ -33,9 +33,7 @@ import {
   formatCoordinate,
   parseCoordinate,
 } from "@/components/dashboard/manajemen-rak/lokasi/location-map-picker";
-import type {
-  ContactFormData,
-} from "@/types/kontak-pemasok/contact";
+import type { ContactFormData } from "@/types/kontak-pemasok/contact";
 
 const LIST_HREF = "/dashboard/kontak-pemasok";
 
@@ -214,9 +212,7 @@ export function KontakFormPage({ mode, id }: KontakFormPageProps) {
       if (body?.errors && typeof body.errors === "object") {
         const backendErrors: FormErrors = {};
         for (const [key, messages] of Object.entries(body.errors)) {
-          backendErrors[key as keyof ContactFormData] = Array.isArray(
-            messages,
-          )
+          backendErrors[key as keyof ContactFormData] = Array.isArray(messages)
             ? messages[0]
             : String(messages);
         }
@@ -229,9 +225,7 @@ export function KontakFormPage({ mode, id }: KontakFormPageProps) {
   const title = mode === "create" ? "Buat Pemasok" : "Edit Pemasok";
 
   if (mode === "edit" && detail.isLoading) {
-    return (
-      <FormSkeleton />
-    );
+    return <FormSkeleton />;
   }
 
   if (mode === "edit" && detail.isError) {
@@ -301,7 +295,18 @@ export function KontakFormPage({ mode, id }: KontakFormPageProps) {
                 n.key,
             );
             return (
-              <Button key={n.key} type="button" variant="outline" onClick={() => setSection(n.key)} className={cn("h-auto justify-start rounded-2xl border px-4 py-3 text-left text-sm font-medium transition-colors", section === n.key ? "border-primary/30 bg-primary/10 text-primary hover:bg-primary/20" : "border-border bg-background hover:bg-muted")}>
+              <Button
+                key={n.key}
+                type="button"
+                variant="outline"
+                onClick={() => setSection(n.key)}
+                className={cn(
+                  "h-auto justify-start rounded-2xl border px-4 py-3 text-left text-sm font-medium transition-colors",
+                  section === n.key
+                    ? "border-primary/30 bg-primary/10 text-primary hover:bg-primary/20"
+                    : "border-border bg-background hover:bg-muted",
+                )}
+              >
                 {n.label}
                 {hasError && (
                   <span className="ml-auto size-1.5 shrink-0 rounded-full bg-destructive" />

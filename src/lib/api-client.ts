@@ -11,7 +11,6 @@ const apiClient = axios.create({
 
 let sessionExpiredHandled = false;
 apiClient.interceptors.response.use(undefined, async (error) => {
-
   const isSessionExpired =
     axios.isAxiosError(error) &&
     error.response?.status === 401 &&

@@ -12,9 +12,9 @@ import { CountdownTimer } from "./countdown-timer";
 
 function statusBadge(isActive: boolean) {
   return (
-    <StatusBadge 
-      domain="product-boost" 
-      status={isActive ? "ACTIVE" : "INACTIVE"} 
+    <StatusBadge
+      domain="product-boost"
+      status={isActive ? "ACTIVE" : "INACTIVE"}
     />
   );
 }
@@ -23,9 +23,9 @@ function resultBadge(isSuccess: boolean | null) {
   if (isSuccess === null)
     return <span className="text-muted-foreground">—</span>;
   return (
-    <StatusBadge 
-      domain="product-boost-activity" 
-      status={isSuccess ? "SUCCESS" : "FAILED"} 
+    <StatusBadge
+      domain="product-boost-activity"
+      status={isSuccess ? "SUCCESS" : "FAILED"}
     />
   );
 }
@@ -52,7 +52,10 @@ export function buildProdukColumns(opts: {
           <div className="flex items-center gap-3">
             <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted/40">
               {thumb ? (
-                <Image unoptimized width={400} height={400}
+                <Image
+                  unoptimized
+                  width={400}
+                  height={400}
                   src={thumb}
                   alt={d.itemGroupName ?? ""}
                   className="size-full object-cover"

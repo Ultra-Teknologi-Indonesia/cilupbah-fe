@@ -133,7 +133,11 @@ const TAB_VALUES: readonly MonitorTab[] = [
   "kronologi",
 ];
 const SUB_VALUES: readonly OutOfStockMode[] = ["habis", "minus", "dipesan"];
-const KRON_VIEW_VALUES: readonly KronologiView[] = ["clean", "attention", "all"];
+const KRON_VIEW_VALUES: readonly KronologiView[] = [
+  "clean",
+  "attention",
+  "all",
+];
 
 export function MonitorStokView() {
   const list = useListState<MonitorFilters>(EMPTY_FILTERS, {
@@ -364,7 +368,6 @@ export function MonitorStokView() {
         intensity="subtle"
         className="bg-white/30 dark:bg-white/[0.04]"
       >
-
         <div className="flex flex-wrap items-center justify-between gap-2 px-4 pt-4 sm:px-5">
           {tab === "stok-kosong" ? (
             <Tabs
@@ -476,9 +479,7 @@ export function MonitorStokView() {
                     from: kronologiDateFrom
                       ? new Date(kronologiDateFrom)
                       : undefined,
-                    to: kronologiDateTo
-                      ? new Date(kronologiDateTo)
-                      : undefined,
+                    to: kronologiDateTo ? new Date(kronologiDateTo) : undefined,
                   }}
                   onChange={(range) => {
                     const toStr = (d?: Date) =>
@@ -521,9 +522,7 @@ export function MonitorStokView() {
                     }[]),
                   ]}
                   value={kronologiSource}
-                  onChange={(v) =>
-                    onFilter(() => setKronologiSource(v ?? ""))
-                  }
+                  onChange={(v) => onFilter(() => setKronologiSource(v ?? ""))}
                   placeholder="Semua Jenis"
                   searchPlaceholder="Cari jenis"
                   className="h-9 bg-background"

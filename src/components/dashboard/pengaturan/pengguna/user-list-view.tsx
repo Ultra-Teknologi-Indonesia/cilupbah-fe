@@ -193,9 +193,7 @@ export function UserListView() {
                   asChild
                   aria-label={`Edit ${user.name}`}
                 >
-                  <Link
-                    href={`/dashboard/pengaturan/pengguna/${user.id}/edit`}
-                  >
+                  <Link href={`/dashboard/pengaturan/pengguna/${user.id}/edit`}>
                     <PencilIcon className="size-4" />
                   </Link>
                 </Button>
@@ -216,7 +214,14 @@ export function UserListView() {
         },
       },
     ],
-    [selectedIds, selectableIds, isProtected, canEdit, canDelete, handleToggleAll],
+    [
+      selectedIds,
+      selectableIds,
+      isProtected,
+      canEdit,
+      canDelete,
+      handleToggleAll,
+    ],
   );
 
   function handleConfirmDelete() {

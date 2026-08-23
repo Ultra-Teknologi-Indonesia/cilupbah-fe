@@ -133,7 +133,10 @@ export function CadangDetail({ id }: { id: string }) {
         backHref="/dashboard/transaksi-stok?tab=penyesuaian"
         breadcrumb={[
           { label: "Persediaan" },
-          { label: "Transaksi Stok", href: "/dashboard/transaksi-stok?tab=penyesuaian" },
+          {
+            label: "Transaksi Stok",
+            href: "/dashboard/transaksi-stok?tab=penyesuaian",
+          },
           { label: stock.reserved_stock_no },
         ]}
         actions={

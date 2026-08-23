@@ -90,8 +90,7 @@ const STATUS_META: Record<
 function HistoryStatus({ row }: { row: HistoryRow }) {
   const meta = STATUS_META[row.status] ?? STATUS_META.pending;
   const Icon = meta.icon;
-  const label =
-    row.status === "pending" ? "Sedang diproses" : meta.label;
+  const label = row.status === "pending" ? "Sedang diproses" : meta.label;
 
   return (
     <TooltipProvider>
@@ -142,9 +141,7 @@ function KeteranganCell({ row }: { row: HistoryRow }) {
 
   if (row.status === "pending") {
     return (
-      <span className="text-sm text-muted-foreground">
-        Sedang diproses…
-      </span>
+      <span className="text-sm text-muted-foreground">Sedang diproses…</span>
     );
   }
 
@@ -344,7 +341,10 @@ export function HasilTab({
             <div className="flex items-center gap-3">
               <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted/40">
                 {h.thumbnail ? (
-                  <Image unoptimized width={400} height={400}
+                  <Image
+                    unoptimized
+                    width={400}
+                    height={400}
                     src={h.thumbnail}
                     alt={h.itemGroupName ?? ""}
                     className="size-full object-cover"

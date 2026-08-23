@@ -99,12 +99,8 @@ export function ShipmentTable() {
     debounceMs: 350,
     namespace: "shipment",
   });
-  const [cancelTarget, setCancelTarget] = React.useState<Shipment | null>(
-    null,
-  );
-  const [finishTarget, setFinishTarget] = React.useState<Shipment | null>(
-    null,
-  );
+  const [cancelTarget, setCancelTarget] = React.useState<Shipment | null>(null);
+  const [finishTarget, setFinishTarget] = React.useState<Shipment | null>(null);
   const [driverCallTargets, setDriverCallTargets] = React.useState<
     Shipment[] | null
   >(null);
@@ -163,7 +159,11 @@ export function ShipmentTable() {
       date_from: list.filters.date_from || undefined,
       date_to: list.filters.date_to || undefined,
       sort_by: list.sorting[0]?.id || undefined,
-      sort_dir: list.sorting[0] ? (list.sorting[0].desc ? "desc" : "asc") : undefined,
+      sort_dir: list.sorting[0]
+        ? list.sorting[0].desc
+          ? "desc"
+          : "asc"
+        : undefined,
     }),
     [list.debouncedSearch, list.page, list.perPage, list.filters, list.sorting],
   );
@@ -314,11 +314,7 @@ export function ShipmentTable() {
         cell: ({ row }) => (
           <div className="flex justify-end items-center gap-2">
             {row.original.status === "SCHEDULED" && (
-              <Button
-                asChild
-                variant="outline"
-                size="sm"
-              >
+              <Button asChild variant="outline" size="sm">
                 <Link
                   href={`/dashboard/proses-pesanan/shipping/masukkan-ke-pengiriman?shipmentId=${encodeURIComponent(row.original.id)}&from=${encodeURIComponent("/dashboard/proses-pesanan/shipping")}`}
                 >
@@ -327,31 +323,30 @@ export function ShipmentTable() {
                 </Link>
               </Button>
             )}
-            {row.original.status === "SCHEDULED" &&
-              can("edit-pengiriman") && (
-                <TooltipProvider delayDuration={200}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="inline-flex">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={row.original.ordersCount === 0}
-                          onClick={() => setFinishTarget(row.original)}
-                        >
-                          <CheckCircle2Icon className="size-3.5" />
-                          Selesaikan
-                        </Button>
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      {row.original.ordersCount === 0
-                        ? "Belum ada pesanan dalam pengiriman ini."
-                        : "Tutup manifest dan tandai pesanannya terkirim."}
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
+            {row.original.status === "SCHEDULED" && can("edit-pengiriman") && (
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="inline-flex">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={row.original.ordersCount === 0}
+                        onClick={() => setFinishTarget(row.original)}
+                      >
+                        <CheckCircle2Icon className="size-3.5" />
+                        Selesaikan
+                      </Button>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {row.original.ordersCount === 0
+                      ? "Belum ada pesanan dalam pengiriman ini."
+                      : "Tutup manifest dan tandai pesanannya terkirim."}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
             <Button
               variant="outline"
               size="sm"

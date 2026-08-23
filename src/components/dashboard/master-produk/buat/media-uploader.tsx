@@ -101,7 +101,10 @@ export function MediaUploader({
                 key={img.id}
                 className="group relative aspect-square overflow-hidden rounded-xl border border-border bg-muted/40"
               >
-                <Image unoptimized width={400} height={400}
+                <Image
+                  unoptimized
+                  width={400}
+                  height={400}
                   src={img.url}
                   alt={img.name}
                   className="size-full object-cover"
@@ -153,7 +156,6 @@ export function MediaUploader({
         </p>
         {video ? (
           <div className="relative w-40 overflow-hidden rounded-xl border border-border bg-muted/40">
-
             <video
               src={video.url}
               muted

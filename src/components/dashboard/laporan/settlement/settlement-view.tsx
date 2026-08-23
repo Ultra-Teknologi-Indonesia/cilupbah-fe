@@ -123,7 +123,9 @@ export function SettlementView() {
   const effectiveTo = filters.date_to || toIsoDate(fallbackRange.to);
 
   const dateRange = useMemo<DateRange | undefined>(() => {
-    const from = filters.date_from ? new Date(filters.date_from) : fallbackRange.from;
+    const from = filters.date_from
+      ? new Date(filters.date_from)
+      : fallbackRange.from;
     const to = filters.date_to ? new Date(filters.date_to) : fallbackRange.to;
     return { from, to };
   }, [filters.date_from, filters.date_to, fallbackRange]);
@@ -249,7 +251,9 @@ export function SettlementView() {
         id: "shipping",
         header: () => <span className="block text-right">Ongkir</span>,
         cell: ({ row }) => (
-          <MoneyCell value={row.original.finance?.seller_shipping_borne ?? null} />
+          <MoneyCell
+            value={row.original.finance?.seller_shipping_borne ?? null}
+          />
         ),
       },
       {
@@ -477,9 +481,7 @@ export function SettlementView() {
             isLoading={query.isLoading}
             hideToolbar
             manualPagination
-            onRowClick={(row) =>
-              router.push(`/dashboard/pesanan/${row.id}`)
-            }
+            onRowClick={(row) => router.push(`/dashboard/pesanan/${row.id}`)}
             pagination={{
               pageIndex: meta.current_page - 1,
               pageSize: meta.per_page,

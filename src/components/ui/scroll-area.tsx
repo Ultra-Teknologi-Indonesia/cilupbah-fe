@@ -12,7 +12,6 @@ function ScrollArea({
   viewportClassName,
   ...props
 }: React.ComponentProps<typeof ScrollAreaPrimitive.Root> & {
-
   orientation?: "vertical" | "horizontal" | "both";
   viewportClassName?: string;
 }) {

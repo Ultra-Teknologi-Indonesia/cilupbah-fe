@@ -3,7 +3,6 @@
 import * as React from "react";
 
 export interface QtyBumpQueueOptions {
-
   retries?: number;
 
   retryDelayMs?: number;
@@ -47,7 +46,9 @@ export function useQtyBumpQueue(
             break;
           } catch {
             if (attempt < retries) {
-              await new Promise((r) => setTimeout(r, retryDelayMs * (attempt + 1)));
+              await new Promise((r) =>
+                setTimeout(r, retryDelayMs * (attempt + 1)),
+              );
             }
           }
         }

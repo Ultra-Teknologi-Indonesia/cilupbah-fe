@@ -149,4 +149,3 @@ export interface PutawayHistory {
   placements: PutawayPlacementHistory[];
   participants: PutawayParticipant[];
 }
-

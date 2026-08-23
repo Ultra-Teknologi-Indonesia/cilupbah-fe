@@ -6,7 +6,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { DownloadIcon, Trash2Icon, ClipboardListIcon, PencilIcon } from "lucide-react";
+import {
+  DownloadIcon,
+  Trash2Icon,
+  ClipboardListIcon,
+  PencilIcon,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -209,7 +214,10 @@ export function PenyesuaianDetail({ id }: { id: string }) {
         backHref="/dashboard/transaksi-stok?tab=penyesuaian"
         breadcrumb={[
           { label: "Persediaan" },
-          { label: "Transaksi Stok", href: "/dashboard/transaksi-stok?tab=penyesuaian" },
+          {
+            label: "Transaksi Stok",
+            href: "/dashboard/transaksi-stok?tab=penyesuaian",
+          },
           { label: adj.adjustment_no },
         ]}
         actions={
@@ -226,7 +234,11 @@ export function PenyesuaianDetail({ id }: { id: string }) {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => router.push(`/dashboard/transaksi-stok/penyesuaian/${adj.id}/edit`)}
+              onClick={() =>
+                router.push(
+                  `/dashboard/transaksi-stok/penyesuaian/${adj.id}/edit`,
+                )
+              }
             >
               <PencilIcon className="mr-1.5 size-3.5" />
               Ubah

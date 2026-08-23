@@ -179,7 +179,10 @@ function KnownDocumentPreview({
     setIsExcelLoading(true);
     let objectUrl: string | null = null;
     try {
-      const blob = await config.excel.fetch(id, new URLSearchParams(queryString));
+      const blob = await config.excel.fetch(
+        id,
+        new URLSearchParams(queryString),
+      );
       const excelFilename = config.excel.filename(id, meta);
       objectUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -237,7 +240,6 @@ function KnownDocumentPreview({
 
   return (
     <div className="fixed inset-0 z-[60] flex flex-col overflow-y-auto bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
-
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="mx-auto flex w-full max-w-7xl items-center gap-3 px-4 py-3 sm:px-6">
           <Button

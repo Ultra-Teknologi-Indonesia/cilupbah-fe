@@ -85,7 +85,11 @@ export function PreManifestCancelTable() {
       page: list.page,
       per_page: list.perPage,
       sort_by: list.sorting[0]?.id || undefined,
-      sort_dir: list.sorting[0] ? (list.sorting[0].desc ? "desc" : "asc") : undefined,
+      sort_dir: list.sorting[0]
+        ? list.sorting[0].desc
+          ? "desc"
+          : "asc"
+        : undefined,
     }),
     [list.debouncedSearch, list.page, list.perPage, list.filters, list.sorting],
   );
@@ -255,9 +259,7 @@ export function PreManifestCancelTable() {
         </p>
         <div className="flex items-center gap-2">
           <ExportButton
-            onDownload={(range) =>
-              download.mutate(range ?? undefined)
-            }
+            onDownload={(range) => download.mutate(range ?? undefined)}
             pending={download.isPending}
           />
           <button

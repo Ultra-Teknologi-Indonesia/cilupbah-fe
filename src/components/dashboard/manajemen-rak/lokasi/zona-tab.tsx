@@ -398,7 +398,9 @@ export function ZonaTab({ locationId, bins, disabled }: ZonaTabProps) {
       ) : filtered.length === 0 ? (
         <EmptyState
           icon={MapPinIcon}
-          title={list.debouncedSearch ? "Zona tidak ditemukan" : "Belum ada zona"}
+          title={
+            list.debouncedSearch ? "Zona tidak ditemukan" : "Belum ada zona"
+          }
           description={
             list.debouncedSearch
               ? "Coba kata kunci lain"

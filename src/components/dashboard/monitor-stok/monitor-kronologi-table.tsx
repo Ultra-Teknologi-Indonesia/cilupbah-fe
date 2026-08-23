@@ -83,18 +83,14 @@ export function MonitorKronologiTable({
         accessorKey: "sku",
         header: "SKU",
         cell: ({ row }) => (
-          <span className="font-mono text-xs">
-            {row.original.sku ?? "—"}
-          </span>
+          <span className="font-mono text-xs">{row.original.sku ?? "—"}</span>
         ),
       },
       {
         accessorKey: "location_name",
         header: "Lokasi",
         cell: ({ row }) => (
-          <span className="text-sm">
-            {row.original.location_name ?? "—"}
-          </span>
+          <span className="text-sm">{row.original.location_name ?? "—"}</span>
         ),
       },
       {
@@ -162,10 +158,12 @@ export function MonitorKronologiTable({
             <span
               className="font-mono text-xs text-muted-foreground"
               title={
-                (isPick && r.order_no ? r.transaction_number : null) ?? undefined
+                (isPick && r.order_no ? r.transaction_number : null) ??
+                undefined
               }
             >
-              {(isPick && r.order_no ? r.order_no : r.transaction_number) ?? "—"}
+              {(isPick && r.order_no ? r.order_no : r.transaction_number) ??
+                "—"}
             </span>
           );
         },

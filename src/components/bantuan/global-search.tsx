@@ -2,7 +2,12 @@
 
 import * as React from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { SearchIcon, XIcon, CornerDownLeftIcon, Loader2Icon } from "lucide-react";
+import {
+  SearchIcon,
+  XIcon,
+  CornerDownLeftIcon,
+  Loader2Icon,
+} from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,15 +18,36 @@ import { MANUAL_ENTRIES } from "@/lib/bantuan/manual.registry";
 import type { ApiDocIndex } from "@/lib/bantuan/types";
 
 type Hit =
-  | { kind: "faq"; id: string; category: string; question: string; answer: string }
-  | { kind: "panduan"; slug: string; moduleGroup: string; title: string; description?: string }
-  | { kind: "api-module"; slug: string; name: string; description: string; endpointsCount: number };
+  | {
+      kind: "faq";
+      id: string;
+      category: string;
+      question: string;
+      answer: string;
+    }
+  | {
+      kind: "panduan";
+      slug: string;
+      moduleGroup: string;
+      title: string;
+      description?: string;
+    }
+  | {
+      kind: "api-module";
+      slug: string;
+      name: string;
+      description: string;
+      endpointsCount: number;
+    };
 
 const MAX_PER_GROUP = 5;
 const INDEX_URL = "/bantuan/index.json";
 
 function normalize(s: string): string {
-  return s.toLowerCase().normalize("NFKD").replace(/\p{Diacritic}/gu, "");
+  return s
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/\p{Diacritic}/gu, "");
 }
 
 function highlight(text: string, query: string): React.ReactNode {
@@ -256,10 +282,16 @@ export function GlobalHelpSearch() {
             <div className="px-4 py-8 text-center text-xs text-muted-foreground">
               {apiLoading ? (
                 <span className="inline-flex items-center gap-2">
-                  <Loader2Icon className="size-3.5 animate-spin" /> Mengindeks endpoint API…
+                  <Loader2Icon className="size-3.5 animate-spin" /> Mengindeks
+                  endpoint API…
                 </span>
               ) : (
-                <>Tidak ada hasil untuk <span className="font-medium text-foreground">&quot;{query}&quot;</span></>
+                <>
+                  Tidak ada hasil untuk{" "}
+                  <span className="font-medium text-foreground">
+                    &quot;{query}&quot;
+                  </span>
+                </>
               )}
             </div>
           ) : (
@@ -273,7 +305,10 @@ export function GlobalHelpSearch() {
                       onSelect={() => goTo(h)}
                       onHover={() => setActiveIdx(i)}
                     >
-                      <FaqRowInner hit={h as Extract<Hit, { kind: "faq" }>} query={query} />
+                      <FaqRowInner
+                        hit={h as Extract<Hit, { kind: "faq" }>}
+                        query={query}
+                      />
                     </ResultRow>
                   ))}
                 </ResultGroup>
@@ -289,7 +324,10 @@ export function GlobalHelpSearch() {
                         onSelect={() => goTo(h)}
                         onHover={() => setActiveIdx(idx)}
                       >
-                        <PanduanRowInner hit={h as Extract<Hit, { kind: "panduan" }>} query={query} />
+                        <PanduanRowInner
+                          hit={h as Extract<Hit, { kind: "panduan" }>}
+                          query={query}
+                        />
                       </ResultRow>
                     );
                   })}
@@ -306,7 +344,10 @@ export function GlobalHelpSearch() {
                         onSelect={() => goTo(h)}
                         onHover={() => setActiveIdx(idx)}
                       >
-                        <ApiRowInner hit={h as Extract<Hit, { kind: "api-module" }>} query={query} />
+                        <ApiRowInner
+                          hit={h as Extract<Hit, { kind: "api-module" }>}
+                          query={query}
+                        />
                       </ResultRow>
                     );
                   })}
@@ -316,11 +357,17 @@ export function GlobalHelpSearch() {
           )}
           <div className="mt-1 flex items-center justify-between border-t border-border px-3 pt-2 pb-1 text-[10px] tracking-wide text-muted-foreground uppercase">
             <span className="inline-flex items-center gap-1">
-              <kbd className="rounded border border-border bg-muted px-1 font-mono text-[10px]">↑↓</kbd>
+              <kbd className="rounded border border-border bg-muted px-1 font-mono text-[10px]">
+                ↑↓
+              </kbd>
               <span>navigasi</span>
-              <kbd className="ml-2 rounded border border-border bg-muted px-1 font-mono text-[10px]">↵</kbd>
+              <kbd className="ml-2 rounded border border-border bg-muted px-1 font-mono text-[10px]">
+                ↵
+              </kbd>
               <span>buka</span>
-              <kbd className="ml-2 rounded border border-border bg-muted px-1 font-mono text-[10px]">esc</kbd>
+              <kbd className="ml-2 rounded border border-border bg-muted px-1 font-mono text-[10px]">
+                esc
+              </kbd>
               <span>tutup</span>
             </span>
             <span className="tabular-nums normal-case tracking-normal">
@@ -442,7 +489,9 @@ function ApiRowInner({
   return (
     <div className="min-w-0 flex-1">
       <div className="mb-0.5 flex items-center gap-2">
-        <Badge variant="outline" className="rounded-full text-[10px]">Modul</Badge>
+        <Badge variant="outline" className="rounded-full text-[10px]">
+          Modul
+        </Badge>
         <span className="font-mono text-[10px] text-muted-foreground">
           {hit.endpointsCount} endpoint
         </span>

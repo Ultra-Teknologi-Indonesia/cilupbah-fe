@@ -11,11 +11,7 @@ export type RackImportState =
   | "failed";
 
 export type RackImportRowStatus =
-  | "place"
-  | "manual_move"
-  | "already"
-  | "error"
-  | "placed";
+  "place" | "manual_move" | "already" | "error" | "placed";
 
 export interface RackImportBatch {
   id: string;

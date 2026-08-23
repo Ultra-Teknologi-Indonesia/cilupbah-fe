@@ -60,4 +60,3 @@ export function usePickerProducts(
     enabled: options.enabled ?? true,
   });
 }
-

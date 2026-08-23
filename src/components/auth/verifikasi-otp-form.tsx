@@ -7,10 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight, Loader2 } from "lucide-react";
 
-import {
-  useForgotPassword,
-  useVerifyResetOtp,
-} from "@/hooks/auth/use-auth";
+import { useForgotPassword, useVerifyResetOtp } from "@/hooks/auth/use-auth";
 import { apiError, apiSuccess } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import { saveResetFlow } from "@/lib/reset-flow-storage";

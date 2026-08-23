@@ -214,7 +214,9 @@ export function PenyesuaianTab() {
         accessorKey: "created_by",
         header: "Dibuat Oleh",
         cell: ({ row }) => (
-          <span className="text-foreground text-xs">{row.original.created_by}</span>
+          <span className="text-foreground text-xs">
+            {row.original.created_by}
+          </span>
         ),
       },
       {
@@ -225,12 +227,7 @@ export function PenyesuaianTab() {
             className="flex items-center justify-end gap-1"
             onClick={(e) => e.stopPropagation()}
           >
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              asChild
-              aria-label="Cetak"
-            >
+            <Button variant="ghost" size="icon-sm" asChild aria-label="Cetak">
               <Link
                 href={`/dashboard/document-preview/stock-adjustment/${row.original.id}`}
               >
@@ -266,8 +263,10 @@ export function PenyesuaianTab() {
 
   const handleExport = useCallback(() => {
     const params: StockAdjustmentListParams = {};
-    if (list.filters.location_id) params["filter[location_id]"] = list.filters.location_id;
-    if (list.filters.date_from) params["filter[date_from]"] = list.filters.date_from;
+    if (list.filters.location_id)
+      params["filter[location_id]"] = list.filters.location_id;
+    if (list.filters.date_from)
+      params["filter[date_from]"] = list.filters.date_from;
     if (list.filters.date_to) params["filter[date_to]"] = list.filters.date_to;
     if (list.search) params.search = list.search;
 
@@ -301,9 +300,7 @@ export function PenyesuaianTab() {
                 disabled={disablePdf}
                 onClick={() => {
                   if (disablePdf) {
-                    toast.warning(
-                      `Maksimal ${BULK_PDF_MAX} dokumen per cetak`,
-                    );
+                    toast.warning(`Maksimal ${BULK_PDF_MAX} dokumen per cetak`);
                     return;
                   }
                   const path = `/dashboard/document-preview/stock-adjustment-bulk/${ids.join(",")}`;

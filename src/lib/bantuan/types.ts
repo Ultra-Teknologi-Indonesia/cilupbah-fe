@@ -60,17 +60,25 @@ export interface ApiDocEndpoint {
   deprecated: boolean;
   since_version: string | null;
   form_request: string | null;
-  path_params: Array<{ name: string; type: string; required: boolean; description?: string }>;
-  query_params: Array<{ name: string; type: string; description: string }>;
-  body_schema: Record<string, {
+  path_params: Array<{
+    name: string;
     type: string;
     required: boolean;
-    rules: string[];
-    enum?: string[];
-    exists?: string;
-    constraints?: Record<string, unknown>;
     description?: string;
   }>;
+  query_params: Array<{ name: string; type: string; description: string }>;
+  body_schema: Record<
+    string,
+    {
+      type: string;
+      required: boolean;
+      rules: string[];
+      enum?: string[];
+      exists?: string;
+      constraints?: Record<string, unknown>;
+      description?: string;
+    }
+  >;
   body_example: Record<string, unknown>;
   validation: string[];
   response_success_schema: Record<string, unknown>;
@@ -98,12 +106,14 @@ export interface ApiDocEndpoint {
   allowed_includes?: string[];
   allowed_fields?: string[];
   default_sort?: string | null;
-  related_endpoints: Array<{
-    id: string;
-    method: string;
-    path: string;
-    summary: string;
-  }> | string[];
+  related_endpoints:
+    | Array<{
+        id: string;
+        method: string;
+        path: string;
+        summary: string;
+      }>
+    | string[];
   related_page: string | null;
   related_manual: string | null;
   needs_doc: boolean;

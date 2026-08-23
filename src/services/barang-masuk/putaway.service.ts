@@ -65,9 +65,9 @@ export const PutawayService = {
   },
 
   getHistory: async (id: string) => {
-    const res = await fetchClient<ApiResponse<import("@/types/barang-masuk/putaway").PutawayHistory>>(
-      `/putaway/${id}/history`,
-    );
+    const res = await fetchClient<
+      ApiResponse<import("@/types/barang-masuk/putaway").PutawayHistory>
+    >(`/putaway/${id}/history`);
     return res.data;
   },
 
@@ -224,9 +224,7 @@ export const PutawayService = {
 };
 
 export type PutawayDeleteAction =
-  | "unassigned"
-  | "reset_not_started"
-  | "reset_in_progress";
+  "unassigned" | "reset_not_started" | "reset_in_progress";
 
 export interface PutawayDeleteResult {
   id: string;

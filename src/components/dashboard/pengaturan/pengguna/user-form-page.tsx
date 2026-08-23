@@ -72,10 +72,8 @@ function getPasswordStrength(password: string) {
     return { level: "Lemah", color: "bg-destructive", percent: 20 };
   if (passed <= 2)
     return { level: "Lemah", color: "bg-destructive", percent: 40 };
-  if (passed <= 3)
-    return { level: "Sedang", color: "bg-warning", percent: 60 };
-  if (passed <= 4)
-    return { level: "Kuat", color: "bg-success", percent: 80 };
+  if (passed <= 3) return { level: "Sedang", color: "bg-warning", percent: 60 };
+  if (passed <= 4) return { level: "Kuat", color: "bg-success", percent: 80 };
   return { level: "Sangat Kuat", color: "bg-success", percent: 100 };
 }
 
@@ -182,7 +180,9 @@ export function UserFormPage({ userId }: UserFormPageProps) {
   const isOwnerUser = (user?.roles ?? []).includes("owner");
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(isEdit ? editSchema : createSchema) as unknown as import("react-hook-form").Resolver<FormValues>,
+    resolver: zodResolver(
+      isEdit ? editSchema : createSchema,
+    ) as unknown as import("react-hook-form").Resolver<FormValues>,
     defaultValues: {
       name: "",
       email: "",
@@ -269,9 +269,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
   }, [roles, selectedRoles]);
 
   if (isEdit && userLoading) {
-    return (
-      <FormSkeleton />
-    );
+    return <FormSkeleton />;
   }
 
   return (
@@ -285,258 +283,301 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                   variant="line"
                   className="mb-5 w-full justify-start border-b"
                 >
-                  <TabsTrigger value="informasi">Informasi Pengguna</TabsTrigger>
+                  <TabsTrigger value="informasi">
+                    Informasi Pengguna
+                  </TabsTrigger>
                   <TabsTrigger value="hak-akses">Hak Akses</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="informasi" className="mt-0">
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Nama Pengguna{" "}
-                        <span className="text-destructive">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="Masukkan nama lengkap" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Email <span className="text-destructive">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="email@example.com"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="nik"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>NIK</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Nomor Induk Karyawan" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="roles"
-                  render={() => (
-                    <FormItem>
-                      <FormLabel>
-                        Peran Pengguna{" "}
-                        <span className="text-destructive">*</span>
-                      </FormLabel>
-                      <Combobox
-                        multiple
-                        value={selectedRoles}
-                        onChange={(vals) =>
-                          form.setValue("roles", vals, { shouldValidate: true })
-                        }
-                        options={(roles ?? []).map((r) => ({
-                          value: r.name,
-                          label: r.name,
-                        }))}
-                        placeholder={
-                          rolesLoading ? "Memuat peran…" : "Pilih peran…"
-                        }
-                        searchPlaceholder="Cari peran…"
-                        emptyText="Peran tidak ditemukan."
-                        disabled={rolesLoading}
-                        maxVisible={2}
-                      />
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {!isOwnerUser && (
-                  <FormField
-                    control={form.control}
-                    name="location_ids"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Gudang</FormLabel>
-                        <LocationMultiCombobox
-                          value={field.value ?? []}
-                          onChange={(vals) =>
-                            form.setValue("location_ids", vals, {
-                              shouldValidate: true,
-                            })
-                          }
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          Kosongkan untuk memberi akses ke semua gudang.
-                        </p>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Password{" "}
-                        {!isEdit && <span className="text-destructive">*</span>}
-                      </FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input
-                            type={showPassword ? "text" : "password"}
-                            placeholder={
-                              isEdit
-                                ? "Kosongkan jika tidak diubah"
-                                : "Masukkan password"
-                            }
-                            className="pr-24"
-                            {...field}
-                          />
-                          <div className="absolute inset-y-0 right-0 flex items-center gap-0.5 pr-1.5">
-                            <Button type="button" variant="ghost" size="icon" aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"} className="size-7 rounded-md text-muted-foreground"
-                              onClick={() => setShowPassword((v) => !v)}
-                            >
-                              {showPassword ? (
-                                <EyeOffIcon className="size-3.5" />
-                              ) : (
-                                <EyeIcon className="size-3.5" />
-                              )}
-                            </Button>
-                            <Button type="button" variant="ghost" size="icon" aria-label="Buat kata sandi otomatis" className="size-7 rounded-md text-muted-foreground"
-                              onClick={async () => {
-                                const pwd = generatePassword();
-                                form.setValue("password", pwd, {
-                                  shouldValidate: true,
-                                });
-                                form.setValue("password_confirmation", pwd, {
-                                  shouldValidate: true,
-                                });
-                                setShowPassword(true);
-                                try {
-                                  await navigator.clipboard.writeText(pwd);
-                                  toast.success(
-                                    "Password di-generate dan disalin ke clipboard.",
-                                  );
-                                } catch {
-                                  toast.success(
-                                    "Password berhasil di-generate.",
-                                  );
-                                }
-                              }}
-                            >
-                              <DicesIcon className="size-3.5" />
-                            </Button>
-                          </div>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                      {passwordValue && (
-                        <div className="space-y-2 pt-1">
-                          <div className="flex items-center gap-2">
-                            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-                              <div
-                                className={`h-full transition-all ${strength?.color}`}
-                                style={{ width: `${strength?.percent}%` }}
-                              />
-                            </div>
-                            <span className="text-xs font-medium text-muted-foreground">
-                              {strength?.level}
-                            </span>
-                          </div>
-                          <ul className="grid grid-cols-2 gap-x-4 gap-y-1">
-                            {PASSWORD_RULES.map((rule) => {
-                              const ok = rule.test(passwordValue);
-                              return (
-                                <li
-                                  key={rule.key}
-                                  className="flex items-center gap-1.5 text-xs"
-                                >
-                                  {ok ? (
-                                    <CheckIcon className="size-3 text-success" />
-                                  ) : (
-                                    <XIcon className="size-3 text-muted-foreground" />
-                                  )}
-                                  <span
-                                    className={
-                                      ok
-                                        ? "text-success"
-                                        : "text-muted-foreground"
-                                    }
-                                  >
-                                    {rule.label}
-                                  </span>
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        </div>
+                  <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            Nama Pengguna{" "}
+                            <span className="text-destructive">*</span>
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Masukkan nama lengkap"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )}
-                    </FormItem>
-                  )}
-                />
+                    />
 
-                <FormField
-                  control={form.control}
-                  name="password_confirmation"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Konfirmasi Password{" "}
-                        {!isEdit && <span className="text-destructive">*</span>}
-                      </FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input
-                            type={showConfirmPassword ? "text" : "password"}
-                            placeholder="Ulangi password"
-                            className="pr-10"
-                            {...field}
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            Email <span className="text-destructive">*</span>
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="email"
+                              placeholder="email@example.com"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="nik"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>NIK</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Nomor Induk Karyawan"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="roles"
+                      render={() => (
+                        <FormItem>
+                          <FormLabel>
+                            Peran Pengguna{" "}
+                            <span className="text-destructive">*</span>
+                          </FormLabel>
+                          <Combobox
+                            multiple
+                            value={selectedRoles}
+                            onChange={(vals) =>
+                              form.setValue("roles", vals, {
+                                shouldValidate: true,
+                              })
+                            }
+                            options={(roles ?? []).map((r) => ({
+                              value: r.name,
+                              label: r.name,
+                            }))}
+                            placeholder={
+                              rolesLoading ? "Memuat peran…" : "Pilih peran…"
+                            }
+                            searchPlaceholder="Cari peran…"
+                            emptyText="Peran tidak ditemukan."
+                            disabled={rolesLoading}
+                            maxVisible={2}
                           />
-                          <div className="absolute inset-y-0 right-0 flex items-center pr-1.5">
-                            <Button type="button" variant="ghost" size="icon" aria-label={showConfirmPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"} className="size-7 rounded-md text-muted-foreground"
-                              onClick={() => setShowConfirmPassword((v) => !v)}
-                            >
-                              {showConfirmPassword ? (
-                                <EyeOffIcon className="size-3.5" />
-                              ) : (
-                                <EyeIcon className="size-3.5" />
-                              )}
-                            </Button>
-                          </div>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {!isOwnerUser && (
+                      <FormField
+                        control={form.control}
+                        name="location_ids"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Gudang</FormLabel>
+                            <LocationMultiCombobox
+                              value={field.value ?? []}
+                              onChange={(vals) =>
+                                form.setValue("location_ids", vals, {
+                                  shouldValidate: true,
+                                })
+                              }
+                            />
+                            <p className="text-xs text-muted-foreground">
+                              Kosongkan untuk memberi akses ke semua gudang.
+                            </p>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+
+                    <FormField
+                      control={form.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            Password{" "}
+                            {!isEdit && (
+                              <span className="text-destructive">*</span>
+                            )}
+                          </FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                type={showPassword ? "text" : "password"}
+                                placeholder={
+                                  isEdit
+                                    ? "Kosongkan jika tidak diubah"
+                                    : "Masukkan password"
+                                }
+                                className="pr-24"
+                                {...field}
+                              />
+                              <div className="absolute inset-y-0 right-0 flex items-center gap-0.5 pr-1.5">
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  aria-label={
+                                    showPassword
+                                      ? "Sembunyikan kata sandi"
+                                      : "Tampilkan kata sandi"
+                                  }
+                                  className="size-7 rounded-md text-muted-foreground"
+                                  onClick={() => setShowPassword((v) => !v)}
+                                >
+                                  {showPassword ? (
+                                    <EyeOffIcon className="size-3.5" />
+                                  ) : (
+                                    <EyeIcon className="size-3.5" />
+                                  )}
+                                </Button>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  aria-label="Buat kata sandi otomatis"
+                                  className="size-7 rounded-md text-muted-foreground"
+                                  onClick={async () => {
+                                    const pwd = generatePassword();
+                                    form.setValue("password", pwd, {
+                                      shouldValidate: true,
+                                    });
+                                    form.setValue(
+                                      "password_confirmation",
+                                      pwd,
+                                      {
+                                        shouldValidate: true,
+                                      },
+                                    );
+                                    setShowPassword(true);
+                                    try {
+                                      await navigator.clipboard.writeText(pwd);
+                                      toast.success(
+                                        "Password di-generate dan disalin ke clipboard.",
+                                      );
+                                    } catch {
+                                      toast.success(
+                                        "Password berhasil di-generate.",
+                                      );
+                                    }
+                                  }}
+                                >
+                                  <DicesIcon className="size-3.5" />
+                                </Button>
+                              </div>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                          {passwordValue && (
+                            <div className="space-y-2 pt-1">
+                              <div className="flex items-center gap-2">
+                                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                                  <div
+                                    className={`h-full transition-all ${strength?.color}`}
+                                    style={{ width: `${strength?.percent}%` }}
+                                  />
+                                </div>
+                                <span className="text-xs font-medium text-muted-foreground">
+                                  {strength?.level}
+                                </span>
+                              </div>
+                              <ul className="grid grid-cols-2 gap-x-4 gap-y-1">
+                                {PASSWORD_RULES.map((rule) => {
+                                  const ok = rule.test(passwordValue);
+                                  return (
+                                    <li
+                                      key={rule.key}
+                                      className="flex items-center gap-1.5 text-xs"
+                                    >
+                                      {ok ? (
+                                        <CheckIcon className="size-3 text-success" />
+                                      ) : (
+                                        <XIcon className="size-3 text-muted-foreground" />
+                                      )}
+                                      <span
+                                        className={
+                                          ok
+                                            ? "text-success"
+                                            : "text-muted-foreground"
+                                        }
+                                      >
+                                        {rule.label}
+                                      </span>
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </div>
+                          )}
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="password_confirmation"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            Konfirmasi Password{" "}
+                            {!isEdit && (
+                              <span className="text-destructive">*</span>
+                            )}
+                          </FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                type={showConfirmPassword ? "text" : "password"}
+                                placeholder="Ulangi password"
+                                className="pr-10"
+                                {...field}
+                              />
+                              <div className="absolute inset-y-0 right-0 flex items-center pr-1.5">
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  aria-label={
+                                    showConfirmPassword
+                                      ? "Sembunyikan kata sandi"
+                                      : "Tampilkan kata sandi"
+                                  }
+                                  className="size-7 rounded-md text-muted-foreground"
+                                  onClick={() =>
+                                    setShowConfirmPassword((v) => !v)
+                                  }
+                                >
+                                  {showConfirmPassword ? (
+                                    <EyeOffIcon className="size-3.5" />
+                                  ) : (
+                                    <EyeIcon className="size-3.5" />
+                                  )}
+                                </Button>
+                              </div>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="hak-akses" className="mt-0">
@@ -548,9 +589,9 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                   ) : (
                     <div className="space-y-3">
                       <p className="text-sm text-muted-foreground">
-                        Centang abu-abu otomatis mengikuti peran yang dipilih dan
-                        diatur di halaman Peran. Tambahkan centang lain untuk
-                        memberi hak akses khusus di luar peran.
+                        Centang abu-abu otomatis mengikuti peran yang dipilih
+                        dan diatur di halaman Peran. Tambahkan centang lain
+                        untuk memberi hak akses khusus di luar peran.
                       </p>
                       {catalog ? (
                         <PermissionMatrix

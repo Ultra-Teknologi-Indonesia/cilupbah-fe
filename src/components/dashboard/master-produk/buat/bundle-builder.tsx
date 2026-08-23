@@ -55,19 +55,14 @@ export function BundleBuilder({
     }
   }, [open]);
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetching,
-    isFetchingNextPage,
-  } = useInfiniteMasterProducts(
-    {
-      search: debounced || undefined,
-      perPage: 20,
-    },
-    { enabled: open },
-  );
+  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
+    useInfiniteMasterProducts(
+      {
+        search: debounced || undefined,
+        perPage: 20,
+      },
+      { enabled: open },
+    );
 
   const allItems = React.useMemo(
     () => data?.pages.flatMap((page) => page.items) ?? [],
@@ -131,7 +126,9 @@ export function BundleBuilder({
         <div className="flex flex-col gap-2.5">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>
-              Total Komponen: <strong className="text-foreground">{value.length}</strong> produk/varian
+              Total Komponen:{" "}
+              <strong className="text-foreground">{value.length}</strong>{" "}
+              produk/varian
             </span>
             <span>
               Total Qty:{" "}
@@ -303,7 +300,8 @@ export function BundleBuilder({
                   const single = p.variants.length <= 1;
                   const variant = p.variants[0];
                   const isExpanded = expanded === p.itemGroupId;
-                  const isSingleChosen = single && variant && chosen.has(variant.itemId);
+                  const isSingleChosen =
+                    single && variant && chosen.has(variant.itemId);
 
                   return (
                     <div

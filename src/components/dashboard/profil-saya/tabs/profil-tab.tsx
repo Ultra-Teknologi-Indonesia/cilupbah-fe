@@ -198,9 +198,7 @@ export function ProfilTab() {
               </Button>
               <Button
                 type="submit"
-                disabled={
-                  updateProfile.isPending || !form.formState.isDirty
-                }
+                disabled={updateProfile.isPending || !form.formState.isDirty}
               >
                 {updateProfile.isPending ? (
                   <>
@@ -231,7 +229,11 @@ export function ProfilTab() {
               me?.roles?.length ? (
                 <div className="flex flex-wrap gap-1.5">
                   {me.roles.map((role) => (
-                    <Badge key={role} variant="secondary" className="capitalize">
+                    <Badge
+                      key={role}
+                      variant="secondary"
+                      className="capitalize"
+                    >
                       {role}
                     </Badge>
                   ))}
@@ -266,7 +268,9 @@ export function ProfilTab() {
           <InfoField
             label="Terakhir login"
             icon={Clock3}
-            value={me?.last_login_at ? formatDateTimeFull(me.last_login_at) : "—"}
+            value={
+              me?.last_login_at ? formatDateTimeFull(me.last_login_at) : "—"
+            }
           />
           <InfoField
             label="Total hak akses"

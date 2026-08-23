@@ -140,8 +140,8 @@ export function RackImportDialog({ open, onOpenChange }: Props) {
         <DialogHeader>
           <DialogTitle>Import Alokasi Rak</DialogTitle>
           <DialogDescription>
-            Unggah file (tanpa batas jumlah baris). Sistem memvalidasi tiap baris
-            di latar belakang, lalu Anda tinjau sebelum diterapkan.
+            Unggah file (tanpa batas jumlah baris). Sistem memvalidasi tiap
+            baris di latar belakang, lalu Anda tinjau sebelum diterapkan.
           </DialogDescription>
         </DialogHeader>
 
@@ -369,7 +369,9 @@ function FilterChip({
       )}
     >
       <span className={cn("tabular-nums font-semibold", tone)}>{value}</span>
-      <span className={cn("font-normal", active ? "" : "text-muted-foreground")}>
+      <span
+        className={cn("font-normal", active ? "" : "text-muted-foreground")}
+      >
         {label}
       </span>
     </button>
@@ -538,7 +540,9 @@ function PreviewStep({
                   <EmptyState
                     icon={SearchIcon}
                     className="py-10"
-                    title={filtering ? "Tidak ada baris cocok" : "Belum ada baris"}
+                    title={
+                      filtering ? "Tidak ada baris cocok" : "Belum ada baris"
+                    }
                     description={
                       filtering
                         ? "Coba ubah kata kunci atau filter status."

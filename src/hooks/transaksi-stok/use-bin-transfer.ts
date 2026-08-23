@@ -19,10 +19,7 @@ export function useLocationBins(locationId: string) {
   });
 }
 
-export type BinTransferStatus =
-  | "BARU_DIBUAT"
-  | "SEDANG_DIJALAN"
-  | "SELESAI";
+export type BinTransferStatus = "BARU_DIBUAT" | "SEDANG_DIJALAN" | "SELESAI";
 
 export interface BinTransferItemPayload {
   item_id: string;
@@ -193,13 +190,7 @@ export function useBinTransferDetail(id: string) {
 export function useBinTransferItemDelete(id: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({
-      itemId,
-      qty,
-    }: {
-      itemId: string;
-      qty?: number;
-    }) => {
+    mutationFn: async ({ itemId, qty }: { itemId: string; qty?: number }) => {
       const res = await fetchClient<{ data: BinTransferDetail }>(
         `/inventory/bin-transfers/${id}/items/${itemId}`,
         { method: "DELETE", data: qty != null ? { qty } : undefined },

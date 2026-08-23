@@ -113,7 +113,10 @@ export function RoleListView() {
                             {titleCase(role.name)}
                           </Link>
                           {isOwner && (
-                            <Badge variant="secondary" className="ml-2 font-normal">
+                            <Badge
+                              variant="secondary"
+                              className="ml-2 font-normal"
+                            >
                               Bawaan
                             </Badge>
                           )}

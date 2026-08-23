@@ -21,7 +21,11 @@ export function InventorySettingsView() {
         </TabsList>
       </Tabs>
 
-      {tab === "produk" ? <ProdukSettingsTable /> : <SyncStokHargaView embedded />}
+      {tab === "produk" ? (
+        <ProdukSettingsTable />
+      ) : (
+        <SyncStokHargaView embedded />
+      )}
     </div>
   );
 }

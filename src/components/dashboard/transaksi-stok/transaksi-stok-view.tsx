@@ -9,10 +9,11 @@ import { TransferTab } from "@/components/dashboard/transaksi-stok/transfer-tab"
 
 type Tab = "penyesuaian" | "transfer";
 
-const TABS: { key: Tab; label: string; icon: typeof SlidersHorizontalIcon }[] = [
-  { key: "penyesuaian", label: "Koreksi Stok", icon: SlidersHorizontalIcon },
-  { key: "transfer", label: "Internal Transfer", icon: ArrowLeftRightIcon },
-];
+const TABS: { key: Tab; label: string; icon: typeof SlidersHorizontalIcon }[] =
+  [
+    { key: "penyesuaian", label: "Koreksi Stok", icon: SlidersHorizontalIcon },
+    { key: "transfer", label: "Internal Transfer", icon: ArrowLeftRightIcon },
+  ];
 
 const TAB_KEYS = TABS.map((t) => t.key);
 

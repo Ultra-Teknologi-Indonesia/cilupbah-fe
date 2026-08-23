@@ -129,77 +129,75 @@ function BuyerConfirmationBody({
 
   return (
     <>
-        <div className="space-y-4">
-          <RadioGroup
-            value={outcome}
-            onValueChange={(value) =>
-              setOutcome(value as BuyerConfirmationOutcome)
-            }
-            className="gap-2"
-          >
-            {OUTCOMES.map((option) => (
-              <label
-                key={option.value}
-                htmlFor={`outcome-${option.value}`}
-                className="flex cursor-pointer items-start gap-3 rounded-xl border border-border/60 p-3 hover:bg-muted/50"
-              >
-                <RadioGroupItem
-                  id={`outcome-${option.value}`}
-                  value={option.value}
-                  className="mt-0.5"
-                />
-                <span className="min-w-0">
-                  <span className="block text-sm font-medium">
-                    {option.label}
-                  </span>
-                  <span className="block text-xs text-muted-foreground">
-                    {option.hint}
-                  </span>
-                </span>
-              </label>
-            ))}
-          </RadioGroup>
-
-          {outcome === "REPLACE" && (
-            <div className="space-y-1.5">
-              <Label htmlFor="replacement-sku">SKU pengganti</Label>
-              <Combobox
-                id="replacement-sku"
-                options={search.data ?? []}
-                value={replacementSku}
-                onChange={setReplacementSku}
-                onQueryChange={setQuery}
-                loading={search.isFetching}
-                placeholder="Cari SKU pengganti"
-                searchPlaceholder="Ketik SKU atau nama produk"
-                emptyText="SKU tidak ditemukan"
+      <div className="space-y-4">
+        <RadioGroup
+          value={outcome}
+          onValueChange={(value) =>
+            setOutcome(value as BuyerConfirmationOutcome)
+          }
+          className="gap-2"
+        >
+          {OUTCOMES.map((option) => (
+            <label
+              key={option.value}
+              htmlFor={`outcome-${option.value}`}
+              className="flex cursor-pointer items-start gap-3 rounded-xl border border-border/60 p-3 hover:bg-muted/50"
+            >
+              <RadioGroupItem
+                id={`outcome-${option.value}`}
+                value={option.value}
+                className="mt-0.5"
               />
-            </div>
-          )}
+              <span className="min-w-0">
+                <span className="block text-sm font-medium">
+                  {option.label}
+                </span>
+                <span className="block text-xs text-muted-foreground">
+                  {option.hint}
+                </span>
+              </span>
+            </label>
+          ))}
+        </RadioGroup>
 
+        {outcome === "REPLACE" && (
           <div className="space-y-1.5">
-            <Label htmlFor="confirmation-note">Catatan</Label>
-            <Textarea
-              id="confirmation-note"
-              value={note}
-              onChange={(event) => setNote(event.target.value)}
-              placeholder="Hasil percakapan dengan pembeli"
-              rows={3}
+            <Label htmlFor="replacement-sku">SKU pengganti</Label>
+            <Combobox
+              id="replacement-sku"
+              options={search.data ?? []}
+              value={replacementSku}
+              onChange={setReplacementSku}
+              onQueryChange={setQuery}
+              loading={search.isFetching}
+              placeholder="Cari SKU pengganti"
+              searchPlaceholder="Ketik SKU atau nama produk"
+              emptyText="SKU tidak ditemukan"
             />
           </div>
-        </div>
+        )}
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            Batal
-          </Button>
-          <Button onClick={submit} disabled={!canSubmit || decide.isPending}>
-            {decide.isPending && (
-              <Loader2 className="mr-2 size-4 animate-spin" />
-            )}
-            Simpan Keputusan
-          </Button>
-        </DialogFooter>
+        <div className="space-y-1.5">
+          <Label htmlFor="confirmation-note">Catatan</Label>
+          <Textarea
+            id="confirmation-note"
+            value={note}
+            onChange={(event) => setNote(event.target.value)}
+            placeholder="Hasil percakapan dengan pembeli"
+            rows={3}
+          />
+        </div>
+      </div>
+
+      <DialogFooter>
+        <Button variant="outline" onClick={onClose}>
+          Batal
+        </Button>
+        <Button onClick={submit} disabled={!canSubmit || decide.isPending}>
+          {decide.isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+          Simpan Keputusan
+        </Button>
+      </DialogFooter>
     </>
   );
 }

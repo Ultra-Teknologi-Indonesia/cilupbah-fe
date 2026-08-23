@@ -132,7 +132,9 @@ export function DeleteOrderDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <TriangleAlertIcon className="size-4 text-destructive" />
-            {isBulk ? `Hapus ${orders.length} Pesanan` : "Hapus Pesanan dari Proses"}
+            {isBulk
+              ? `Hapus ${orders.length} Pesanan`
+              : "Hapus Pesanan dari Proses"}
           </DialogTitle>
           <DialogDescription>
             Pilih alasan pesanan dihapus dari alur fulfillment. Pesanan akan
@@ -159,9 +161,7 @@ export function DeleteOrderDialog({
           <Label className="text-sm font-medium">Alasan</Label>
           <RadioGroup
             value={reasonCode}
-            onValueChange={(v) =>
-              setReasonCode(v as PicklistFailReasonCode)
-            }
+            onValueChange={(v) => setReasonCode(v as PicklistFailReasonCode)}
             className="grid gap-2"
           >
             {REASONS.map((r) => (
@@ -214,7 +214,9 @@ export function DeleteOrderDialog({
             disabled={!canConfirm}
           >
             {isPending && <Loader2Icon className="size-4 animate-spin" />}
-            {isBulk ? `Ya, Hapus ${orders.length} Pesanan` : "Ya, Hapus Pengambilan"}
+            {isBulk
+              ? `Ya, Hapus ${orders.length} Pesanan`
+              : "Ya, Hapus Pengambilan"}
           </Button>
         </DialogFooter>
       </DialogContent>

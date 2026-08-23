@@ -161,7 +161,6 @@ export function ReturnSettlementView({ returnId }: { returnId: string }) {
         </LiquidGlass>
       ) : (
         <>
-
           <LiquidGlass
             radius={16}
             intensity="subtle"

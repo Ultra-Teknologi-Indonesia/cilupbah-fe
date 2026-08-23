@@ -122,10 +122,7 @@ function RuleItem({
           Wajib
         </Badge>
       ) : supported ? (
-        <Badge
-          variant="secondary"
-          className="text-2xs font-normal px-1.5 py-0"
-        >
+        <Badge variant="secondary" className="text-2xs font-normal px-1.5 py-0">
           Didukung
         </Badge>
       ) : null}

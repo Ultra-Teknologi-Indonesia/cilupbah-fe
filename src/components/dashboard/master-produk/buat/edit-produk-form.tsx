@@ -73,7 +73,8 @@ export function EditProdukForm({ product }: { product: ProductDetail }) {
         isPrimary: true,
       });
     }
-    return mediaItemsFromDetail(product.media.length > 0 ? product.media : []).length > 0
+    return mediaItemsFromDetail(product.media.length > 0 ? product.media : [])
+      .length > 0
       ? mediaItemsFromDetail(product.media)
       : fallbackItems;
   });

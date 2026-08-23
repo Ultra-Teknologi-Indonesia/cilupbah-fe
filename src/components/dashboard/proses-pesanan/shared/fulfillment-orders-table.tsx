@@ -320,9 +320,7 @@ function OrderCard({
       asMenuItem: (
         <DropdownMenuItem
           onSelect={() =>
-            DocActions.shippingLabel([
-              { id: order.id, source: order.source },
-            ])
+            DocActions.shippingLabel([{ id: order.id, source: order.source }])
           }
         >
           Cetak Label
@@ -359,9 +357,7 @@ function OrderCard({
           size="sm"
           variant="outline"
           onClick={() =>
-            DocActions.invoiceAndLabel([
-              { id: order.id, source: order.source },
-            ])
+            DocActions.invoiceAndLabel([{ id: order.id, source: order.source }])
           }
         >
           Cetak Faktur & Label
@@ -370,9 +366,7 @@ function OrderCard({
       asMenuItem: (
         <DropdownMenuItem
           onSelect={() =>
-            DocActions.invoiceAndLabel([
-              { id: order.id, source: order.source },
-            ])
+            DocActions.invoiceAndLabel([{ id: order.id, source: order.source }])
           }
         >
           Cetak Faktur & Label
@@ -445,11 +439,9 @@ function OrderCard({
         selected && "border-primary/40 bg-primary/[0.02]",
         order.isInstant &&
           "border-l-4 border-l-orange-500 bg-orange-50/50 dark:bg-orange-950/20",
-        isCancelled &&
-          "border-l-4 border-l-destructive bg-destructive/5",
+        isCancelled && "border-l-4 border-l-destructive bg-destructive/5",
       )}
     >
-
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-b border-border/40 px-4 py-2.5 sm:px-5">
         {isCancelled ? (
           <Tooltip>
@@ -633,9 +625,7 @@ function OrderCard({
           </p>
           <p className="mt-0.5 text-xs text-muted-foreground">
             {order.isPaid ? (
-              <span className="text-success">
-                Dibayar
-              </span>
+              <span className="text-success">Dibayar</span>
             ) : (
               "Belum dibayar"
             )}
@@ -938,7 +928,6 @@ export function FulfillmentOrdersTable({
 
   return (
     <div>
-
       {filterFields && filterFields.length > 0 ? (
         <>
           <FulfillmentFilterBar
@@ -1156,10 +1145,13 @@ export function FulfillmentOrdersTable({
             <Loader2Icon className="size-5 animate-spin text-muted-foreground" />
           </div>
         ) : orders.length === 0 ? (
-          <EmptyState icon={PackageIcon} title="Tidak ada pesanan." className="py-16" />
+          <EmptyState
+            icon={PackageIcon}
+            title="Tidak ada pesanan."
+            className="py-16"
+          />
         ) : (
           <div className="flex flex-col gap-3">
-
             {selected.size === 0 && orders.length > 0 && (
               <div className="flex items-center gap-2 px-1">
                 <Checkbox
@@ -1197,8 +1189,7 @@ export function FulfillmentOrdersTable({
                 completePending={markComplete.isPending}
                 retryPickupPending={retryPickup.isPending}
                 dismissPending={
-                  dismissCancel.isPending &&
-                  dismissCancel.variables === o.id
+                  dismissCancel.isPending && dismissCancel.variables === o.id
                 }
               />
             ))}

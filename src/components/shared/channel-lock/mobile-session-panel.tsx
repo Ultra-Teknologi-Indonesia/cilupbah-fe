@@ -72,7 +72,9 @@ export function MobileSessionPanel({
           <div className="text-xs text-muted-foreground">
             Total diterima {formatQty(totalReceived)} unit dari{" "}
             {participants.length} peserta
-            {receivingStartedAt ? ` · mulai ${formatWhen(receivingStartedAt)}` : ""}
+            {receivingStartedAt
+              ? ` · mulai ${formatWhen(receivingStartedAt)}`
+              : ""}
           </div>
         </div>
       </div>
@@ -108,7 +110,8 @@ export function MobileSessionPanel({
         confirmLabel="Tarik"
         variant="destructive"
         onConfirm={() => {
-          if (confirmTarget) onWithdraw?.(confirmTarget.userId, confirmTarget.name);
+          if (confirmTarget)
+            onWithdraw?.(confirmTarget.userId, confirmTarget.name);
           setConfirmTarget(null);
         }}
       />
@@ -129,9 +132,7 @@ function ParticipantRow({
     <div className="flex items-center gap-3 rounded-xl bg-background/60 px-3 py-2">
       <UsersIcon className="size-4 shrink-0 text-muted-foreground" />
       <div className="flex-1 min-w-0">
-        <div className="truncate text-sm font-medium">
-          {participant.name}
-        </div>
+        <div className="truncate text-sm font-medium">{participant.name}</div>
         <div className="truncate text-xs text-muted-foreground">
           {formatQty(participant.receipts_qty_sum)} unit ·{" "}
           {participant.receipts_count} scan

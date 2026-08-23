@@ -3,13 +3,16 @@ import { EmptyState } from "@/components/ui/empty-state";
 
 import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
-import { PlusIcon,
+import {
+  PlusIcon,
   PencilIcon,
   Trash2Icon,
   LockIcon,
   UsersIcon,
   DownloadIcon,
-  ArrowLeftRightIcon, Loader2Icon } from "lucide-react";
+  ArrowLeftRightIcon,
+  Loader2Icon,
+} from "lucide-react";
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -333,9 +336,7 @@ export function PelangganTab() {
           <Combobox
             options={categoryOptions}
             value={filters.category_id}
-            onChange={(v) =>
-              setFilters({ ...filters, category_id: v ?? "" })
-            }
+            onChange={(v) => setFilters({ ...filters, category_id: v ?? "" })}
             placeholder="Kategori"
             searchPlaceholder="Cari kategori"
             className="h-9 bg-background"
@@ -343,9 +344,7 @@ export function PelangganTab() {
           <Combobox
             options={statusOptions}
             value={filters.status}
-            onChange={(v) =>
-              setFilters({ ...filters, status: v ?? "" })
-            }
+            onChange={(v) => setFilters({ ...filters, status: v ?? "" })}
             placeholder="Status"
             searchPlaceholder="Cari status"
             className="h-9 bg-background"
@@ -370,7 +369,11 @@ export function PelangganTab() {
             onPaginationChange={onPaginationChange}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
-              <EmptyState icon={UsersIcon} title="Belum ada kontak pelanggan" description="Buat pelanggan baru untuk mulai mengelola kontak." />
+              <EmptyState
+                icon={UsersIcon}
+                title="Belum ada kontak pelanggan"
+                description="Buat pelanggan baru untuk mulai mengelola kontak."
+              />
             }
           />
         </div>

@@ -242,9 +242,7 @@ function PengirimanForm({
             disablePast
             placeholder="Pilih tanggal & jam"
           />
-          {dateError && (
-            <p className="text-xs text-destructive">{dateError}</p>
-          )}
+          {dateError && <p className="text-xs text-destructive">{dateError}</p>}
         </div>
 
         <div className="space-y-1.5">
@@ -269,9 +267,7 @@ function PengirimanForm({
           onClick={handleSubmit}
           disabled={!canSubmit || createShipment.isPending}
         >
-          {createShipment.isPending && (
-            <Loader2Icon className="animate-spin" />
-          )}
+          {createShipment.isPending && <Loader2Icon className="animate-spin" />}
           Simpan
         </Button>
       </div>

@@ -35,12 +35,17 @@ export function TabRiwayat({ productId }: { productId: string }) {
   const [page, setPage] = React.useState(1);
   const [perPage, setPerPage] = React.useState(20);
 
-  const { data, isLoading, isError, refetch, isFetching: _isFetching } =
-    useProductUploadHistories(
-      productId,
-      { page, perPage, status: status || undefined },
-      true,
-    );
+  const {
+    data,
+    isLoading,
+    isError,
+    refetch,
+    isFetching: _isFetching,
+  } = useProductUploadHistories(
+    productId,
+    { page, perPage, status: status || undefined },
+    true,
+  );
   const rows = data?.items ?? [];
   const lastPage = data?.meta?.last_page ?? 1;
 

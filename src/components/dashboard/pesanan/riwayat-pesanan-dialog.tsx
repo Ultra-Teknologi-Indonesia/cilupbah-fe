@@ -92,10 +92,7 @@ function ChangeCard({ activity }: { activity: OrderActivity }) {
   const entries = useMemo(() => {
     const prev = activity.prev_values ?? {};
     const next = activity.new_values ?? {};
-    const keys = new Set<string>([
-      ...Object.keys(prev),
-      ...Object.keys(next),
-    ]);
+    const keys = new Set<string>([...Object.keys(prev), ...Object.keys(next)]);
     return Array.from(keys).map((key) => ({
       key,
       label: labelForField(key),
@@ -134,7 +131,9 @@ function ChangeCard({ activity }: { activity: OrderActivity }) {
         </ul>
       )}
       {activity.note ? (
-        <div className="mt-2 text-xs text-muted-foreground">{activity.note}</div>
+        <div className="mt-2 text-xs text-muted-foreground">
+          {activity.note}
+        </div>
       ) : null}
     </div>
   );

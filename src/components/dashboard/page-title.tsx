@@ -115,9 +115,7 @@ export function PageTitle({
                       <BreadcrumbItem>
                         {item.href && !isLast ? (
                           <BreadcrumbLink asChild>
-                            <Link href={item.href}>
-                              {item.label}
-                            </Link>
+                            <Link href={item.href}>{item.label}</Link>
                           </BreadcrumbLink>
                         ) : (
                           <BreadcrumbPage>{item.label}</BreadcrumbPage>

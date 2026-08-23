@@ -230,9 +230,7 @@ export function RiwayatPenempatanDialog({
                     className="rounded-xl text-xs font-medium gap-1.5"
                   >
                     <LayersIcon className="size-3.5" />
-                    <span>
-                      Scan Rak ({history.placements?.length ?? 0})
-                    </span>
+                    <span>Scan Rak ({history.placements?.length ?? 0})</span>
                   </TabsTrigger>
                   <TabsTrigger
                     value="team"
@@ -249,7 +247,10 @@ export function RiwayatPenempatanDialog({
                     {history.events.map((event, idx) => {
                       const isLast = idx === history.events.length - 1;
                       return (
-                        <div key={idx} className="relative flex items-start gap-4">
+                        <div
+                          key={idx}
+                          className="relative flex items-start gap-4"
+                        >
                           {/* Left: Icon node & vertical connector line */}
                           <div className="relative flex flex-col items-center shrink-0 self-stretch">
                             <EventIcon type={event.type} />
@@ -304,11 +305,21 @@ export function RiwayatPenempatanDialog({
                       <Table>
                         <TableHeader className="bg-muted/40">
                           <TableRow>
-                            <TableHead className="min-w-[220px]">SKU / Produk</TableHead>
-                            <TableHead className="min-w-[140px]">Kode Rak</TableHead>
-                            <TableHead className="min-w-[90px] text-right">Qty</TableHead>
-                            <TableHead className="min-w-[170px]">Waktu Scan</TableHead>
-                            <TableHead className="min-w-[150px]">Eksekutor</TableHead>
+                            <TableHead className="min-w-[220px]">
+                              SKU / Produk
+                            </TableHead>
+                            <TableHead className="min-w-[140px]">
+                              Kode Rak
+                            </TableHead>
+                            <TableHead className="min-w-[90px] text-right">
+                              Qty
+                            </TableHead>
+                            <TableHead className="min-w-[170px]">
+                              Waktu Scan
+                            </TableHead>
+                            <TableHead className="min-w-[150px]">
+                              Eksekutor
+                            </TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -325,7 +336,10 @@ export function RiwayatPenempatanDialog({
                                 )}
                               </TableCell>
                               <TableCell>
-                                <Badge variant="outline" className="font-mono text-2xs gap-1.5 px-2.5 py-1">
+                                <Badge
+                                  variant="outline"
+                                  className="font-mono text-2xs gap-1.5 px-2.5 py-1"
+                                >
                                   <MapPinIcon className="size-3 text-primary" />
                                   <span>{p.bin_code}</span>
                                 </Badge>
@@ -404,7 +418,10 @@ export function RiwayatPenempatanDialog({
                               </div>
                             </div>
                             <div className="text-right text-2xs text-muted-foreground">
-                              <Badge variant="secondary" className="text-2xs font-normal">
+                              <Badge
+                                variant="secondary"
+                                className="text-2xs font-normal"
+                              >
                                 {part.status}
                               </Badge>
                               {part.joined_at && (

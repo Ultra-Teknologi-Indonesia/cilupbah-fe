@@ -197,9 +197,7 @@ export function NegativeStockView() {
       },
       {
         accessorKey: "negative_movements_count",
-        header: () => (
-          <span className="block text-right">Movement Minus</span>
-        ),
+        header: () => <span className="block text-right">Movement Minus</span>,
         cell: ({ row }) => (
           <div className="text-right tabular-nums text-xs">
             {row.original.negative_movements_count}
@@ -316,10 +314,7 @@ export function NegativeStockView() {
               disabled={query.isFetching}
             >
               <RefreshCwIcon
-                className={cn(
-                  "size-3.5",
-                  query.isFetching && "animate-spin",
-                )}
+                className={cn("size-3.5", query.isFetching && "animate-spin")}
               />
               <span className="ml-1.5">Muat Ulang</span>
             </Button>

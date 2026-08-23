@@ -23,7 +23,9 @@ export function BantuanTabs() {
   const params = useSearchParams();
 
   const initial = params.get("tab");
-  const [tab, setTab] = React.useState<TabKey>(isTab(initial) ? initial : "faq");
+  const [tab, setTab] = React.useState<TabKey>(
+    isTab(initial) ? initial : "faq",
+  );
 
   const changeTab = (value: string) => {
     if (!isTab(value)) return;
@@ -37,18 +39,18 @@ export function BantuanTabs() {
     <Tabs value={tab} onValueChange={changeTab} className="w-full">
       <div className="mb-6 flex flex-col-reverse gap-4 md:flex-row md:items-center md:justify-between">
         <TabsList variant="glass">
-        <TabsTrigger value="faq" className="gap-1.5">
-          <HelpCircleIcon className="size-4" />
-          FAQ
-        </TabsTrigger>
-        <TabsTrigger value="panduan" className="gap-1.5">
-          <BookOpenIcon className="size-4" />
-          Panduan
-        </TabsTrigger>
-        <TabsTrigger value="api" className="gap-1.5">
-          <CodeIcon className="size-4" />
-          Dokumentasi API
-        </TabsTrigger>
+          <TabsTrigger value="faq" className="gap-1.5">
+            <HelpCircleIcon className="size-4" />
+            FAQ
+          </TabsTrigger>
+          <TabsTrigger value="panduan" className="gap-1.5">
+            <BookOpenIcon className="size-4" />
+            Panduan
+          </TabsTrigger>
+          <TabsTrigger value="api" className="gap-1.5">
+            <CodeIcon className="size-4" />
+            Dokumentasi API
+          </TabsTrigger>
         </TabsList>
         <div className="md:ml-auto md:max-w-md md:flex-1">
           <GlobalHelpSearch />

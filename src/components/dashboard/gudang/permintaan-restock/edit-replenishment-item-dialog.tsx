@@ -71,7 +71,9 @@ export function EditReplenishmentItemDialog({
         <DialogHeader>
           <DialogTitle>Ubah Item</DialogTitle>
           <DialogDescription>
-            {item?.product_name ?? item?.sku ?? "Perbarui jumlah dan alasan permintaan."}
+            {item?.product_name ??
+              item?.sku ??
+              "Perbarui jumlah dan alasan permintaan."}
           </DialogDescription>
         </DialogHeader>
 

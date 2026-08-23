@@ -50,8 +50,12 @@ export function mapLocation(raw: RawLocation): Location {
     isSystem: Boolean(raw.is_system),
     isLocked: Boolean(raw.is_locked),
     isPos: Boolean(raw.is_pos),
-    isSmallWarehouse: Boolean(raw.is_small_warehouse ?? raw.enforces_strict_bin_sku),
-    enforcesStrictBinSku: Boolean(raw.enforces_strict_bin_sku ?? raw.is_small_warehouse),
+    isSmallWarehouse: Boolean(
+      raw.is_small_warehouse ?? raw.enforces_strict_bin_sku,
+    ),
+    enforcesStrictBinSku: Boolean(
+      raw.enforces_strict_bin_sku ?? raw.is_small_warehouse,
+    ),
     village: raw.village ?? null,
     bins: (raw.bins ?? []).map(mapBin),
     createdAt: raw.created_at,

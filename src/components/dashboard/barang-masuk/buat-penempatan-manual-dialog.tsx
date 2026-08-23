@@ -163,7 +163,9 @@ export function BuatPenempatanManualDialog({
         <DialogFooter>
           <Button
             onClick={() => mutation.mutate()}
-            disabled={mutation.isPending || !assignedTo || inbounds.length === 0}
+            disabled={
+              mutation.isPending || !assignedTo || inbounds.length === 0
+            }
             className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white"
           >
             {mutation.isPending && (

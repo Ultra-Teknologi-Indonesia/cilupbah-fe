@@ -12,7 +12,7 @@ import {
   PlayIcon,
   PrinterIcon,
   Trash2Icon,
-  } from "lucide-react";
+} from "lucide-react";
 import { toast } from "sonner";
 import { BuatPenempatanManualDialog } from "./buat-penempatan-manual-dialog";
 import { TerimaTransferDialog } from "./terima-transfer-dialog";
@@ -101,7 +101,8 @@ function ProgressBar({ value, total }: { value: number; total: number }) {
 }
 
 function isSelectable(item: Inbound): boolean {
-  const totalRecv = item.items?.reduce((s, i) => s + (i.received_qty || 0), 0) ?? 0;
+  const totalRecv =
+    item.items?.reduce((s, i) => s + (i.received_qty || 0), 0) ?? 0;
   const totalPutaway =
     item.items?.reduce((s, i) => s + (i.putaway_qty || 0), 0) ?? 0;
   const totalReserved =
@@ -115,9 +116,7 @@ function isSelectable(item: Inbound): boolean {
 
 function isTransitReceivable(item: Inbound): boolean {
   return (
-    item.type === "TRANSIT_IN" &&
-    item.status === "DRAFT" &&
-    !!item.source_id
+    item.type === "TRANSIT_IN" && item.status === "DRAFT" && !!item.source_id
   );
 }
 
@@ -142,7 +141,9 @@ function handleExportList(items: Inbound[]) {
       item.transaction_number,
       TYPE_LABEL[item.type] ?? item.type,
       item.reference_number ?? "",
-      item.expected_date ? formatDateTime(item.expected_date) : formatDateTime(item.created_at),
+      item.expected_date
+        ? formatDateTime(item.expected_date)
+        : formatDateTime(item.created_at),
       item.location?.location_name ?? "",
       String(totalRecv),
     ];
@@ -244,7 +245,10 @@ export function PenerimaanBarangTab() {
         ),
         enableSorting: true,
         cell: ({ row }) => (
-          <Link href={`/dashboard/barang-masuk/penerimaan/${row.original.id}`} className="font-medium text-primary underline-offset-2 hover:underline">
+          <Link
+            href={`/dashboard/barang-masuk/penerimaan/${row.original.id}`}
+            className="font-medium text-primary underline-offset-2 hover:underline"
+          >
             {row.original.transaction_number}
           </Link>
         ),
@@ -270,7 +274,10 @@ export function PenerimaanBarangTab() {
         cell: ({ row }) => {
           const ref = row.original.reference_number;
           if (!ref) return <span>—</span>;
-          if (row.original.source_type === "purchase_order" && row.original.source_id) {
+          if (
+            row.original.source_type === "purchase_order" &&
+            row.original.source_id
+          ) {
             return (
               <Link
                 href={`/dashboard/transaksi-pembelian/pesanan/${row.original.source_id}`}
@@ -289,7 +296,9 @@ export function PenerimaanBarangTab() {
         header: ({ column }) => (
           <DataTableColumnHeader
             column={column}
-            title={sourceTab === "transfer" ? "Tanggal Transfer Keluar" : "Tanggal"}
+            title={
+              sourceTab === "transfer" ? "Tanggal Transfer Keluar" : "Tanggal"
+            }
           />
         ),
         enableSorting: true,
@@ -305,9 +314,7 @@ export function PenerimaanBarangTab() {
         id: "location",
         header: "Lokasi",
         cell: ({ row }) => (
-          <span>
-            {row.original.location?.location_name ?? "—"}
-          </span>
+          <span>{row.original.location?.location_name ?? "—"}</span>
         ),
       },
 
@@ -416,38 +423,37 @@ export function PenerimaanBarangTab() {
                   Penempatan
                 </Button>
               )}
-              {active && (() => {
-                const totalRecv =
-                  item.items?.reduce(
-                    (s, i) => s + (i.received_qty || 0),
-                    0,
-                  ) ?? 0;
-                const totalPutaway =
-                  item.items?.reduce(
-                    (s, i) => s + (i.putaway_qty || 0),
-                    0,
-                  ) ?? 0;
-                const isFullyPutaway =
-                  totalRecv > 0 && totalPutaway >= totalRecv;
-                const Icon = isFullyPutaway ? EyeIcon : PlayIcon;
-                const label = isFullyPutaway ? "Lihat" : "Pantau";
-                return (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-8 gap-1.5"
-                    asChild
-                  >
-                    <Link
-                      href={`/dashboard/barang-masuk/putaway/${active.id}`}
-                      onClick={(e) => e.stopPropagation()}
+              {active &&
+                (() => {
+                  const totalRecv =
+                    item.items?.reduce(
+                      (s, i) => s + (i.received_qty || 0),
+                      0,
+                    ) ?? 0;
+                  const totalPutaway =
+                    item.items?.reduce((s, i) => s + (i.putaway_qty || 0), 0) ??
+                    0;
+                  const isFullyPutaway =
+                    totalRecv > 0 && totalPutaway >= totalRecv;
+                  const Icon = isFullyPutaway ? EyeIcon : PlayIcon;
+                  const label = isFullyPutaway ? "Lihat" : "Pantau";
+                  return (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 gap-1.5"
+                      asChild
                     >
-                      <Icon className="size-4" />
-                      {label}
-                    </Link>
-                  </Button>
-                );
-              })()}
+                      <Link
+                        href={`/dashboard/barang-masuk/putaway/${active.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Icon className="size-4" />
+                        {label}
+                      </Link>
+                    </Button>
+                  );
+                })()}
             </div>
           );
         },
@@ -516,16 +522,11 @@ export function PenerimaanBarangTab() {
           onSearchChange={list.setSearch}
           searchPlaceholder="Cari no. penerimaan..."
           align="end"
-          onReset={
-            hasActiveFilter || !!list.search
-              ? list.resetAll
-              : undefined
-          }
+          onReset={hasActiveFilter || !!list.search ? list.resetAll : undefined}
           hasFilter={hasActiveFilter || !!list.search}
           activeCount={activeCount}
           gridCols={2}
         >
-
           <Combobox
             options={locationOptions}
             value={list.filters.location_id}
@@ -598,8 +599,12 @@ export function PenerimaanBarangTab() {
             onPaginationChange={list.onPaginationChange}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
-              <EmptyState icon={PackageCheckIcon} title="Belum ada penerimaan barang" description="Dokumen penerimaan dari PO, Transfer, atau Retur akan tampil
-                    di sini." />
+              <EmptyState
+                icon={PackageCheckIcon}
+                title="Belum ada penerimaan barang"
+                description="Dokumen penerimaan dari PO, Transfer, atau Retur akan tampil
+                    di sini."
+              />
             }
           />
         </div>
@@ -644,9 +649,12 @@ export function PenerimaanBarangTab() {
             (d) => d.source_type === "purchase_order",
           );
           const hasReceived = deleteTargets.some((d) =>
-            ["RECEIVED", "PARTIAL", "PUTAWAY_IN_PROGRESS", "COMPLETED"].includes(
-              d.status,
-            ),
+            [
+              "RECEIVED",
+              "PARTIAL",
+              "PUTAWAY_IN_PROGRESS",
+              "COMPLETED",
+            ].includes(d.status),
           );
 
           if (allTransfer && hasReceived) {

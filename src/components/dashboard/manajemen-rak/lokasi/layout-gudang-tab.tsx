@@ -315,8 +315,8 @@ function ImportBinsDialog({
         <div className="flex flex-col gap-4 py-2">
           <div className="flex items-start justify-between gap-3 rounded-xl border border-border bg-muted/40 p-3">
             <p className="text-xs text-muted-foreground">
-              Belum punya filenya? Unduh template — sudah berisi judul kolom yang
-              benar dan contoh kode rak dari lokasi ini.
+              Belum punya filenya? Unduh template — sudah berisi judul kolom
+              yang benar dan contoh kode rak dari lokasi ini.
             </p>
             <Button
               type="button"
@@ -815,7 +815,7 @@ function AddSkuToBinButton({
 
   const pendingSkus = React.useMemo(
     () => data?.pages.flatMap((p) => p.data) ?? [],
-    [data]
+    [data],
   );
 
   const options: ComboboxOption[] = React.useMemo(() => {
@@ -868,7 +868,11 @@ function AddSkuToBinButton({
           value={null}
           placeholder="Cari SKU / nama produk..."
           searchPlaceholder="Ketik untuk mencari..."
-          emptyText={isFetching && !isFetchingNextPage ? "Memuat data SKU..." : "Tidak ada SKU yang cocok"}
+          emptyText={
+            isFetching && !isFetchingNextPage
+              ? "Memuat data SKU..."
+              : "Tidak ada SKU yang cocok"
+          }
           onChange={(val) => {
             if (val) {
               const selected = pendingSkus.find((s) => s.variantId === val);
@@ -926,8 +930,7 @@ function IsiRakCell({
     const q = searchQuery.toLowerCase();
     return skus.filter(
       (s) =>
-        s.sku.toLowerCase().includes(q) ||
-        s.name.toLowerCase().includes(q)
+        s.sku.toLowerCase().includes(q) || s.name.toLowerCase().includes(q),
     );
   }, [skus, searchQuery]);
 
@@ -987,7 +990,10 @@ function IsiRakCell({
                     Semua SKU di Rak {binCode || ""}
                   </span>
                 </div>
-                <Badge variant="secondary" className="text-2xs px-2 py-0 font-bold">
+                <Badge
+                  variant="secondary"
+                  className="text-2xs px-2 py-0 font-bold"
+                >
                   {skus.length} Total SKU
                 </Badge>
               </div>
@@ -1123,39 +1129,36 @@ function BinSkuAssignCell({
 
   const pendingSkus = React.useMemo(
     () => data?.pages.flatMap((p) => p.data) ?? [],
-    [data]
+    [data],
   );
 
-  const options: ComboboxOption[] = React.useMemo(
-    () => {
-      const opts = pendingSkus
-        .filter(
-          (s) =>
-            s.variantId === staged?.variantId ||
-            !stagedVariantIds.has(s.variantId)
-        )
-        .map((s) => ({
-          value: s.variantId,
-          label: s.name,
-          hint: s.sku,
-          badgeLabel: s.sku,
-          imageUrl: s.thumbnail ?? undefined,
-        }));
-        
-      if (staged && !opts.find(o => o.value === staged.variantId)) {
-        opts.push({
-          value: staged.variantId,
-          label: staged.name,
-          hint: staged.sku,
-          badgeLabel: staged.sku,
-          imageUrl: staged.thumbnail ?? undefined,
-        });
-      }
-      
-      return opts;
-    },
-    [pendingSkus, stagedVariantIds, staged]
-  );
+  const options: ComboboxOption[] = React.useMemo(() => {
+    const opts = pendingSkus
+      .filter(
+        (s) =>
+          s.variantId === staged?.variantId ||
+          !stagedVariantIds.has(s.variantId),
+      )
+      .map((s) => ({
+        value: s.variantId,
+        label: s.name,
+        hint: s.sku,
+        badgeLabel: s.sku,
+        imageUrl: s.thumbnail ?? undefined,
+      }));
+
+    if (staged && !opts.find((o) => o.value === staged.variantId)) {
+      opts.push({
+        value: staged.variantId,
+        label: staged.name,
+        hint: staged.sku,
+        badgeLabel: staged.sku,
+        imageUrl: staged.thumbnail ?? undefined,
+      });
+    }
+
+    return opts;
+  }, [pendingSkus, stagedVariantIds, staged]);
 
   return (
     <div className="min-w-[260px] max-w-[340px] space-y-1">
@@ -1165,7 +1168,8 @@ function BinSkuAssignCell({
         onChange={(val) => {
           if (!val) onChange(null);
           else {
-            const found = pendingSkus.find(s => s.variantId === val) || staged;
+            const found =
+              pendingSkus.find((s) => s.variantId === val) || staged;
             onChange(found || null);
           }
         }}
@@ -1176,7 +1180,9 @@ function BinSkuAssignCell({
         loadingMore={isFetchingNextPage}
         placeholder="Pilih SKU..."
         searchPlaceholder="Cari SKU / nama"
-        emptyText={isFetching && !isFetchingNextPage ? "Memuat…" : "Tidak ada SKU valid."}
+        emptyText={
+          isFetching && !isFetchingNextPage ? "Memuat…" : "Tidak ada SKU valid."
+        }
         disabled={disabled}
         wrap
       />
@@ -1260,7 +1266,8 @@ function MoveSkuDialog({
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
                 Dari rak <span className="font-mono">{sourceBinCode}</span> ·{" "}
-                {sku.onHand.toLocaleString("id-ID")} pcs akan dipindah seluruhnya
+                {sku.onHand.toLocaleString("id-ID")} pcs akan dipindah
+                seluruhnya
               </p>
             </div>
           )}
@@ -1893,9 +1900,7 @@ export function LayoutGudangTab({
                         {code}
                       </SelectItem>
                     ))}
-                    <SelectItem value={NEW_ZONE_VALUE}>
-                      + Zona baru…
-                    </SelectItem>
+                    <SelectItem value={NEW_ZONE_VALUE}>+ Zona baru…</SelectItem>
                   </SelectContent>
                 </Select>
               )}
@@ -2039,7 +2044,8 @@ export function LayoutGudangTab({
 
         {serverMode && binsQuery.isLoading ? (
           <div className="flex items-center justify-center gap-2 py-12 text-muted-foreground text-sm">
-            <Loader2Icon className="size-4 animate-spin" /></div>
+            <Loader2Icon className="size-4 animate-spin" />
+          </div>
         ) : pageItems.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border py-12 text-center text-sm text-muted-foreground">
             Belum ada data rak.
@@ -2186,7 +2192,9 @@ export function LayoutGudangTab({
                         <Checkbox
                           checked={isSelected}
                           onCheckedChange={() => toggleOne(b.id)}
-                          disabled={disabled || selectAllAcrossPages || isPending}
+                          disabled={
+                            disabled || selectAllAcrossPages || isPending
+                          }
                         />
                       </TableCell>
                       <TableCell className="px-3 py-2.5">
@@ -2228,9 +2236,14 @@ export function LayoutGudangTab({
                             binCode={b.binFinalCode}
                             locationId={locationId}
                             stagedVariantIds={stagedVariantIds}
-                            disabled={disabled || isPending || assignBinSku.isPending}
+                            disabled={
+                              disabled || isPending || assignBinSku.isPending
+                            }
                             onAssignSku={
-                              isSmallWarehouse && b.binId && !isPending && !b.isInbound
+                              isSmallWarehouse &&
+                              b.binId &&
+                              !isPending &&
+                              !b.isInbound
                                 ? (sku) =>
                                     handleDirectOrStagedAssign(
                                       b.binId!,
@@ -2257,7 +2270,8 @@ export function LayoutGudangTab({
                                         binCode: b.binFinalCode,
                                         sku,
                                       }),
-                                    disabled: disabled || assignBinSku.isPending,
+                                    disabled:
+                                      disabled || assignBinSku.isPending,
                                   }
                                 : undefined
                             }
@@ -2291,7 +2305,10 @@ export function LayoutGudangTab({
                             stagedVariantIds={stagedVariantIds}
                             disabled={disabled || assignBinSku.isPending}
                             onAssignSku={
-                              isSmallWarehouse && b.binId && !isPending && !b.isInbound
+                              isSmallWarehouse &&
+                              b.binId &&
+                              !isPending &&
+                              !b.isInbound
                                 ? (sku) =>
                                     handleDirectOrStagedAssign(
                                       b.binId!,

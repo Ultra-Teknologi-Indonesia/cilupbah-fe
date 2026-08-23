@@ -46,14 +46,17 @@ function formatDateDMY(iso: string | null | undefined): string {
 }
 
 export function formatShipmentLabel(
-  s: Pick<Shipment, "shipmentType" | "shipmentDate" | "shipmentNo" | "hasInstant">,
+  s: Pick<
+    Shipment,
+    "shipmentType" | "shipmentDate" | "shipmentNo" | "hasInstant"
+  >,
 ): string {
   const type = (s.shipmentType ?? "REGULAR") as ShipmentType;
   const isInstantOrSameDay =
     s.hasInstant || type === "INSTANT" || type === "SAME_DAY";
   const base = isInstantOrSameDay
     ? "INSTAN & SAMEDAY"
-    : SHIPMENT_TYPE_UPPER_LABEL[type] ?? "REGULER";
+    : (SHIPMENT_TYPE_UPPER_LABEL[type] ?? "REGULER");
   const date = formatDateDMY(s.shipmentDate);
   return date ? `${base} (${date})` : base;
 }

@@ -2,11 +2,7 @@ export type SalesReturnStatus =
   "PENDING" | "ACCEPTED" | "REJECTED" | "COMPLETED" | "CANCELLED";
 
 export type SalesReturnReasonCategory =
-  | "FAILED_DELIVERY"
-  | "COMPLAINT"
-  | "CANCEL_SHIPPED"
-  | "REMORSE"
-  | "OTHER";
+  "FAILED_DELIVERY" | "COMPLAINT" | "CANCEL_SHIPPED" | "REMORSE" | "OTHER";
 
 export type SalesReturnMarketplaceDecision =
   | "MP_PENDING"

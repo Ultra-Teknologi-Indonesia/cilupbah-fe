@@ -26,10 +26,7 @@ export function StatusTimeline({
 
   return (
     <ol
-      className={cn(
-        "flex flex-wrap items-center gap-3 sm:gap-4",
-        className,
-      )}
+      className={cn("flex flex-wrap items-center gap-3 sm:gap-4", className)}
       aria-label="Timeline status"
     >
       {steps.map((step, i) => {
@@ -50,8 +47,7 @@ export function StatusTimeline({
                 isDone && "border-primary bg-primary text-primary-foreground",
                 isActive &&
                   "border-primary bg-primary/10 text-primary ring-2 ring-primary/30",
-                isPending &&
-                  "border-border bg-muted text-muted-foreground",
+                isPending && "border-border bg-muted text-muted-foreground",
               )}
             >
               {isDone ? <CheckIcon className="size-3.5" /> : i + 1}
@@ -59,7 +55,7 @@ export function StatusTimeline({
             <span
               className={cn(
                 "text-xs sm:text-sm",
-                (isDone || isActive)
+                isDone || isActive
                   ? "font-medium text-foreground"
                   : "text-muted-foreground",
               )}

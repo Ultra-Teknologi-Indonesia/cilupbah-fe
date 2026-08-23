@@ -116,8 +116,14 @@ export function QtyConfirmInput({
         "tabular-nums",
         matchesExpected && "border-primary/40 ring-1 ring-primary/20",
         overMax && warnOnly && "border-amber-500 ring-1 ring-amber-500/40",
-        overMax && !warnOnly && !pendingOverConfirm && "border-destructive ring-1 ring-destructive/30",
-        overMax && !warnOnly && pendingOverConfirm && "border-amber-500 ring-1 ring-amber-500/40",
+        overMax &&
+          !warnOnly &&
+          !pendingOverConfirm &&
+          "border-destructive ring-1 ring-destructive/30",
+        overMax &&
+          !warnOnly &&
+          pendingOverConfirm &&
+          "border-amber-500 ring-1 ring-amber-500/40",
         underMin && "border-destructive ring-1 ring-destructive/30",
         className,
       )}

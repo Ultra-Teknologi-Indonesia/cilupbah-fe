@@ -87,7 +87,12 @@ export function useImportBatch(batchId: string | null) {
 
 export function useImportBatchRows(
   batchId: string | null,
-  params: { page?: number; perPage?: number; status?: string; search?: string } = {},
+  params: {
+    page?: number;
+    perPage?: number;
+    status?: string;
+    search?: string;
+  } = {},
 ) {
   return useQuery({
     queryKey: importBatchRowsKey(batchId ?? "", params),
@@ -122,8 +127,7 @@ export function useImportFile() {
       });
       qc.invalidateQueries({ queryKey: ["master-produk", "import-batches"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal mengupload file import"),
+    onError: (err) => apiError(err, "Gagal mengupload file import"),
   });
 }
 
@@ -136,9 +140,10 @@ export function useConfirmImportBatch() {
         description: `Batch ${batch.batchNo} sedang diproses.`,
       });
       qc.invalidateQueries({ queryKey: ["master-produk", "import-batches"] });
-      qc.invalidateQueries({ queryKey: ["master-produk", "import-batch", batch.id] });
+      qc.invalidateQueries({
+        queryKey: ["master-produk", "import-batch", batch.id],
+      });
     },
-    onError: (err) =>
-      apiError(err, "Gagal memulai penerapan import"),
+    onError: (err) => apiError(err, "Gagal memulai penerapan import"),
   });
 }

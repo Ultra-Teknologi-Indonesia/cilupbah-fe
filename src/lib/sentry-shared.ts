@@ -17,7 +17,8 @@ const IGNORE_ERRORS = [
 ];
 
 function isHandledApiError(hint?: EventHint): boolean {
-  const original = hint?.originalException as { status?: unknown } | null | undefined;
+  const original = hint?.originalException as
+    { status?: unknown } | null | undefined;
 
   return (
     !!original &&

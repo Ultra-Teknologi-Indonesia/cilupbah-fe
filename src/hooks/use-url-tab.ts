@@ -41,20 +41,15 @@ export function useUrlTab<T extends string>(
         params.set(key, next);
       }
 
-      const parsedClearKeys = clearKeysKey ? JSON.parse(clearKeysKey) as string[] : [];
+      const parsedClearKeys = clearKeysKey
+        ? (JSON.parse(clearKeysKey) as string[])
+        : [];
       for (const k of parsedClearKeys) params.delete(k);
 
       const qs = params.toString();
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     },
-    [
-      router,
-      pathname,
-      searchParams,
-      key,
-      defaultValue,
-      clearKeysKey,
-    ],
+    [router, pathname, searchParams, key, defaultValue, clearKeysKey],
   );
 
   return [localValue, setValue];

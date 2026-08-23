@@ -215,7 +215,6 @@ export function ReadyToProcessCardList() {
 
   return (
     <div>
-
       <FulfillmentFilterBar
         value={list.filters as FulfillmentFilterValue}
         onChange={(v) =>

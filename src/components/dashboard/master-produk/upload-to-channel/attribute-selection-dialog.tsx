@@ -37,10 +37,13 @@ export function AttributeSelectionDialog({
   onConfirm,
   isUploading,
 }: AttributeSelectionDialogProps) {
-  const { data, isLoading, isError, error, refetch: _refetch } = useRequiredAttributes(
-    productId,
-    open ? shopId : null,
-  );
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch: _refetch,
+  } = useRequiredAttributes(productId, open ? shopId : null);
 
   const [selections, setSelections] = React.useState<Record<string, string>>(
     {},

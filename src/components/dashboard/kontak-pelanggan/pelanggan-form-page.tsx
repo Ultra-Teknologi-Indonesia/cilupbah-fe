@@ -41,9 +41,7 @@ import {
   formatCoordinate,
   parseCoordinate,
 } from "@/components/dashboard/manajemen-rak/lokasi/location-map-picker";
-import type {
-  ContactFormData,
-} from "@/types/kontak-pemasok/contact";
+import type { ContactFormData } from "@/types/kontak-pemasok/contact";
 
 const LIST_HREF = "/dashboard/kontak-pelanggan?tab=pelanggan";
 
@@ -202,9 +200,7 @@ export function PelangganFormPage({ mode, id }: PelangganFormPageProps) {
   const title = mode === "create" ? "Buat Pelanggan" : "Edit Pelanggan";
 
   if (mode === "edit" && detail.isLoading) {
-    return (
-      <FormSkeleton />
-    );
+    return <FormSkeleton />;
   }
 
   if (mode === "edit" && detail.isError) {

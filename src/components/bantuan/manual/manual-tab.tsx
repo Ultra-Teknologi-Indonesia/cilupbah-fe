@@ -3,7 +3,12 @@
 import * as React from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { SearchIcon, ExternalLinkIcon, BookOpenIcon, XIcon } from "lucide-react";
+import {
+  SearchIcon,
+  ExternalLinkIcon,
+  BookOpenIcon,
+  XIcon,
+} from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -26,7 +31,8 @@ export function ManualTab() {
     const q = query.trim().toLowerCase();
     if (!q) return MANUAL_ENTRIES;
     return MANUAL_ENTRIES.filter((e) => {
-      const hay = `${e.title} ${e.description ?? ""} ${(e.keywords ?? []).join(" ")}`.toLowerCase();
+      const hay =
+        `${e.title} ${e.description ?? ""} ${(e.keywords ?? []).join(" ")}`.toLowerCase();
       return hay.includes(q);
     });
   }, [query]);
@@ -47,7 +53,9 @@ export function ManualTab() {
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
-      <Card className={cn("flex flex-col gap-3 overflow-hidden p-4", detailHeight)}>
+      <Card
+        className={cn("flex flex-col gap-3 overflow-hidden p-4", detailHeight)}
+      >
         <div className="relative shrink-0">
           <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -116,15 +124,25 @@ export function ManualTab() {
         <Card className={cn("flex flex-col overflow-hidden p-0", detailHeight)}>
           <div className="flex shrink-0 items-start justify-between gap-4 border-b border-border px-6 py-5 lg:px-8">
             <div className="min-w-0 flex-1">
-              <div className="mb-1 text-xs font-medium text-muted-foreground">{active.moduleGroup}</div>
-              <h1 className="truncate text-2xl font-semibold tracking-tight text-balance text-foreground">{active.title}</h1>
+              <div className="mb-1 text-xs font-medium text-muted-foreground">
+                {active.moduleGroup}
+              </div>
+              <h1 className="truncate text-2xl font-semibold tracking-tight text-balance text-foreground">
+                {active.title}
+              </h1>
               {active.description && (
-                <p className="mt-1 text-sm text-muted-foreground">{active.description}</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {active.description}
+                </p>
               )}
               {active.keywords && active.keywords.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {active.keywords.map((k) => (
-                    <Badge key={k} variant="outline" className="rounded-full text-xs">
+                    <Badge
+                      key={k}
+                      variant="outline"
+                      className="rounded-full text-xs"
+                    >
                       {k}
                     </Badge>
                   ))}
@@ -141,13 +159,20 @@ export function ManualTab() {
           </div>
           <ScrollArea className="min-h-0 flex-1">
             <div className="px-6 py-6 lg:px-8">
-              <Markdown>{active.content || "_Panduan belum tersedia._"}</Markdown>
+              <Markdown>
+                {active.content || "_Panduan belum tersedia._"}
+              </Markdown>
             </div>
           </ScrollArea>
         </Card>
       ) : (
-        <Card className={cn("flex items-center justify-center p-8", detailHeight)}>
-          <EmptyState title="Pilih panduan" description="Pilih panduan dari sidebar kiri untuk melihat isinya." />
+        <Card
+          className={cn("flex items-center justify-center p-8", detailHeight)}
+        >
+          <EmptyState
+            title="Pilih panduan"
+            description="Pilih panduan dari sidebar kiri untuk melihat isinya."
+          />
         </Card>
       )}
     </div>

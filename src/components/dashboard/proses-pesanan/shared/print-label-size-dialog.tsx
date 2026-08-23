@@ -78,9 +78,7 @@ function readPref(): PrintLabelSize {
   try {
     const raw = window.localStorage.getItem(PREF_KEY);
     if (raw === "thermal_100x150" || raw === "thermal_100x120") return raw;
-  } catch {
-
-  }
+  } catch {}
   return DEFAULT_SIZE;
 }
 
@@ -88,9 +86,7 @@ function writePref(size: PrintLabelSize) {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(PREF_KEY, size);
-  } catch {
-
-  }
+  } catch {}
 }
 
 const CHANNEL_LABEL: Record<string, string> = {
@@ -138,7 +134,9 @@ export function PrintLabelSizeDialog() {
   const handleCancel = () => finish(null);
 
   const totalOrders = orders.length;
-  const unsupported = groups.filter((g) => !SUPPORTED_LABEL_CHANNELS.has(g.source));
+  const unsupported = groups.filter(
+    (g) => !SUPPORTED_LABEL_CHANNELS.has(g.source),
+  );
 
   return (
     <Dialog
@@ -157,8 +155,13 @@ export function PrintLabelSizeDialog() {
 
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <Label className="text-muted-foreground text-xs">Ukuran kertas</Label>
-            <Select value={size} onValueChange={(v) => setSize(v as PrintLabelSize)}>
+            <Label className="text-muted-foreground text-xs">
+              Ukuran kertas
+            </Label>
+            <Select
+              value={size}
+              onValueChange={(v) => setSize(v as PrintLabelSize)}
+            >
               <SelectTrigger size="sm" className="w-full">
                 <SelectValue />
               </SelectTrigger>
@@ -178,9 +181,13 @@ export function PrintLabelSizeDialog() {
               <ul className="ml-4 list-disc">
                 {groups.map((g) => (
                   <li key={g.source}>
-                    {CHANNEL_LABEL[g.source] ?? g.source.toUpperCase()}: {g.count}
+                    {CHANNEL_LABEL[g.source] ?? g.source.toUpperCase()}:{" "}
+                    {g.count}
                     {!SUPPORTED_LABEL_CHANNELS.has(g.source) && (
-                      <span className="text-destructive"> — belum didukung</span>
+                      <span className="text-destructive">
+                        {" "}
+                        — belum didukung
+                      </span>
                     )}
                   </li>
                 ))}
@@ -190,7 +197,8 @@ export function PrintLabelSizeDialog() {
 
           {unsupported.length > 0 && (
             <p className="text-muted-foreground text-xs">
-              Channel yang belum didukung akan dilewati; pesanannya perlu dicetak manual.
+              Channel yang belum didukung akan dilewati; pesanannya perlu
+              dicetak manual.
             </p>
           )}
         </div>

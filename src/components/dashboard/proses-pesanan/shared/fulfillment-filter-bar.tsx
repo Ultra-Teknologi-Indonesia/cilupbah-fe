@@ -215,9 +215,7 @@ export function FulfillmentFilterBar({
 
   const locationOptions = React.useMemo(() => {
     const list = locations.data?.items ?? [];
-    const filtered = excludeTransit
-      ? list
-      : list;
+    const filtered = excludeTransit ? list : list;
     return filtered.map((l) => ({ value: l.id, label: l.locationName }));
   }, [locations.data, excludeTransit]);
 
@@ -282,7 +280,9 @@ export function FulfillmentFilterBar({
     else patch({ status: v ?? undefined });
   }
 
-  const [portalTarget, setPortalTarget] = React.useState<HTMLElement | null>(null);
+  const [portalTarget, setPortalTarget] = React.useState<HTMLElement | null>(
+    null,
+  );
 
   React.useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- ambil target portal dari DOM saat mount
@@ -302,7 +302,12 @@ export function FulfillmentFilterBar({
         </button>
       )}
 
-      <div className={cn("flex flex-wrap items-center gap-2", !portalTarget && "ml-auto")}>
+      <div
+        className={cn(
+          "flex flex-wrap items-center gap-2",
+          !portalTarget && "ml-auto",
+        )}
+      >
         {onSearchChange != null && (
           <div className="relative w-full sm:w-auto sm:min-w-[220px]">
             <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -350,7 +355,9 @@ export function FulfillmentFilterBar({
   );
 
   return (
-    <div className={cn(!portalTarget && "border-b border-border/40", className)}>
+    <div
+      className={cn(!portalTarget && "border-b border-border/40", className)}
+    >
       {portalTarget ? (
         createPortal(topBar, portalTarget)
       ) : (

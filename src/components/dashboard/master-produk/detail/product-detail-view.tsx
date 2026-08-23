@@ -59,7 +59,9 @@ export function ProductDetailView({ id }: { id: string }) {
   if (urlTab !== prevUrlTab || tabs !== prevTabs) {
     setPrevUrlTab(urlTab);
     setPrevTabs(tabs);
-    setActive(tabs.some((t) => t.id === urlTab) ? (urlTab as string) : tabs[0].id);
+    setActive(
+      tabs.some((t) => t.id === urlTab) ? (urlTab as string) : tabs[0].id,
+    );
   }
 
   const setTab = (next: string) => {

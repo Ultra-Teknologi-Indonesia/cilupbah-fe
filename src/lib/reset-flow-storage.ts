@@ -20,7 +20,10 @@ export function readResetFlow(): ResetFlowState | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as ResetFlowState;
     if (!parsed?.reset_token || !parsed?.email) return null;
-    if (parsed.expires_at && new Date(parsed.expires_at).getTime() < Date.now()) {
+    if (
+      parsed.expires_at &&
+      new Date(parsed.expires_at).getTime() < Date.now()
+    ) {
       clearResetFlow();
       return null;
     }

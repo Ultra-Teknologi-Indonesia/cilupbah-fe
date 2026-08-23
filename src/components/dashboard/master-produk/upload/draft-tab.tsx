@@ -101,7 +101,10 @@ export function DraftTab({
             <div className="flex items-center gap-3">
               <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
                 {d.thumbnail ? (
-                  <Image unoptimized width={400} height={400}
+                  <Image
+                    unoptimized
+                    width={400}
+                    height={400}
                     src={d.thumbnail}
                     alt={d.itemGroupName ?? ""}
                     className="size-full object-cover"

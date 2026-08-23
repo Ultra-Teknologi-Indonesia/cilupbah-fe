@@ -8,7 +8,6 @@ import type { FulfillmentListParams } from "@/types/proses-pesanan/fulfillment";
 const READY_PARAMS: FulfillmentListParams = { page: 1, per_page: 20 };
 
 export default async function PickingPage() {
-
   const qc = getServerQueryClient();
   await qc.prefetchQuery({
     queryKey: [

@@ -115,7 +115,8 @@ export function BuatProdukForm() {
         setServerErrors([
           {
             label: "",
-            message: body?.message || "Gagal menyimpan produk. Silakan coba lagi.",
+            message:
+              body?.message || "Gagal menyimpan produk. Silakan coba lagi.",
           },
         ]);
         window.scrollTo({ top: 0, behavior: "smooth" });

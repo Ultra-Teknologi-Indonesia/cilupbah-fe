@@ -220,18 +220,14 @@ export function SyncStokHargaView({
       const raw = localStorage.getItem(HIDDEN_STORES_KEY);
       // eslint-disable-next-line react-hooks/set-state-in-effect
       if (raw) setHiddenStores(JSON.parse(raw) as string[]);
-    } catch {
-
-    }
+    } catch {}
   }, []);
 
   const updateHiddenStores = useCallback((next: string[]) => {
     setHiddenStores(next);
     try {
       localStorage.setItem(HIDDEN_STORES_KEY, JSON.stringify(next));
-    } catch {
-
-    }
+    } catch {}
   }, []);
 
   const list = useListState<FilterState>(EMPTY_FILTERS, { perPage: 20 });
@@ -399,9 +395,7 @@ export function SyncStokHargaView({
             </div>
           }
           onReset={
-            list.hasActiveFilter || !!list.search
-              ? list.resetAll
-              : undefined
+            list.hasActiveFilter || !!list.search ? list.resetAll : undefined
           }
           hasFilter={list.hasActiveFilter || !!list.search}
           activeCount={list.activeFilterCount}
@@ -447,7 +441,10 @@ export function SyncStokHargaView({
                     <TableRow className="border-b border-border/60">
                       <TableHead
                         className="sticky left-0 z-30 border-r border-border/40 bg-background px-3 align-bottom text-xs font-medium uppercase tracking-wider text-muted-foreground"
-                        style={{ width: PRODUCT_COL_W, minWidth: PRODUCT_COL_W }}
+                        style={{
+                          width: PRODUCT_COL_W,
+                          minWidth: PRODUCT_COL_W,
+                        }}
                       >
                         Produk
                       </TableHead>

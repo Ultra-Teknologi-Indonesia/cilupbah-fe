@@ -429,10 +429,7 @@ export function PesananListView() {
         }
       />
 
-      <ImportPesananDialog
-        open={importOpen}
-        onOpenChange={setImportOpen}
-      />
+      <ImportPesananDialog open={importOpen} onOpenChange={setImportOpen} />
     </div>
   );
 }

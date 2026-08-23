@@ -76,7 +76,10 @@ export function StoreSyncDialog({
 
         <div className="flex flex-col gap-4">
           {AXES.map((axis) => (
-            <div key={axis.key} className="flex items-start justify-between gap-4">
+            <div
+              key={axis.key}
+              className="flex items-start justify-between gap-4"
+            >
               <div className="flex flex-col gap-0.5">
                 <span className="text-sm">{axis.label}</span>
                 <span className="text-xs text-muted-foreground">
@@ -91,7 +94,6 @@ export function StoreSyncDialog({
               />
             </div>
           ))}
-
         </div>
 
         {store.isShadowMode && (

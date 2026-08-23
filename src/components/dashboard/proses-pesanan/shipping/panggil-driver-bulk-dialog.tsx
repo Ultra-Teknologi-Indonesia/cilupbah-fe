@@ -74,9 +74,7 @@ export function PanggilDriverBulkDialog({
       });
       onOpenChange(false);
       onSuccess?.();
-    } catch {
-
-    }
+    } catch {}
   };
 
   return (
@@ -146,9 +144,7 @@ export function PanggilDriverBulkDialog({
             variant="primary"
             onClick={handleSubmit}
             disabled={
-              !shipperId ||
-              eligibleShipments.length === 0 ||
-              call.isPending
+              !shipperId || eligibleShipments.length === 0 || call.isPending
             }
           >
             {call.isPending && <Loader2Icon className="animate-spin" />}

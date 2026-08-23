@@ -1,5 +1,3 @@
-
-
 const BASE_LABELS: Record<string, string> = {
   name: "Nama Produk",
   sku: "SKU Produk",
@@ -51,7 +49,11 @@ export function humanizeServerErrorKey(key: string): string {
 
     if (parts.length === 2) return `${group} #${idx}`;
 
-    if (parts[0] === "variants" && parts[2] === "options" && isIndex(parts[3])) {
+    if (
+      parts[0] === "variants" &&
+      parts[2] === "options" &&
+      isIndex(parts[3])
+    ) {
       const optIdx = Number(parts[3]) + 1;
       const leaf = parts[4] ? (SUB_LABELS[parts[4]] ?? parts[4]) : null;
       return `Varian #${idx} · Opsi #${optIdx}${leaf ? ` (${leaf})` : ""}`;

@@ -39,7 +39,10 @@ function mapDetail(raw: RawProductDetail): ProductDetail {
       qty: c.qty,
       sku: c.sku,
       product: c.product,
-      thumbnail: (c as { thumbnail?: string | null; image?: string | null }).thumbnail ?? (c as { thumbnail?: string | null; image?: string | null }).image ?? null,
+      thumbnail:
+        (c as { thumbnail?: string | null; image?: string | null }).thumbnail ??
+        (c as { thumbnail?: string | null; image?: string | null }).image ??
+        null,
       variationValues: (c.variation_values ?? []).map((o) => ({
         attributeId: o.attribute_id,
         value: o.value,

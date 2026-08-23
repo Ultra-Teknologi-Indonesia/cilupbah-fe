@@ -3,7 +3,6 @@
 import * as React from "react";
 
 export interface ScanDeltaQueueOptions {
-
   onGiveUp?: (itemId: string, lostQty: number) => void;
 }
 
@@ -52,7 +51,10 @@ export function useScanDeltaQueue(
 
   const bump = React.useCallback(
     ({ itemId, delta = 1 }: { itemId: string; delta?: number }): void => {
-      pendingRef.current.set(itemId, (pendingRef.current.get(itemId) ?? 0) + delta);
+      pendingRef.current.set(
+        itemId,
+        (pendingRef.current.get(itemId) ?? 0) + delta,
+      );
       void flush(itemId);
     },
     [flush],

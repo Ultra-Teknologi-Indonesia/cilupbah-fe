@@ -170,7 +170,13 @@ export function IntegrasiChannelView() {
 
       <WooCommerceConnectDialog open={wooOpen} onOpenChange={setWooOpen} />
       <StoreSyncDialog
-        store={syncStore ? (groups.flatMap((g) => g.stores).find((s) => s.id === syncStore.id) ?? syncStore) : null}
+        store={
+          syncStore
+            ? (groups
+                .flatMap((g) => g.stores)
+                .find((s) => s.id === syncStore.id) ?? syncStore)
+            : null
+        }
         open={syncStore !== null}
         onOpenChange={(open) => !open && setSyncStore(null)}
         onChange={onSyncFlagsChange}

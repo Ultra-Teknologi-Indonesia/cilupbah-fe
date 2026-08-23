@@ -143,7 +143,6 @@ export function HppReportView() {
 
   return (
     <div className="flex flex-col gap-4">
-
       <LiquidGlass
         radius={16}
         intensity="subtle"
@@ -223,9 +222,7 @@ export function HppReportView() {
       >
         <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
           <div>
-            <SectionTitle>
-              Laporan Harga Pokok Penjualan (HPP)
-            </SectionTitle>
+            <SectionTitle>Laporan Harga Pokok Penjualan (HPP)</SectionTitle>
             {payload && (
               <p className="text-xs text-muted-foreground">
                 Periode: {formatDateLong(payload.period.date_from)} –{" "}

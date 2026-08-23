@@ -25,7 +25,11 @@ interface Props {
   request: StockReplenishment | null;
 }
 
-export function AcceptReplenishmentDialog({ open, onOpenChange, request }: Props) {
+export function AcceptReplenishmentDialog({
+  open,
+  onOpenChange,
+  request,
+}: Props) {
   const [assigneeId, setAssigneeId] = useState("");
   const [note, setNote] = useState("");
   const [search] = useState("");
@@ -68,13 +72,16 @@ export function AcceptReplenishmentDialog({ open, onOpenChange, request }: Props
   }
 
   return (
-    <Dialog open={open} onOpenChange={(v) => (!v ? handleClose() : onOpenChange(v))}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => (!v ? handleClose() : onOpenChange(v))}
+    >
       <DialogContent className="flex max-h-[90vh] flex-col gap-4 sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Terima Permintaan Pengisian Stok</DialogTitle>
           <DialogDescription>
-            Setelah diterima, sistem otomatis membuat Transfer Keluar DRAFT
-            dari {request?.from_location_name ?? "Gudang Pusat"} ke{" "}
+            Setelah diterima, sistem otomatis membuat Transfer Keluar DRAFT dari{" "}
+            {request?.from_location_name ?? "Gudang Pusat"} ke{" "}
             {request?.to_location_name ?? "Gudang Kecil"} dan menugaskan staf
             yang dipilih.
           </DialogDescription>
@@ -116,10 +123,18 @@ export function AcceptReplenishmentDialog({ open, onOpenChange, request }: Props
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleClose} disabled={acceptMut.isPending}>
+          <Button
+            variant="outline"
+            onClick={handleClose}
+            disabled={acceptMut.isPending}
+          >
             Batal
           </Button>
-          <Button variant="primary" onClick={handleConfirm} disabled={acceptMut.isPending}>
+          <Button
+            variant="primary"
+            onClick={handleConfirm}
+            disabled={acceptMut.isPending}
+          >
             {acceptMut.isPending ? "Menyimpan…" : "Terima"}
           </Button>
         </DialogFooter>

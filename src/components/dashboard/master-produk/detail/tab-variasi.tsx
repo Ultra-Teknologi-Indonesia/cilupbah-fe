@@ -179,7 +179,6 @@ export function TabVariasi({ productId }: { productId: string }) {
 
   return (
     <div className="flex flex-col gap-3">
-
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="relative max-w-xs flex-1">
           <SearchIcon className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -305,7 +304,10 @@ export function TabVariasi({ productId }: { productId: string }) {
                   <div className="flex items-center gap-2.5">
                     <div className="size-9 shrink-0 overflow-hidden rounded-xl border border-border/60 bg-muted/40">
                       {v.image ? (
-                        <Image unoptimized width={400} height={400}
+                        <Image
+                          unoptimized
+                          width={400}
+                          height={400}
                           src={v.image}
                           alt={v.sku}
                           className="size-full object-cover"

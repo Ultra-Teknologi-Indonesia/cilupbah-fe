@@ -81,7 +81,9 @@ export function ImportTransferDialog({ open, onOpenChange, createdBy }: Props) {
   );
   const [isDownloading, setIsDownloading] = React.useState(false);
   const [search, setSearch] = React.useState("");
-  const [statusFilter, setStatusFilter] = React.useState<"all" | "ready" | "error">("all");
+  const [statusFilter, setStatusFilter] = React.useState<
+    "all" | "ready" | "error"
+  >("all");
 
   const previewMut = useImportTransferPreview();
   const confirmMut = useImportTransferConfirm();
@@ -194,7 +196,8 @@ export function ImportTransferDialog({ open, onOpenChange, createdBy }: Props) {
             Import Transfer Keluar
           </DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground sm:text-sm">
-            Unduh template, isi data transfer per baris, simpan sebagai Excel, lalu unggah untuk pratinjau sebelum dokumen dibuat.
+            Unduh template, isi data transfer per baris, simpan sebagai Excel,
+            lalu unggah untuk pratinjau sebelum dokumen dibuat.
           </DialogDescription>
         </DialogHeader>
 
@@ -214,10 +217,13 @@ export function ImportTransferDialog({ open, onOpenChange, createdBy }: Props) {
                 )}
                 <div className="min-w-0 flex-1">
                   <div className="font-semibold text-primary">
-                    {isDownloading ? "Mengunduh Template..." : "Unduh Template Excel"}
+                    {isDownloading
+                      ? "Mengunduh Template..."
+                      : "Unduh Template Excel"}
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    template-import-transfer-keluar.xlsx (Format kolom sesuai standar sistem)
+                    template-import-transfer-keluar.xlsx (Format kolom sesuai
+                    standar sistem)
                   </div>
                 </div>
               </button>
@@ -254,9 +260,12 @@ export function ImportTransferDialog({ open, onOpenChange, createdBy }: Props) {
                       <FileSpreadsheetIcon className="size-7" />
                     </div>
                     <div>
-                      <div className="text-base font-semibold text-foreground">{file.name}</div>
+                      <div className="text-base font-semibold text-foreground">
+                        {file.name}
+                      </div>
                       <div className="mt-0.5 text-xs text-muted-foreground">
-                        Ukuran file: {(file.size / 1024).toFixed(1)} KB — Siap dipratinjau
+                        Ukuran file: {(file.size / 1024).toFixed(1)} KB — Siap
+                        dipratinjau
                       </div>
                     </div>
                   </>
@@ -267,7 +276,8 @@ export function ImportTransferDialog({ open, onOpenChange, createdBy }: Props) {
                     </div>
                     <div>
                       <div className="text-sm font-semibold text-foreground">
-                        Drag &amp; drop file Excel ke sini, atau klik untuk memilih file
+                        Drag &amp; drop file Excel ke sini, atau klik untuk
+                        memilih file
                       </div>
                       <div className="mt-1 text-xs text-muted-foreground">
                         Mendukung format .xlsx dan .xls (Maksimal ukuran 5 MB)
@@ -309,7 +319,9 @@ export function ImportTransferDialog({ open, onOpenChange, createdBy }: Props) {
                     <FileTextIcon className="size-4" />
                   </div>
                   <div className="min-w-0">
-                    <div className="text-xs text-muted-foreground">Total Baris</div>
+                    <div className="text-xs text-muted-foreground">
+                      Total Baris
+                    </div>
                     <div className="text-lg font-bold tracking-tight text-foreground">
                       {summary?.total_rows ?? 0}
                     </div>
@@ -321,7 +333,9 @@ export function ImportTransferDialog({ open, onOpenChange, createdBy }: Props) {
                     <CheckCircle2Icon className="size-4" />
                   </div>
                   <div className="min-w-0">
-                    <div className="text-xs font-medium text-emerald-700 dark:text-emerald-300">Dokumen Siap</div>
+                    <div className="text-xs font-medium text-emerald-700 dark:text-emerald-300">
+                      Dokumen Siap
+                    </div>
                     <div className="text-lg font-bold tracking-tight text-emerald-600 dark:text-emerald-400">
                       {summary?.valid_docs ?? 0}
                     </div>
@@ -333,7 +347,9 @@ export function ImportTransferDialog({ open, onOpenChange, createdBy }: Props) {
                     <AlertCircleIcon className="size-4" />
                   </div>
                   <div className="min-w-0">
-                    <div className="text-xs font-medium text-rose-700 dark:text-rose-300">Error</div>
+                    <div className="text-xs font-medium text-rose-700 dark:text-rose-300">
+                      Error
+                    </div>
                     <div className="text-lg font-bold tracking-tight text-rose-600 dark:text-rose-400">
                       {summary?.errors ?? 0}
                     </div>
@@ -345,7 +361,9 @@ export function ImportTransferDialog({ open, onOpenChange, createdBy }: Props) {
                     <AlertTriangleIcon className="size-4" />
                   </div>
                   <div className="min-w-0">
-                    <div className="text-xs font-medium text-amber-700 dark:text-amber-300">Peringatan</div>
+                    <div className="text-xs font-medium text-amber-700 dark:text-amber-300">
+                      Peringatan
+                    </div>
                     <div className="text-lg font-bold tracking-tight text-amber-600 dark:text-amber-400">
                       {summary?.warnings ?? 0}
                     </div>
@@ -356,11 +374,15 @@ export function ImportTransferDialog({ open, onOpenChange, createdBy }: Props) {
               {/* Error alerts box if global errors exist */}
               {preview.errors.length > 0 && (
                 <div className="max-h-24 overflow-y-auto rounded-xl border border-destructive/30 bg-destructive/5 px-3.5 py-2 text-xs text-destructive">
-                  <div className="font-semibold">Ditemukan {preview.errors.length} baris bermasalah:</div>
+                  <div className="font-semibold">
+                    Ditemukan {preview.errors.length} baris bermasalah:
+                  </div>
                   <div className="mt-1 space-y-1">
                     {preview.errors.slice(0, 10).map((e, i) => (
                       <div key={i} className="flex items-center gap-1.5">
-                        <span className="font-mono font-medium">Baris {e.row}:</span>
+                        <span className="font-mono font-medium">
+                          Baris {e.row}:
+                        </span>
                         <span>{e.error}</span>
                       </div>
                     ))}
@@ -483,7 +505,10 @@ export function ImportTransferDialog({ open, onOpenChange, createdBy }: Props) {
                             )}
                           </TableCell>
                           <TableCell className="px-3.5 py-3 text-center">
-                            <Badge variant="secondary" className="font-mono text-xs font-semibold">
+                            <Badge
+                              variant="secondary"
+                              className="font-mono text-xs font-semibold"
+                            >
                               {doc.item_count}
                             </Badge>
                           </TableCell>
@@ -530,8 +555,15 @@ export function ImportTransferDialog({ open, onOpenChange, createdBy }: Props) {
             {/* Bottom Footer Actions (Pinned at bottom) */}
             <div className="shrink-0 flex items-center justify-between border-t border-border/70 bg-muted/20 px-6 py-3.5">
               <div className="text-xs text-muted-foreground">
-                Menampilkan <span className="font-semibold text-foreground">{filteredTransfers.length}</span> dari{" "}
-                <span className="font-semibold text-foreground">{preview.transfers.length}</span> dokumen
+                Menampilkan{" "}
+                <span className="font-semibold text-foreground">
+                  {filteredTransfers.length}
+                </span>{" "}
+                dari{" "}
+                <span className="font-semibold text-foreground">
+                  {preview.transfers.length}
+                </span>{" "}
+                dokumen
               </div>
 
               <div className="flex items-center gap-2.5">
@@ -540,7 +572,9 @@ export function ImportTransferDialog({ open, onOpenChange, createdBy }: Props) {
                 </Button>
                 <Button
                   variant="primary"
-                  disabled={(summary?.valid_docs ?? 0) === 0 || confirmMut.isPending}
+                  disabled={
+                    (summary?.valid_docs ?? 0) === 0 || confirmMut.isPending
+                  }
                   onClick={runConfirm}
                 >
                   {confirmMut.isPending ? (

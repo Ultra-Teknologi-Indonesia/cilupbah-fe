@@ -90,7 +90,13 @@ export function MasukkanKePengirimanView() {
         activeEl instanceof HTMLTextAreaElement ||
         activeEl?.getAttribute("contenteditable") === "true";
 
-      if (!isInputOrTextarea && e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+      if (
+        !isInputOrTextarea &&
+        e.key.length === 1 &&
+        !e.ctrlKey &&
+        !e.altKey &&
+        !e.metaKey
+      ) {
         scanRef.current?.focus();
       }
     };

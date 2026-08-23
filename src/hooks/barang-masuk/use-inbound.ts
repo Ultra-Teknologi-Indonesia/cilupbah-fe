@@ -98,8 +98,7 @@ export function useCorrectReceivedLines(inboundId: string) {
       qc.invalidateQueries({ queryKey: ["inbound", "list"] });
       invalidateStockViews(qc);
     },
-    onError: (err) =>
-      apiError(err, "Gagal mengoreksi penerimaan"),
+    onError: (err) => apiError(err, "Gagal mengoreksi penerimaan"),
   });
 }
 
@@ -120,8 +119,7 @@ export function useBulkCancelInbounds() {
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
       qc.invalidateQueries({ queryKey: ["purchase-order"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal menghapus penerimaan"),
+    onError: (err) => apiError(err, "Gagal menghapus penerimaan"),
   });
 }
 

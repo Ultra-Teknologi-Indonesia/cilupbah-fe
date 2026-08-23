@@ -34,7 +34,9 @@ function isDriverCallFailure(err: unknown): boolean {
   if (body?.errors && typeof body.errors === "object") {
     if (body.errors.driver_call_status === "failed") return true;
   }
-  return typeof body?.message === "string" && body.message.includes("force_label");
+  return (
+    typeof body?.message === "string" && body.message.includes("force_label")
+  );
 }
 
 export function usePrintWithDriverCall() {
@@ -57,7 +59,6 @@ export function usePrintWithDriverCall() {
       try {
         return await call();
       } catch (err) {
-
         if (!data.forceLabel && isDriverCallFailure(err)) {
           const forced = await call(true);
           return { ...forced, driver_call_forced: true };
@@ -77,12 +78,17 @@ export function usePrintWithDriverCall() {
           "Driver terpanggil. Label masih disiapkan, coba unduh lagi dalam beberapa detik.",
         );
       } else if (result.label_error) {
-        toast.warning(`Driver terpanggil. Label gagal diambil: ${result.label_error}`);
+        toast.warning(
+          `Driver terpanggil. Label gagal diambil: ${result.label_error}`,
+        );
       }
 
       if (result.driver_call_status === "success") {
         toast.success("Driver marketplace berhasil dipanggil.");
-      } else if (result.driver_call_forced || result.driver_call_status === "failed") {
+      } else if (
+        result.driver_call_forced ||
+        result.driver_call_status === "failed"
+      ) {
         toast.warning(
           `Driver tidak bisa dipanggil${result.driver_call_message ? `: ${result.driver_call_message}` : ""}. Label tetap dicetak.`,
         );
@@ -158,9 +164,13 @@ export function useCallInstantDriverBulk() {
       const successCount = result.summary.success;
       const failedCount = result.summary.failed.length;
       if (failedCount === 0) {
-        toast.success(`Sukses memanggil kurir instan untuk ${successCount} pesanan.`);
+        toast.success(
+          `Sukses memanggil kurir instan untuk ${successCount} pesanan.`,
+        );
       } else if (successCount === 0) {
-        toast.error(`Gagal memanggil kurir instan untuk ${failedCount} pesanan.`);
+        toast.error(
+          `Gagal memanggil kurir instan untuk ${failedCount} pesanan.`,
+        );
       } else {
         toast.warning(
           `${successCount} sukses, ${failedCount} gagal — cek detail per pesanan.`,

@@ -110,12 +110,7 @@ function SummaryRow({
   return (
     <div className="flex justify-between">
       <span className="text-muted-foreground">{label}</span>
-      <span
-        className={cn(
-          "tabular-nums",
-          isDeduction && "text-destructive",
-        )}
-      >
+      <span className={cn("tabular-nums", isDeduction && "text-destructive")}>
         {isDeduction ? "-" : ""}
         {formatCurrency(value)}
       </span>
@@ -378,8 +373,7 @@ function StatusStepper({
                       type="button"
                       className={cn(
                         "flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-bold transition-all",
-                        isCompleted &&
-                          "border-success bg-success text-white",
+                        isCompleted && "border-success bg-success text-white",
                         isCurrent &&
                           "border-primary bg-primary text-primary-foreground shadow-md shadow-primary/25",
                         !isCompleted &&
@@ -539,10 +533,10 @@ function CourierPickupCard({
   const isInstant = Boolean(order.is_instant);
   const hasData = Boolean(
     pickup &&
-      (pickup.courier_name ||
-        pickup.courier_phone ||
-        pickup.pickup_code ||
-        pickup.id_photo_url),
+    (pickup.courier_name ||
+      pickup.courier_phone ||
+      pickup.pickup_code ||
+      pickup.id_photo_url),
   );
 
   return (
@@ -617,7 +611,10 @@ function CourierPickupCard({
                 rel="noopener noreferrer"
                 className="inline-block"
               >
-                <Image unoptimized width={400} height={400}
+                <Image
+                  unoptimized
+                  width={400}
+                  height={400}
                   src={pickup.id_photo_thumb ?? pickup.id_photo_url}
                   alt="Foto identitas kurir"
                   className="h-16 w-16 rounded-xl border border-border/60 object-cover transition-opacity hover:opacity-80"
@@ -915,9 +912,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
       )}
 
       <div className="grid items-start gap-4 lg:grid-cols-[1fr_340px]">
-
         <div className="flex flex-col gap-4">
-
           <LiquidGlass
             radius={16}
             intensity="subtle"
@@ -977,16 +972,13 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
           </LiquidGlass>
 
           {(order.customer_decision || order.contacted_at) && (
-            <ContactSummary
-              order={order}
-              onEdit={() => setContactOpen(true)}
-            />
+            <ContactSummary order={order} onEdit={() => setContactOpen(true)} />
           )}
 
           {order.has_unmapped_items && (
             <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
-              Pesanan ini memiliki produk yang belum terhubung ke Master
-              Produk. Hubungkan SKU channel ke SKU master sebelum memproses.
+              Pesanan ini memiliki produk yang belum terhubung ke Master Produk.
+              Hubungkan SKU channel ke SKU master sebelum memproses.
             </div>
           )}
 
@@ -1089,51 +1081,57 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                         <TableCell className="px-3 py-2.5 text-right tabular-nums">
                           {item.disc_amount > 0 || item.disc > 0 ? (
                             <div className="flex flex-col items-end gap-0.5">
-                              {discountPercent !== null && discountPercent > 0 && (
-                                <span className="inline-flex items-center rounded bg-rose-500/10 px-1.5 py-0.5 text-2xs font-semibold text-rose-600 dark:bg-rose-500/15 dark:text-rose-400">
-                                  {discountPercent}%
-                                </span>
-                              )}
+                              {discountPercent !== null &&
+                                discountPercent > 0 && (
+                                  <span className="inline-flex items-center rounded bg-rose-500/10 px-1.5 py-0.5 text-2xs font-semibold text-rose-600 dark:bg-rose-500/15 dark:text-rose-400">
+                                    {discountPercent}%
+                                  </span>
+                                )}
                               <span className="text-xs font-semibold text-rose-600 dark:text-rose-400 tabular-nums">
-                                -{formatCurrency(item.disc_amount > 0 ? item.disc_amount : item.disc)}
+                                -
+                                {formatCurrency(
+                                  item.disc_amount > 0
+                                    ? item.disc_amount
+                                    : item.disc,
+                                )}
                               </span>
                             </div>
                           ) : (
                             <span className="text-muted-foreground">—</span>
                           )}
                         </TableCell>
-                      <TableCell className="px-3 py-2.5 text-right font-medium tabular-nums">
-                        {formatCurrency(item.amount)}
-                      </TableCell>
-                      {order.status === "pending" && (
-                        <TableCell className="px-3 py-2.5 text-right">
-                          <div className="flex justify-end gap-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="size-7 p-0"
-                              onClick={() => setEditingItem(item)}
-                              title="Ubah item"
-                            >
-                              <PencilIcon className="size-3.5" />
-                            </Button>
-                            {order.items.length > 1 && (
+                        <TableCell className="px-3 py-2.5 text-right font-medium tabular-nums">
+                          {formatCurrency(item.amount)}
+                        </TableCell>
+                        {order.status === "pending" && (
+                          <TableCell className="px-3 py-2.5 text-right">
+                            <div className="flex justify-end gap-1">
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="size-7 p-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                                onClick={() => setDeletingItemId(item.id)}
-                                title="Hapus item"
+                                className="size-7 p-0"
+                                onClick={() => setEditingItem(item)}
+                                title="Ubah item"
                               >
-                                <Trash2Icon className="size-3.5" />
+                                <PencilIcon className="size-3.5" />
                               </Button>
-                            )}
-                          </div>
-                        </TableCell>
-                      )}
-                    </TableRow>
-                  );
-                })}
+                              {order.items.length > 1 && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="size-7 p-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                  onClick={() => setDeletingItemId(item.id)}
+                                  title="Hapus item"
+                                >
+                                  <Trash2Icon className="size-3.5" />
+                                </Button>
+                              )}
+                            </div>
+                          </TableCell>
+                        )}
+                      </TableRow>
+                    );
+                  })}
                   {order.items.length === 0 && (
                     <TableRow>
                       <TableCell
@@ -1150,7 +1148,6 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
           </LiquidGlass>
 
           <div className="grid gap-4 sm:grid-cols-2">
-
             <LiquidGlass
               radius={16}
               intensity="subtle"
@@ -1209,14 +1206,10 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
             </LiquidGlass>
           </div>
 
-          <CourierPickupCard
-            order={order}
-            onEdit={() => setPickupOpen(true)}
-          />
+          <CourierPickupCard order={order} onEdit={() => setPickupOpen(true)} />
         </div>
 
         <div className="flex flex-col gap-4 lg:sticky lg:top-4 lg:self-start">
-
           <LiquidGlass
             radius={16}
             intensity="subtle"
@@ -1292,12 +1285,8 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
             className="bg-white/30 dark:bg-white/[0.04] px-5 py-4"
           >
             <div className="space-y-1 text-xs text-muted-foreground">
-              <p>
-                Dibuat: {formatDateTime(order.created_at)}
-              </p>
-              <p>
-                Diperbarui: {formatDateTime(order.updated_at)}
-              </p>
+              <p>Dibuat: {formatDateTime(order.created_at)}</p>
+              <p>Diperbarui: {formatDateTime(order.updated_at)}</p>
             </div>
           </LiquidGlass>
         </div>

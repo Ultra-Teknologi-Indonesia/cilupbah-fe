@@ -134,7 +134,9 @@ export function ImportDialog({ type, open, onOpenChange, onQueued }: Props) {
       <DialogContent
         className={cn(
           "transition-all duration-200",
-          isPreviewed ? "sm:max-w-4xl max-h-[90vh] flex flex-col p-0" : "sm:max-w-lg",
+          isPreviewed
+            ? "sm:max-w-4xl max-h-[90vh] flex flex-col p-0"
+            : "sm:max-w-lg",
         )}
       >
         {!batchId ? (
@@ -169,7 +171,8 @@ export function ImportDialog({ type, open, onOpenChange, onQueued }: Props) {
                 Memvalidasi File Excel...
               </h3>
               <p className="text-xs text-muted-foreground max-w-sm">
-                Sistem sedang memeriksa SKU, harga, kategori, dan aturan bundle tanpa mengubah database.
+                Sistem sedang memeriksa SKU, harga, kategori, dan aturan bundle
+                tanpa mengubah database.
               </p>
             </div>
           </div>
@@ -181,7 +184,8 @@ export function ImportDialog({ type, open, onOpenChange, onQueued }: Props) {
                 Gagal Membaca File
               </DialogTitle>
               <DialogDescription>
-                {batch?.errorMessage || "Terjadi kesalahan saat memproses pratinjau file Excel."}
+                {batch?.errorMessage ||
+                  "Terjadi kesalahan saat memproses pratinjau file Excel."}
               </DialogDescription>
             </DialogHeader>
             <div className="flex justify-end gap-2 pt-2">
@@ -277,7 +281,9 @@ function UploadStep({
           )}
           <div className="min-w-0 flex-1">
             <div className="font-medium text-primary">
-              {isDownloading ? "Mengunduh Template..." : "Download Template Excel"}
+              {isDownloading
+                ? "Mengunduh Template..."
+                : "Download Template Excel"}
             </div>
             <div className="text-xs text-muted-foreground">
               {type === "single"
@@ -389,12 +395,15 @@ function PreviewStep({
   const [page, setPage] = React.useState<number>(1);
   const [isDownloading, setIsDownloading] = React.useState<boolean>(false);
 
-  const { data: rowsData, isLoading: rowsLoading } = useImportBatchRows(batch.id, {
-    page,
-    perPage: 15,
-    status: statusFilter === "all" ? undefined : statusFilter,
-    search: search.trim() || undefined,
-  });
+  const { data: rowsData, isLoading: rowsLoading } = useImportBatchRows(
+    batch.id,
+    {
+      page,
+      perPage: 15,
+      status: statusFilter === "all" ? undefined : statusFilter,
+      search: search.trim() || undefined,
+    },
+  );
 
   const rows = rowsData?.items ?? [];
   const meta = rowsData?.meta;
@@ -420,7 +429,8 @@ function PreviewStep({
                 Pratinjau Validasi Import: {batch.originalFilename}
               </DialogTitle>
               <DialogDescription className="text-xs mt-1">
-                Tinjau baris valid dan baris gagal di bawah ini sebelum menerapkan data ke katalog.
+                Tinjau baris valid dan baris gagal di bawah ini sebelum
+                menerapkan data ke katalog.
               </DialogDescription>
             </div>
 
@@ -446,7 +456,9 @@ function PreviewStep({
         {/* 3 Metric Cards */}
         <div className="grid grid-cols-3 gap-3 mt-4">
           <div className="rounded-xl border border-border/60 bg-muted/40 p-3">
-            <div className="text-xs text-muted-foreground">Total Baris File</div>
+            <div className="text-xs text-muted-foreground">
+              Total Baris File
+            </div>
             <div className="text-xl font-bold tabular-nums mt-0.5">
               {batch.totalRows}
             </div>
@@ -552,12 +564,16 @@ function PreviewStep({
           <Table>
             <TableHeader className="bg-muted/40 sticky top-0 z-10 backdrop-blur">
               <TableRow>
-                <TableHead className="w-14 text-center text-xs">Baris</TableHead>
+                <TableHead className="w-14 text-center text-xs">
+                  Baris
+                </TableHead>
                 <TableHead className="w-36 text-xs">SKU</TableHead>
                 <TableHead className="text-xs">Nama Produk / Bundle</TableHead>
                 <TableHead className="w-28 text-xs">Kategori</TableHead>
                 <TableHead className="w-28 text-right text-xs">Harga</TableHead>
-                <TableHead className="w-24 text-center text-xs">Status</TableHead>
+                <TableHead className="w-24 text-center text-xs">
+                  Status
+                </TableHead>
                 <TableHead className="w-56 text-xs">Pesan Validasi</TableHead>
               </TableRow>
             </TableHeader>
@@ -591,12 +607,18 @@ function PreviewStep({
                   </TableCell>
                   <TableCell className="text-center">
                     {row.status === "valid" ? (
-                      <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                      <Badge
+                        variant="outline"
+                        className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                      >
                         <CheckCircle2Icon className="mr-1 size-3" />
                         Valid
                       </Badge>
                     ) : (
-                      <Badge variant="outline" className="border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400">
+                      <Badge
+                        variant="outline"
+                        className="border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400"
+                      >
                         <XCircleIcon className="mr-1 size-3" />
                         Gagal
                       </Badge>

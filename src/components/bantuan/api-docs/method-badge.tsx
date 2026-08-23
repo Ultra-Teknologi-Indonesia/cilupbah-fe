@@ -8,8 +8,15 @@ const MAP: Record<string, string> = {
   DELETE: "bg-destructive/10 text-destructive border-destructive/20",
 };
 
-export function MethodBadge({ method, className }: { method: string; className?: string }) {
-  const style = MAP[method.toUpperCase()] ?? "bg-muted text-muted-foreground border-border";
+export function MethodBadge({
+  method,
+  className,
+}: {
+  method: string;
+  className?: string;
+}) {
+  const style =
+    MAP[method.toUpperCase()] ?? "bg-muted text-muted-foreground border-border";
   return (
     <span
       className={cn(

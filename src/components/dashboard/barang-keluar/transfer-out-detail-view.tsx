@@ -99,7 +99,11 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
     return (
       <div className="flex flex-col items-center gap-3 py-20 text-muted-foreground">
         <p className="text-sm font-medium">Transfer tidak ditemukan</p>
-        <Button variant="outline" size="sm" onClick={() => router.push(LIST_HREF)}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.push(LIST_HREF)}
+        >
           Kembali
         </Button>
       </div>
@@ -140,9 +144,7 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
                 variant="outline"
                 size="sm"
                 onClick={() =>
-                  router.push(
-                    `${LIST_HREF}/transfer/${transfer.id}/edit`,
-                  )
+                  router.push(`${LIST_HREF}/transfer/${transfer.id}/edit`)
                 }
               >
                 <PencilIcon className="mr-1.5 size-4" />

@@ -37,9 +37,7 @@ interface PutawayReviewViewProps {
   id: string;
 }
 
-function itemPlacements(
-  item: PutawayItem,
-): { code: string; qty: number }[] {
+function itemPlacements(item: PutawayItem): { code: string; qty: number }[] {
   const apiPlacements = item.placements ?? [];
   if (apiPlacements.length > 0) {
     return apiPlacements.map((p) => ({
@@ -48,7 +46,9 @@ function itemPlacements(
     }));
   }
   if (item.putaway_qty > 0 && item.destination_bin) {
-    return [{ code: item.destination_bin.bin_final_code, qty: item.putaway_qty }];
+    return [
+      { code: item.destination_bin.bin_final_code, qty: item.putaway_qty },
+    ];
   }
   return [];
 }
@@ -67,7 +67,13 @@ function sourceLabel(putaway: Putaway | null | undefined): string {
   );
 }
 
-function InfoField({ label, children }: { label: string; children: React.ReactNode }) {
+function InfoField({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex flex-col gap-1">
       <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -153,9 +159,7 @@ export function PutawayReviewView({ id }: PutawayReviewViewProps) {
 
               {putaway.status === "COMPLETED" && (
                 <Button asChild variant="outline" size="sm">
-                  <Link
-                    href={`/dashboard/barang-masuk/putaway/${putaway.id}`}
-                  >
+                  <Link href={`/dashboard/barang-masuk/putaway/${putaway.id}`}>
                     <PenLineIcon className="mr-1.5 size-4" />
                     Koreksi Penempatan
                   </Link>
@@ -164,9 +168,7 @@ export function PutawayReviewView({ id }: PutawayReviewViewProps) {
               {(putaway.status === "NOT_STARTED" ||
                 putaway.status === "IN_PROGRESS") && (
                 <Button asChild size="sm">
-                  <Link
-                    href={`/dashboard/barang-masuk/putaway/${putaway.id}`}
-                  >
+                  <Link href={`/dashboard/barang-masuk/putaway/${putaway.id}`}>
                     <PackageIcon className="mr-1.5 size-4" />
                     {putaway.status === "IN_PROGRESS"
                       ? "Lanjutkan Penempatan"
@@ -224,7 +226,6 @@ export function PutawayReviewView({ id }: PutawayReviewViewProps) {
         </LiquidGlass>
       ) : (
         <div className="flex flex-col gap-4">
-
           <LiquidGlass
             radius={20}
             intensity="subtle"

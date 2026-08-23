@@ -2,7 +2,14 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { ArrowDownIcon, ArrowUpIcon, CheckIcon, ExternalLinkIcon, EyeIcon, XIcon } from "lucide-react";
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  CheckIcon,
+  ExternalLinkIcon,
+  EyeIcon,
+  XIcon,
+} from "lucide-react";
 
 import { PageTitle } from "@/components/dashboard/page-title";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
@@ -29,7 +36,10 @@ import type {
 } from "@/types/gudang/stock-replenishment";
 import { AcceptReplenishmentDialog } from "./accept-replenishment-dialog";
 
-const STATUS_TABS: Array<{ label: string; value: StockReplenishmentStatus | "ALL" }> = [
+const STATUS_TABS: Array<{
+  label: string;
+  value: StockReplenishmentStatus | "ALL";
+}> = [
   { label: "Menunggu", value: "PENDING" },
   { label: "Disetujui", value: "ACCEPTED" },
   { label: "Ditolak", value: "REJECTED" },

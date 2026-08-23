@@ -89,8 +89,7 @@ export function useCreateTransferDraft() {
       toast.success("Draft transfer berhasil dibuat");
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal membuat draft"),
+    onError: (err) => apiError(err, "Gagal membuat draft"),
   });
 }
 
@@ -103,8 +102,7 @@ export function useAddTransferItem() {
       toast.success("Item berhasil ditambahkan");
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal menambah item"),
+    onError: (err) => apiError(err, "Gagal menambah item"),
   });
 }
 
@@ -117,8 +115,7 @@ export function useRemoveTransferItem() {
       toast.success("Item berhasil dihapus");
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal menghapus item"),
+    onError: (err) => apiError(err, "Gagal menghapus item"),
   });
 }
 
@@ -137,8 +134,7 @@ export function useApproveTransfer() {
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
       invalidateStockViews(qc);
     },
-    onError: (err) =>
-      apiError(err, "Gagal approve transfer"),
+    onError: (err) => apiError(err, "Gagal approve transfer"),
   });
 }
 
@@ -151,8 +147,7 @@ export function useSubmitDraft() {
       qc.invalidateQueries({ queryKey: ["outbound-transfer", "transit"] });
       invalidateStockViews(qc);
     },
-    onError: (err) =>
-      apiError(err, "Gagal mengirim transfer"),
+    onError: (err) => apiError(err, "Gagal mengirim transfer"),
   });
 }
 
@@ -179,8 +174,7 @@ export function useShipTransfer() {
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
       invalidateStockViews(qc);
     },
-    onError: (err) =>
-      apiError(err, "Gagal mengirim transfer"),
+    onError: (err) => apiError(err, "Gagal mengirim transfer"),
   });
 }
 
@@ -199,8 +193,7 @@ export function useCancelTransfer() {
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
       invalidateStockViews(qc);
     },
-    onError: (err) =>
-      apiError(err, "Gagal membatalkan transfer"),
+    onError: (err) => apiError(err, "Gagal membatalkan transfer"),
   });
 }
 
@@ -213,8 +206,7 @@ export function useDeleteTransfer() {
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
       invalidateStockViews(qc);
     },
-    onError: (err) =>
-      apiError(err, "Gagal menghapus transfer"),
+    onError: (err) => apiError(err, "Gagal menghapus transfer"),
   });
 }
 
@@ -237,8 +229,7 @@ export function useBulkDeleteTransfer() {
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
       invalidateStockViews(qc);
     },
-    onError: (err) =>
-      apiError(err, "Gagal memproses transfer"),
+    onError: (err) => apiError(err, "Gagal memproses transfer"),
   });
 }
 
@@ -251,7 +242,6 @@ export function useMarkTransferPrinted() {
       toast.success("Transfer ditandai sudah dicetak");
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal menandai cetak"),
+    onError: (err) => apiError(err, "Gagal menandai cetak"),
   });
 }

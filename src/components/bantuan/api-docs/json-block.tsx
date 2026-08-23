@@ -10,7 +10,12 @@ interface JsonBlockProps {
   maxHeight?: number;
 }
 
-export function JsonBlock({ data, label, className, maxHeight = 480 }: JsonBlockProps) {
+export function JsonBlock({
+  data,
+  label,
+  className,
+  maxHeight = 480,
+}: JsonBlockProps) {
   const text = React.useMemo(() => {
     try {
       return JSON.stringify(data, null, 2);
@@ -22,7 +27,9 @@ export function JsonBlock({ data, label, className, maxHeight = 480 }: JsonBlock
   return (
     <div className={cn("flex flex-col gap-2", className)}>
       {label && (
-        <span className="text-xs font-medium text-muted-foreground">{label}</span>
+        <span className="text-xs font-medium text-muted-foreground">
+          {label}
+        </span>
       )}
       <pre
         className="overflow-auto rounded-xl bg-muted p-4 font-mono text-xs leading-relaxed"

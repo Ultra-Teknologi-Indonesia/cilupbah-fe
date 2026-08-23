@@ -22,7 +22,10 @@ export function usePurchaseOrderActivities(
     enabled: enabled && Boolean(poId),
     initialPageParam: null as string | null,
     queryFn: ({ pageParam }) =>
-      PurchaseOrderActivityService.list(poId as string, pageParam as string | null),
+      PurchaseOrderActivityService.list(
+        poId as string,
+        pageParam as string | null,
+      ),
     getNextPageParam: (lastPage) =>
       lastPage.meta.has_more ? lastPage.meta.next_cursor : null,
     staleTime: STALE,

@@ -311,7 +311,9 @@ export function OpnameDetail({ id }: { id: string }) {
         className="py-20"
         action={
           <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/transaksi-stok?tab=penyesuaian">Kembali</Link>
+            <Link href="/dashboard/transaksi-stok?tab=penyesuaian">
+              Kembali
+            </Link>
           </Button>
         }
       />
@@ -325,7 +327,10 @@ export function OpnameDetail({ id }: { id: string }) {
         backHref="/dashboard/transaksi-stok?tab=penyesuaian"
         breadcrumb={[
           { label: "Persediaan" },
-          { label: "Transaksi Stok", href: "/dashboard/transaksi-stok?tab=penyesuaian" },
+          {
+            label: "Transaksi Stok",
+            href: "/dashboard/transaksi-stok?tab=penyesuaian",
+          },
           { label: opname.opname_no },
         ]}
         actions={

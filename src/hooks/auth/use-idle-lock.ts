@@ -90,7 +90,6 @@ export function useIdleLock(enabled: boolean) {
     };
 
     const onVisibility = () => {
-
       if (document.visibilityState === "visible") checkIdle();
     };
 

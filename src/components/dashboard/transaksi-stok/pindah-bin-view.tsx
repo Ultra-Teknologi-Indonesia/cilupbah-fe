@@ -204,9 +204,7 @@ export function PindahBinView() {
 
   const validLines = lines.filter((l) => {
     const q = Number(l.qty);
-    return (
-      l.qty !== "" && !Number.isNaN(q) && q > 0 && !!l.sourceBinId
-    );
+    return l.qty !== "" && !Number.isNaN(q) && q > 0 && !!l.sourceBinId;
   });
 
   const canSubmit =
@@ -271,7 +269,8 @@ export function PindahBinView() {
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <Label className="text-sm font-medium">
-                No. Transfer Internal <span className="text-destructive">*</span>
+                No. Transfer Internal{" "}
+                <span className="text-destructive">*</span>
               </Label>
               <Input
                 value={transferNo}
@@ -364,7 +363,8 @@ export function PindahBinView() {
           <div className="flex flex-col gap-4 px-5 py-5">
             <div className="flex items-center justify-between">
               <Label className="text-sm font-medium">
-                Produk yang Ditransfer <span className="text-destructive">*</span>
+                Produk yang Ditransfer{" "}
+                <span className="text-destructive">*</span>
               </Label>
               <Button
                 variant="outline"
@@ -439,7 +439,10 @@ export function PindahBinView() {
                         <TableCell className="px-3 py-2.5 align-top">
                           <div className="flex max-w-[280px] items-start gap-3">
                             {l.thumbnail ? (
-                              <Image unoptimized width={400} height={400}
+                              <Image
+                                unoptimized
+                                width={400}
+                                height={400}
                                 src={l.thumbnail}
                                 alt={l.name}
                                 className="h-11 w-11 shrink-0 rounded-md border border-border object-cover"
@@ -510,7 +513,8 @@ export function PindahBinView() {
                           )}
                           {qtyOverStock && sourceBin && (
                             <p className="text-amber-600 text-xs">
-                              Melebihi data sistem (tersedia: {sourceBin.onHand}) — akan tercatat minus
+                              Melebihi data sistem (tersedia: {sourceBin.onHand}
+                              ) — akan tercatat minus
                             </p>
                           )}
                         </TableCell>

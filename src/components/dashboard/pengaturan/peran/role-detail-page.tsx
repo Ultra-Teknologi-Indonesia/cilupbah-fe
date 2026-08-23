@@ -91,7 +91,11 @@ export function RoleDetailPage({ id }: RoleDetailPageProps) {
             </p>
           </div>
           {canEdit && (
-            <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setEditOpen(true)}
+            >
               <PencilIcon className="mr-1 size-4" />
               Ubah Info
             </Button>
@@ -122,7 +126,10 @@ export function RoleDetailPage({ id }: RoleDetailPageProps) {
           >
             Batalkan Perubahan
           </Button>
-          <Button onClick={handleSave} disabled={!dirty || syncPermissions.isPending}>
+          <Button
+            onClick={handleSave}
+            disabled={!dirty || syncPermissions.isPending}
+          >
             {syncPermissions.isPending && (
               <Loader2Icon className="mr-2 size-4 animate-spin" />
             )}

@@ -104,7 +104,9 @@ export function PindahBinEditView({ id }: { id: string }) {
       <div className="flex items-start gap-3 rounded-xl border border-warning/30 bg-warning/10 px-4 py-3">
         <InfoIcon className="mt-0.5 size-5 shrink-0 text-warning" />
         <div>
-          <p className="text-sm font-medium">Hanya metadata yang dapat diubah</p>
+          <p className="text-sm font-medium">
+            Hanya metadata yang dapat diubah
+          </p>
           <p className="text-xs text-muted-foreground">
             Untuk mengubah rak asal/tujuan, produk, atau qty, buat transfer
             internal baru dengan arah kebalikan lalu susun transfer internal

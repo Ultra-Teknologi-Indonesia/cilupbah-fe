@@ -67,8 +67,7 @@ export function useAssignPutawayStaff() {
       toast.success("Petugas berhasil di-assign");
       qc.invalidateQueries({ queryKey: ["putaway"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal assign petugas"),
+    onError: (err) => apiError(err, "Gagal assign petugas"),
   });
 }
 
@@ -80,8 +79,7 @@ export function useStartPutaway() {
       toast.success("Putaway berhasil dimulai");
       qc.invalidateQueries({ queryKey: ["putaway"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal memulai putaway"),
+    onError: (err) => apiError(err, "Gagal memulai putaway"),
   });
 }
 
@@ -93,8 +91,7 @@ export function useCompletePutaway() {
       toast.success("Penempatan berhasil diselesaikan");
       qc.invalidateQueries({ queryKey: ["putaway"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal menyelesaikan penempatan"),
+    onError: (err) => apiError(err, "Gagal menyelesaikan penempatan"),
   });
 }
 
@@ -115,8 +112,7 @@ export function useProcessPutawayItem() {
       qc.invalidateQueries({ queryKey: ["putaway"] });
       invalidateStockViews(qc);
     },
-    onError: (err) =>
-      apiError(err, "Gagal menempatkan item"),
+    onError: (err) => apiError(err, "Gagal menempatkan item"),
   });
 }
 
@@ -130,8 +126,7 @@ export function useDeletePutaway() {
       );
       qc.invalidateQueries({ queryKey: ["putaway"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal menghapus penempatan"),
+    onError: (err) => apiError(err, "Gagal menghapus penempatan"),
   });
 }
 
@@ -144,8 +139,7 @@ export function useBulkDeletePutaway() {
       toast.success(`${n} penempatan berhasil diproses`);
       qc.invalidateQueries({ queryKey: ["putaway"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal menghapus penempatan terpilih"),
+    onError: (err) => apiError(err, "Gagal menghapus penempatan terpilih"),
   });
 }
 
@@ -164,11 +158,12 @@ export function useDeletePutawayPlacement() {
       qty?: number;
     }) => PutawayService.deletePlacement(putawayId, itemId, placementId, qty),
     onSuccess: () => {
-      toast.success("Penempatan berhasil dikoreksi, stok dikembalikan ke rak asal");
+      toast.success(
+        "Penempatan berhasil dikoreksi, stok dikembalikan ke rak asal",
+      );
       qc.invalidateQueries({ queryKey: ["putaway"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal mengoreksi penempatan"),
+    onError: (err) => apiError(err, "Gagal mengoreksi penempatan"),
   });
 }
 

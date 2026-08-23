@@ -65,7 +65,10 @@ export function PermintaanRestockDetailView({ id }: Props) {
   if (isLoading) {
     return (
       <div className="flex flex-col gap-5">
-        <PageTitle title="Detail Permintaan" backHref="/dashboard/permintaan-restock" />
+        <PageTitle
+          title="Detail Permintaan"
+          backHref="/dashboard/permintaan-restock"
+        />
         <LiquidGlass
           radius={16}
           intensity="subtle"
@@ -82,7 +85,10 @@ export function PermintaanRestockDetailView({ id }: Props) {
   if (!req) {
     return (
       <div className="flex flex-col gap-5">
-        <PageTitle title="Detail Permintaan" backHref="/dashboard/permintaan-restock" />
+        <PageTitle
+          title="Detail Permintaan"
+          backHref="/dashboard/permintaan-restock"
+        />
         <LiquidGlass
           radius={16}
           intensity="subtle"
@@ -170,9 +176,7 @@ export function PermintaanRestockDetailView({ id }: Props) {
                 {req.from_location_name ?? "—"}
               </span>
               <ArrowRightIcon className="size-3.5 text-muted-foreground" />
-              <span className="font-medium">
-                {req.to_location_name ?? "—"}
-              </span>
+              <span className="font-medium">{req.to_location_name ?? "—"}</span>
             </span>
           </InfoField>
 
@@ -205,7 +209,9 @@ export function PermintaanRestockDetailView({ id }: Props) {
           <InfoField label="Selesai Pada">
             {req.done_at ? formatDateTime(req.done_at) : "—"}
           </InfoField>
-          <InfoField label="Alasan Ditolak">{req.reject_reason ?? "—"}</InfoField>
+          <InfoField label="Alasan Ditolak">
+            {req.reject_reason ?? "—"}
+          </InfoField>
 
           <div className="md:col-span-2 lg:col-span-3">
             <InfoField label="Catatan">{req.note ?? "—"}</InfoField>
@@ -248,7 +254,9 @@ export function PermintaanRestockDetailView({ id }: Props) {
                 <TableHead>Produk</TableHead>
                 <TableHead className="w-24 text-right">Qty</TableHead>
                 <TableHead>Alasan</TableHead>
-                {editable && <TableHead className="w-24 text-right">Aksi</TableHead>}
+                {editable && (
+                  <TableHead className="w-24 text-right">Aksi</TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -380,7 +388,10 @@ export function PermintaanRestockDetailView({ id }: Props) {
         confirmLabel="Hapus"
         onConfirm={async () => {
           if (!deleteItem) return;
-          await removeItemMut.mutateAsync({ id: req.id, itemId: deleteItem.id });
+          await removeItemMut.mutateAsync({
+            id: req.id,
+            itemId: deleteItem.id,
+          });
           setDeleteItem(null);
         }}
       />

@@ -94,7 +94,10 @@ function Gallery({
         ) : current.type === "video" ? (
           <VideoPlayer src={current.url} className="size-full" />
         ) : (
-          <Image unoptimized width={400} height={400}
+          <Image
+            unoptimized
+            width={400}
+            height={400}
             src={current.url}
             alt={name}
             className="size-full object-contain"
@@ -119,7 +122,6 @@ function Gallery({
               >
                 {item.type === "video" ? (
                   <div className="relative size-full bg-muted/60">
-
                     <video
                       src={item.url}
                       muted
@@ -135,7 +137,10 @@ function Gallery({
                     </div>
                   </div>
                 ) : (
-                  <Image unoptimized width={400} height={400}
+                  <Image
+                    unoptimized
+                    width={400}
+                    height={400}
                     src={item.url}
                     alt={`${name} ${i + 1}`}
                     className="size-full object-cover"

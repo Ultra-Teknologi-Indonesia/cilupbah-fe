@@ -71,7 +71,10 @@ export function ImportPenyesuaianDialog({
 
   const locationOptions = useMemo(
     () =>
-      (locData?.items ?? []).map((l) => ({ value: l.id, label: l.locationName })),
+      (locData?.items ?? []).map((l) => ({
+        value: l.id,
+        label: l.locationName,
+      })),
     [locData],
   );
 
@@ -154,7 +157,6 @@ export function ImportPenyesuaianDialog({
 
         <ScrollArea className="min-h-0 flex-1">
           <div className="flex flex-col gap-4 p-6">
-
             <div className="sr-only" aria-hidden="true">
               <UserSelect
                 value={createdBy}
@@ -165,7 +167,6 @@ export function ImportPenyesuaianDialog({
 
             {!preview && (
               <>
-
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="flex flex-col gap-1.5">
                     <Label className="text-sm font-medium">
@@ -336,7 +337,6 @@ function PreviewPanel({ preview }: { preview: ImportPreviewResponse }) {
   const s = preview.summary;
   return (
     <div className="flex flex-col gap-4">
-
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <SummaryCard label="Total Baris" value={s.total_rows} />
         <SummaryCard label="Valid" value={s.valid} tone="ok" />

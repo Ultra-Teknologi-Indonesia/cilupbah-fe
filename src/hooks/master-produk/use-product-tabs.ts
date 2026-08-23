@@ -120,7 +120,10 @@ export const useUnlinkVariantChannelMapping = (productId: string) => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (variantMappingId: string) =>
-      ProductTabsService.unlinkVariantChannelMapping(productId, variantMappingId),
+      ProductTabsService.unlinkVariantChannelMapping(
+        productId,
+        variantMappingId,
+      ),
     onSuccess: () => {
       qc.invalidateQueries({
         queryKey: ["master-produk", "channel-listings", productId],
@@ -144,4 +147,3 @@ export const useResyncChannelMapping = (productId: string) => {
     },
   });
 };
-

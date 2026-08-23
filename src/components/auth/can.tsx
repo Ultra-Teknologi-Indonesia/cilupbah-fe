@@ -5,7 +5,6 @@ import * as React from "react";
 import { usePermissions } from "@/hooks/auth/use-permissions";
 
 interface CanProps {
-
   permission?: string | string[];
 
   mode?: "any" | "all";
@@ -28,7 +27,11 @@ export function Can({
   if (perms.length === 0) return children;
 
   const allowed =
-    perms.length === 1 ? can(perms[0]) : mode === "all" ? canAll(perms) : canAny(perms);
+    perms.length === 1
+      ? can(perms[0])
+      : mode === "all"
+        ? canAll(perms)
+        : canAny(perms);
 
   return allowed ? children : fallback;
 }

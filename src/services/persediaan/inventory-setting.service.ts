@@ -56,10 +56,12 @@ export const InventorySettingService = {
     );
   },
 
-  exportRackAllocation: async (params: {
-    locationId?: string;
-    search?: string;
-  } = {}): Promise<void> => {
+  exportRackAllocation: async (
+    params: {
+      locationId?: string;
+      search?: string;
+    } = {},
+  ): Promise<void> => {
     const q = new URLSearchParams();
     if (params.locationId) q.set("location_id", params.locationId);
     if (params.search) q.set("search", params.search);

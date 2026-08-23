@@ -63,7 +63,10 @@ export function KeteranganDialog({
               </thead>
               <tbody>
                 {items.map((item, idx) => (
-                  <tr key={`${item.id}-${idx}`} className="border-b last:border-0">
+                  <tr
+                    key={`${item.id}-${idx}`}
+                    className="border-b last:border-0"
+                  >
                     <td className="px-4 py-2 text-foreground">{item.id}</td>
                     <td className="px-4 py-2 text-foreground">
                       {item.description}

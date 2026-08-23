@@ -26,7 +26,6 @@ export function useReceiveTransfer() {
       qc.invalidateQueries({ queryKey: ["inventory-transfer"] });
       qc.invalidateQueries({ queryKey: ["inbound"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal menerima transfer"),
+    onError: (err) => apiError(err, "Gagal menerima transfer"),
   });
 }

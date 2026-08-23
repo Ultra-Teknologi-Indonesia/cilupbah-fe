@@ -24,7 +24,10 @@ export const aktivitasColumns: ColumnDef<RaiseProductDetail>[] = [
         <div className="flex items-center gap-3">
           <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted/40">
             {thumb ? (
-              <Image unoptimized width={400} height={400}
+              <Image
+                unoptimized
+                width={400}
+                height={400}
                 src={thumb}
                 alt={d.itemGroupName ?? ""}
                 className="size-full object-cover"
@@ -70,9 +73,9 @@ export const aktivitasColumns: ColumnDef<RaiseProductDetail>[] = [
         return <span className="text-muted-foreground">—</span>;
       return (
         <div className="flex items-center gap-2">
-          <StatusBadge 
-            domain="product-boost-activity" 
-            status={r.isSuccess ? "SUCCESS" : "FAILED"} 
+          <StatusBadge
+            domain="product-boost-activity"
+            status={r.isSuccess ? "SUCCESS" : "FAILED"}
           />
           {r.reason && (
             <span

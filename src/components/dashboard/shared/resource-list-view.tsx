@@ -47,10 +47,7 @@ interface ResourceListViewProps<T> {
   emptyDescription: string;
 
   enableRowSelection?: boolean;
-  bulkActions?: (
-    selected: T[],
-    table: TableInstance<T>,
-  ) => React.ReactNode;
+  bulkActions?: (selected: T[], table: TableInstance<T>) => React.ReactNode;
   getRowId?: (row: T, index: number) => string;
 }
 
@@ -86,9 +83,7 @@ export function ResourceListView<T>({
         searchPlaceholder={searchPlaceholder}
         align="end"
         onReset={
-          list.hasActiveFilter || !!list.search
-            ? list.resetAll
-            : undefined
+          list.hasActiveFilter || !!list.search ? list.resetAll : undefined
         }
         hasFilter={list.hasActiveFilter || !!list.search}
         activeCount={list.activeFilterCount}
@@ -130,7 +125,19 @@ export function ResourceListView<T>({
           getRowId={getRowId}
           tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
           emptyState={
-            list.search ? <EmptyState icon={SearchXIcon} title="Tidak ditemukan" description={`Tidak ada hasil untuk "${list.search}"`} /> : <EmptyState icon={EmptyIcon} title={emptyTitle} description={emptyDescription} />
+            list.search ? (
+              <EmptyState
+                icon={SearchXIcon}
+                title="Tidak ditemukan"
+                description={`Tidak ada hasil untuk "${list.search}"`}
+              />
+            ) : (
+              <EmptyState
+                icon={EmptyIcon}
+                title={emptyTitle}
+                description={emptyDescription}
+              />
+            )
           }
         />
       </div>

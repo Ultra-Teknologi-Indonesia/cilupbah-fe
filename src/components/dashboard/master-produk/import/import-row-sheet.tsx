@@ -50,14 +50,20 @@ function rowStatusBadge(status: ImportRowStatus) {
   switch (status) {
     case "valid":
       return (
-        <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+        <Badge
+          variant="outline"
+          className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+        >
           <CheckCircle2Icon className="mr-1 size-3" />
           Valid
         </Badge>
       );
     case "success":
       return (
-        <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+        <Badge
+          variant="outline"
+          className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+        >
           <CheckCircle2Icon className="mr-1 size-3" />
           Selesai
         </Badge>
@@ -65,7 +71,10 @@ function rowStatusBadge(status: ImportRowStatus) {
     case "invalid":
     case "failed":
       return (
-        <Badge variant="outline" className="border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400">
+        <Badge
+          variant="outline"
+          className="border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400"
+        >
           <XCircleIcon className="mr-1 size-3" />
           Gagal
         </Badge>
@@ -73,7 +82,11 @@ function rowStatusBadge(status: ImportRowStatus) {
   }
 }
 
-export function ImportRowSheet({ batch: initialBatch, open, onOpenChange }: Props) {
+export function ImportRowSheet({
+  batch: initialBatch,
+  open,
+  onOpenChange,
+}: Props) {
   const [statusFilter, setStatusFilter] = React.useState<string>("all");
   const [search, setSearch] = React.useState<string>("");
   const [page, setPage] = React.useState<number>(1);
@@ -83,12 +96,15 @@ export function ImportRowSheet({ batch: initialBatch, open, onOpenChange }: Prop
   const { data: batchData } = useImportBatch(batchId);
   const batch = batchData ?? initialBatch;
 
-  const { data: rowsData, isLoading: rowsLoading } = useImportBatchRows(batchId, {
-    page,
-    perPage: 20,
-    status: statusFilter === "all" ? undefined : statusFilter,
-    search: search.trim() || undefined,
-  });
+  const { data: rowsData, isLoading: rowsLoading } = useImportBatchRows(
+    batchId,
+    {
+      page,
+      perPage: 20,
+      status: statusFilter === "all" ? undefined : statusFilter,
+      search: search.trim() || undefined,
+    },
+  );
 
   const rows = rowsData?.items ?? [];
   const meta = rowsData?.meta;
@@ -133,7 +149,11 @@ export function ImportRowSheet({ batch: initialBatch, open, onOpenChange }: Prop
               )}
             </div>
             <SheetDescription className="text-xs">
-              File: <span className="font-medium text-foreground">{batch?.originalFilename}</span> • Dibuat:{" "}
+              File:{" "}
+              <span className="font-medium text-foreground">
+                {batch?.originalFilename}
+              </span>{" "}
+              • Dibuat:{" "}
               {batch?.createdAt ? formatDateTime(batch.createdAt) : "-"} • Tipe:{" "}
               <span className="font-medium text-foreground">
                 {batch?.type === "single" ? "Produk Satuan" : "Produk Bundle"}
@@ -176,25 +196,32 @@ export function ImportRowSheet({ batch: initialBatch, open, onOpenChange }: Prop
           </div>
 
           {/* Real-time Progress Bar */}
-          {batch && ["previewing", "confirming", "processing"].includes(batch.state) && (
-            <div className="mt-3.5 space-y-1.5">
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span className="flex items-center gap-1.5 font-medium text-primary">
-                  <Loader2Icon className="size-3 animate-spin" />
-                  {batch.state === "previewing"
-                    ? "Menganalisis pratinjau data..."
-                    : "Menerapkan import ke database..."}
-                </span>
-                <span className="tabular-nums font-semibold">{batch.progressPercent}%</span>
+          {batch &&
+            ["previewing", "confirming", "processing"].includes(
+              batch.state,
+            ) && (
+              <div className="mt-3.5 space-y-1.5">
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1.5 font-medium text-primary">
+                    <Loader2Icon className="size-3 animate-spin" />
+                    {batch.state === "previewing"
+                      ? "Menganalisis pratinjau data..."
+                      : "Menerapkan import ke database..."}
+                  </span>
+                  <span className="tabular-nums font-semibold">
+                    {batch.progressPercent}%
+                  </span>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full bg-primary transition-all duration-300"
+                    style={{
+                      width: `${Math.min(100, Math.max(5, batch.progressPercent))}%`,
+                    }}
+                  />
+                </div>
               </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full rounded-full bg-primary transition-all duration-300"
-                  style={{ width: `${Math.min(100, Math.max(5, batch.progressPercent))}%` }}
-                />
-              </div>
-            </div>
-          )}
+            )}
         </div>
 
         {/* Filters Toolbar */}
@@ -272,19 +299,31 @@ export function ImportRowSheet({ batch: initialBatch, open, onOpenChange }: Prop
             <div className="flex flex-col items-center justify-center p-12 text-center text-muted-foreground gap-1.5">
               <AlertTriangleIcon className="size-8 text-muted-foreground/50" />
               <p className="text-sm font-medium">Tidak ada baris yang sesuai</p>
-              <p className="text-xs">Ubah filter status atau kata kunci pencarian Anda.</p>
+              <p className="text-xs">
+                Ubah filter status atau kata kunci pencarian Anda.
+              </p>
             </div>
           ) : (
             <Table>
               <TableHeader className="bg-muted/40 sticky top-0 z-10 backdrop-blur">
                 <TableRow>
-                  <TableHead className="w-14 text-center text-xs">Baris</TableHead>
+                  <TableHead className="w-14 text-center text-xs">
+                    Baris
+                  </TableHead>
                   <TableHead className="w-40 text-xs">SKU</TableHead>
-                  <TableHead className="text-xs">Nama Produk / Bundle</TableHead>
+                  <TableHead className="text-xs">
+                    Nama Produk / Bundle
+                  </TableHead>
                   <TableHead className="w-32 text-xs">Kategori</TableHead>
-                  <TableHead className="w-28 text-right text-xs">Harga</TableHead>
-                  <TableHead className="w-24 text-center text-xs">Status</TableHead>
-                  <TableHead className="w-60 text-xs">Catatan / Error</TableHead>
+                  <TableHead className="w-28 text-right text-xs">
+                    Harga
+                  </TableHead>
+                  <TableHead className="w-24 text-center text-xs">
+                    Status
+                  </TableHead>
+                  <TableHead className="w-60 text-xs">
+                    Catatan / Error
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -338,7 +377,8 @@ export function ImportRowSheet({ batch: initialBatch, open, onOpenChange }: Prop
         {meta && meta.last_page > 1 && (
           <div className="p-3 border-t border-border/60 bg-muted/20 flex items-center justify-between text-xs">
             <span className="text-muted-foreground">
-              Halaman {meta.current_page} dari {meta.last_page} ({meta.total} baris)
+              Halaman {meta.current_page} dari {meta.last_page} ({meta.total}{" "}
+              baris)
             </span>
             <div className="flex items-center gap-1.5">
               <Button

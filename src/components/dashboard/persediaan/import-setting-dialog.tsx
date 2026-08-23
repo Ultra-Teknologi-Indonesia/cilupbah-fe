@@ -63,7 +63,10 @@ function StatusPill({ status }: { status: string }) {
     already: { label: "Sudah sesuai", className: "text-muted-foreground" },
     error: { label: "Error", className: "text-destructive" },
   };
-  const cfg = map[status] ?? { label: status, className: "text-muted-foreground" };
+  const cfg = map[status] ?? {
+    label: status,
+    className: "text-muted-foreground",
+  };
   return (
     <Badge variant="outline" className={cn("shrink-0", cfg.className)}>
       {cfg.label}
@@ -74,12 +77,11 @@ function StatusPill({ status }: { status: string }) {
 function downloadManualMoves(rows: RackManualMove[]) {
   const header = "SKU,Lokasi,Rak Sekarang,Rak Tujuan";
   const body = rows
-    .map(
-      (r) =>
-        `${r.sku},${r.location_name},${r.current_bin},${r.target_bin}`.replace(
-          /\n/g,
-          " ",
-        ),
+    .map((r) =>
+      `${r.sku},${r.location_name},${r.current_bin},${r.target_bin}`.replace(
+        /\n/g,
+        " ",
+      ),
     )
     .join("\n");
   const blob = new Blob([`${header}\n${body}`], {
@@ -99,7 +101,9 @@ export function ImportSettingDialog({ type, onOpenChange }: Props) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [file, setFile] = React.useState<File | null>(null);
   const [dragOver, setDragOver] = React.useState(false);
-  const [preview, setPreview] = React.useState<ImportPreviewResult | null>(null);
+  const [preview, setPreview] = React.useState<ImportPreviewResult | null>(
+    null,
+  );
   const [isDownloading, setIsDownloading] = React.useState(false);
 
   const previewMut = useImportSettingPreview();
@@ -345,59 +349,57 @@ export function ImportSettingDialog({ type, onOpenChange }: Props) {
                 </TableHeader>
                 <TableBody>
                   {preview.items.map((row, i) =>
-                    isRack ? (
-                      (() => {
-                        const r = row as RackPreviewRow;
-                        return (
-                          <TableRow
-                            key={i}
-                            className="border-b border-border/40 last:border-0"
-                          >
-                            <TableCell className="px-3 py-2 font-mono text-xs">
-                              {r.sku}
-                            </TableCell>
-                            <TableCell className="px-3 py-2 text-sm">
-                              {r.location_name}
-                            </TableCell>
-                            <TableCell className="px-3 py-2 text-sm">
-                              {r.bin_final_code}
-                            </TableCell>
-                            <TableCell className="px-3 py-2">
-                              <StatusPill status={r.status} />
-                            </TableCell>
-                            <TableCell className="px-3 py-2 text-xs text-muted-foreground">
-                              {r.message}
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })()
-                    ) : (
-                      (() => {
-                        const r = row as ThresholdPreviewRow;
-                        return (
-                          <TableRow
-                            key={i}
-                            className="border-b border-border/40 last:border-0"
-                          >
-                            <TableCell className="px-3 py-2 font-mono text-xs">
-                              {r.sku}
-                            </TableCell>
-                            <TableCell className="px-3 py-2 text-right tabular-nums">
-                              {r.current ?? "—"}
-                            </TableCell>
-                            <TableCell className="px-3 py-2 text-right font-semibold tabular-nums">
-                              {r.new ?? "—"}
-                            </TableCell>
-                            <TableCell className="px-3 py-2">
-                              <StatusPill status={r.status} />
-                            </TableCell>
-                            <TableCell className="px-3 py-2 text-xs text-muted-foreground">
-                              {r.message}
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })()
-                    ),
+                    isRack
+                      ? (() => {
+                          const r = row as RackPreviewRow;
+                          return (
+                            <TableRow
+                              key={i}
+                              className="border-b border-border/40 last:border-0"
+                            >
+                              <TableCell className="px-3 py-2 font-mono text-xs">
+                                {r.sku}
+                              </TableCell>
+                              <TableCell className="px-3 py-2 text-sm">
+                                {r.location_name}
+                              </TableCell>
+                              <TableCell className="px-3 py-2 text-sm">
+                                {r.bin_final_code}
+                              </TableCell>
+                              <TableCell className="px-3 py-2">
+                                <StatusPill status={r.status} />
+                              </TableCell>
+                              <TableCell className="px-3 py-2 text-xs text-muted-foreground">
+                                {r.message}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })()
+                      : (() => {
+                          const r = row as ThresholdPreviewRow;
+                          return (
+                            <TableRow
+                              key={i}
+                              className="border-b border-border/40 last:border-0"
+                            >
+                              <TableCell className="px-3 py-2 font-mono text-xs">
+                                {r.sku}
+                              </TableCell>
+                              <TableCell className="px-3 py-2 text-right tabular-nums">
+                                {r.current ?? "—"}
+                              </TableCell>
+                              <TableCell className="px-3 py-2 text-right font-semibold tabular-nums">
+                                {r.new ?? "—"}
+                              </TableCell>
+                              <TableCell className="px-3 py-2">
+                                <StatusPill status={r.status} />
+                              </TableCell>
+                              <TableCell className="px-3 py-2 text-xs text-muted-foreground">
+                                {r.message}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })(),
                   )}
                 </TableBody>
               </Table>

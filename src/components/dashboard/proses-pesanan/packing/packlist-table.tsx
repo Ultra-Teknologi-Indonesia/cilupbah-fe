@@ -71,9 +71,7 @@ export function PacklistTable() {
     namespace: "packlist",
   });
   const [editPacker, setEditPacker] = React.useState<Packlist | null>(null);
-  const [deleteTarget, setDeleteTarget] = React.useState<Packlist | null>(
-    null,
-  );
+  const [deleteTarget, setDeleteTarget] = React.useState<Packlist | null>(null);
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
   const [ambilResiOpen, setAmbilResiOpen] = React.useState(false);
   const [resiOrderIds, setResiOrderIds] = React.useState<string[]>([]);
@@ -90,7 +88,11 @@ export function PacklistTable() {
       date_from: list.filters.date_from || undefined,
       date_to: list.filters.date_to || undefined,
       sort_by: list.sorting[0]?.id || undefined,
-      sort_dir: list.sorting[0] ? (list.sorting[0].desc ? "desc" : "asc") : undefined,
+      sort_dir: list.sorting[0]
+        ? list.sorting[0].desc
+          ? "desc"
+          : "asc"
+        : undefined,
     }),
     [list.debouncedSearch, list.page, list.perPage, list.filters, list.sorting],
   );
@@ -195,10 +197,16 @@ export function PacklistTable() {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span className="inline-flex">
-                      <Checkbox disabled checked={false} aria-label={el.reason} />
+                      <Checkbox
+                        disabled
+                        checked={false}
+                        aria-label={el.reason}
+                      />
                     </span>
                   </TooltipTrigger>
-                  <TooltipContent>{el.reason ?? "Tidak dapat dipilih"}</TooltipContent>
+                  <TooltipContent>
+                    {el.reason ?? "Tidak dapat dipilih"}
+                  </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             );
@@ -262,7 +270,9 @@ export function PacklistTable() {
                       INSTANT
                     </span>
                   </TooltipTrigger>
-                  <TooltipContent>Pesanan instan — prioritaskan!</TooltipContent>
+                  <TooltipContent>
+                    Pesanan instan — prioritaskan!
+                  </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             )}

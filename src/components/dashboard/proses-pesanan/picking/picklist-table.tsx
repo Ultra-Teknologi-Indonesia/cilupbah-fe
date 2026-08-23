@@ -139,9 +139,7 @@ export function PicklistTable() {
     namespace: "picklist",
   });
   const [editPicker, setEditPicker] = React.useState<Picklist | null>(null);
-  const [revertTarget, setRevertTarget] = React.useState<Picklist | null>(
-    null,
-  );
+  const [revertTarget, setRevertTarget] = React.useState<Picklist | null>(null);
   const revertPicklist = useRevertPicklist();
 
   const params = React.useMemo(
@@ -158,7 +156,11 @@ export function PicklistTable() {
       date_to: list.filters.date_to || undefined,
       zone_id: list.filters.zone_id || undefined,
       sort_by: list.sorting[0]?.id || undefined,
-      sort_dir: list.sorting[0] ? (list.sorting[0].desc ? "desc" : "asc") : undefined,
+      sort_dir: list.sorting[0]
+        ? list.sorting[0].desc
+          ? "desc"
+          : "asc"
+        : undefined,
       page: list.page,
       per_page: list.perPage,
     }),
@@ -192,9 +194,7 @@ export function PicklistTable() {
               onFocus={() => prefetchPicklist(row.original.id)}
               className={cn(
                 "cursor-pointer font-medium hover:underline",
-                row.original.hasInstant
-                  ? "text-warning"
-                  : "text-primary",
+                row.original.hasInstant ? "text-warning" : "text-primary",
               )}
             >
               {row.original.picklistNo}
@@ -363,7 +363,10 @@ export function PicklistTable() {
       <FulfillmentFilterBar
         value={list.filters as FulfillmentFilterValue}
         onChange={(v) =>
-          list.setFilters({ ...EMPTY_PICKLIST_FILTERS, ...v } as PicklistFilterState)
+          list.setFilters({
+            ...EMPTY_PICKLIST_FILTERS,
+            ...v,
+          } as PicklistFilterState)
         }
         fields={[
           "status",

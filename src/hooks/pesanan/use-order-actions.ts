@@ -73,7 +73,8 @@ export const useMoveToReady = createMutationHook({
     const cancelHeld = skipped.filter((s) => s.reason === "cancel_pending");
     const stockHeld = skipped.filter((s) => s.reason !== "cancel_pending");
     const parts = [`${moved} pesanan siap diproses`];
-    if (stockHeld.length) parts.push(`${stockHeld.length} dilewati (stok kosong)`);
+    if (stockHeld.length)
+      parts.push(`${stockHeld.length} dilewati (stok kosong)`);
     if (cancelHeld.length)
       parts.push(`${cancelHeld.length} ditahan (pembatalan diproses)`);
     return parts.join(" · ");
@@ -87,8 +88,7 @@ export const useRequestAwb = createMutationHook({
     OrderService.requestAwb(data.orderId, data.courierCode),
   successMessage: (res) => {
     const outcome = res.data as
-      | { status?: string; message?: string }
-      | undefined;
+      { status?: string; message?: string } | undefined;
 
     return outcome?.status === "skipped"
       ? (outcome.message ?? "Permintaan resi dilewati")
@@ -313,4 +313,3 @@ export const useDeleteCourierIdPhoto = createMutationHook({
   errorMessage: "Gagal menghapus foto identitas kurir",
   invalidates: ({ orderId }) => forOrder(orderId),
 });
-

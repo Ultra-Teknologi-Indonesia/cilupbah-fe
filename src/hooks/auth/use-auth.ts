@@ -3,10 +3,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { AuthService } from "@/services/auth/auth.service";
-import {
-  clearLoginSession,
-  loginServerSide,
-} from "@/app/actions/auth.actions";
+import { clearLoginSession, loginServerSide } from "@/app/actions/auth.actions";
 import type {
   ForgotPasswordPayload,
   LoginRequest,

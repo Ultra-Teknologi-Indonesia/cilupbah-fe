@@ -361,18 +361,10 @@ export interface RawPicklistMedia {
 }
 
 export type PicklistItemStatus =
-  | "PENDING"
-  | "PARTIAL"
-  | "COMPLETED"
-  | "SHORT"
-  | "REJECTED";
+  "PENDING" | "PARTIAL" | "COMPLETED" | "SHORT" | "REJECTED";
 
 export type PicklistFailReasonCode =
-  | "STOCK_EMPTY"
-  | "DAMAGED"
-  | "REJECTED"
-  | "MISSING"
-  | "OTHER";
+  "STOCK_EMPTY" | "DAMAGED" | "REJECTED" | "MISSING" | "OTHER";
 
 export interface RawPicklistItem {
   id: string;
@@ -410,11 +402,9 @@ export interface RawPicklistItem {
     package_no?: string | null;
     shipment_no?: string | null;
     source?: string | null;
-    shipment_orders?:
-      | Array<{
-          shipment?: { shipment_no?: string | null } | null;
-        }>
-      | null;
+    shipment_orders?: Array<{
+      shipment?: { shipment_no?: string | null } | null;
+    }> | null;
   } | null;
   orderItem?: {
     description?: string | null;
@@ -644,7 +634,11 @@ export interface RawShipment {
   driver_called_by?: string | null;
   driver_id_card_url?: string | null;
   shipper_id?: string | number | null;
-  shipper?: { id: string | number; name?: string | null; email?: string | null } | null;
+  shipper?: {
+    id: string | number;
+    name?: string | null;
+    email?: string | null;
+  } | null;
 }
 
 export interface Shipment {

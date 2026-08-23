@@ -25,7 +25,9 @@ export const ProductPickerService = {
         const varLabel = v.variationValues.map((vv) => vv.value).join(", ");
         options.push({
           value: v.itemId,
-          label: varLabel ? `${p.itemName} (${varLabel}) — ${v.sku}` : `${p.itemName} — ${v.sku}`,
+          label: varLabel
+            ? `${p.itemName} (${varLabel}) — ${v.sku}`
+            : `${p.itemName} — ${v.sku}`,
           badgeLabel: v.sku,
         });
       }

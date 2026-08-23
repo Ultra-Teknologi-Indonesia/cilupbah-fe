@@ -515,7 +515,9 @@ export function OrderActions({
         {st === "failed" && (
           <span className="text-xs font-medium text-destructive">
             Ditolak marketplace
-            {order.channel_cancel_error ? `: ${order.channel_cancel_error}` : ""}
+            {order.channel_cancel_error
+              ? `: ${order.channel_cancel_error}`
+              : ""}
           </span>
         )}
         {st === "accepted" && (
@@ -603,7 +605,9 @@ export function OrderActions({
       isMarketplace &&
       Boolean(order.shipping?.tracking_number) &&
       !order.is_canceled &&
-      !["shipped", "completed", "cancelled", "returned"].includes(order.status) &&
+      !["shipped", "completed", "cancelled", "returned"].includes(
+        order.status,
+      ) &&
       ![
         "SHIPPED",
         "COMPLETED",
@@ -674,11 +678,7 @@ export function OrderActions({
         {!order.is_canceled && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                aria-label="Aksi lainnya"
-              >
+              <Button variant="ghost" size="icon-sm" aria-label="Aksi lainnya">
                 <MoreHorizontalIcon className="size-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -1026,7 +1026,9 @@ export function OrderCard({
       ? shipDeadline.getTime() - now
       : null;
   const isInstantUrgent =
-    !!order.is_instant && msToDeadline !== null && msToDeadline < 60 * 60 * 1000;
+    !!order.is_instant &&
+    msToDeadline !== null &&
+    msToDeadline < 60 * 60 * 1000;
 
   const isFinished =
     order.is_canceled ||
@@ -1062,7 +1064,6 @@ export function OrderCard({
           "border-destructive/60 bg-destructive/[0.04] dark:border-destructive/50",
       )}
     >
-
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-b border-border/40 px-4 py-2.5 sm:px-5">
         {onSelectedChange && (
           <Checkbox
@@ -1111,7 +1112,9 @@ export function OrderCard({
                 <StarIcon className="size-3.5 fill-current" />
               </span>
             </TooltipTrigger>
-            <TooltipContent>Pesanan Prioritas (Next-Day Delivery / Priority Fulfillment)</TooltipContent>
+            <TooltipContent>
+              Pesanan Prioritas (Next-Day Delivery / Priority Fulfillment)
+            </TooltipContent>
           </Tooltip>
         )}
 
@@ -1164,7 +1167,9 @@ export function OrderCard({
                 <BanknoteIcon className="size-3.5" />
               </span>
             </TooltipTrigger>
-            <TooltipContent>Bayar di Tempat (COD / Cash on Delivery)</TooltipContent>
+            <TooltipContent>
+              Bayar di Tempat (COD / Cash on Delivery)
+            </TooltipContent>
           </Tooltip>
         )}
 
@@ -1251,7 +1256,9 @@ export function OrderCard({
         <div
           className={cn(
             "grid flex-1 grid-cols-2 gap-x-6 gap-y-3 lg:items-start",
-            isCancelView ? "sm:grid-cols-3 xl:grid-cols-4" : "sm:grid-cols-3 xl:grid-cols-5",
+            isCancelView
+              ? "sm:grid-cols-3 xl:grid-cols-4"
+              : "sm:grid-cols-3 xl:grid-cols-5",
           )}
         >
           <div className="min-w-0">
@@ -1309,7 +1316,7 @@ export function OrderCard({
               <p className="mb-0.5 text-2xs font-medium uppercase tracking-wider text-muted-foreground/70">
                 Alasan Pembatalan
               </p>
-              {order.cancel_request_reason ?? order.cancel_reason ? (
+              {(order.cancel_request_reason ?? order.cancel_reason) ? (
                 <p className="flex items-start gap-1 text-sm">
                   <BanIcon className="mt-0.5 size-3.5 shrink-0 text-destructive" />
                   <span className="line-clamp-3 font-medium text-foreground">
@@ -1341,7 +1348,9 @@ export function OrderCard({
                               }
                               className="mt-1 inline-flex items-center gap-1 rounded-md bg-muted/60 px-1.5 py-0.5 font-mono text-2xs font-semibold text-foreground tabular-nums hover:bg-muted transition-colors"
                             >
-                              <span className="text-muted-foreground">AWB:</span>
+                              <span className="text-muted-foreground">
+                                AWB:
+                              </span>
                               {order.shipping.tracking_number}
                             </button>
                           </TooltipTrigger>

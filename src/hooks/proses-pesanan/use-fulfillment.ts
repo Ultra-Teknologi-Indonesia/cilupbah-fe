@@ -117,7 +117,10 @@ export function useCouriers(enabled = true) {
   });
 }
 
-export function useStageCourierOptions(stage: string | undefined, enabled = true) {
+export function useStageCourierOptions(
+  stage: string | undefined,
+  enabled = true,
+) {
   return useQuery({
     queryKey: [...all, "courier-options", stage],
     queryFn: () => OutboundService.courierOptionsByStage(stage as string),
@@ -898,7 +901,9 @@ export function useDownloadPreManifestCancelXlsx() {
   });
 }
 
-export function usePreManifestCancelList(params: import("@/types/proses-pesanan/fulfillment").FulfillmentListParams) {
+export function usePreManifestCancelList(
+  params: import("@/types/proses-pesanan/fulfillment").FulfillmentListParams,
+) {
   return useQuery({
     queryKey: [...fulfillmentKeys.board, "pre-manifest-cancel-list", params],
     queryFn: () => OutboundService.preManifestCancelList(params),

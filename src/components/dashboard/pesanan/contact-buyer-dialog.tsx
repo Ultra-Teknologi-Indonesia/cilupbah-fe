@@ -66,8 +66,10 @@ export function ContactBuyerDialog({
   const [note, setNote] = React.useState(defaultNote ?? "");
 
   const [prevOpen, setPrevOpen] = React.useState(open);
-  const [prevDefaultChannel, setPrevDefaultChannel] = React.useState(defaultChannel);
-  const [prevDefaultDecision, setPrevDefaultDecision] = React.useState(defaultDecision);
+  const [prevDefaultChannel, setPrevDefaultChannel] =
+    React.useState(defaultChannel);
+  const [prevDefaultDecision, setPrevDefaultDecision] =
+    React.useState(defaultDecision);
   const [prevDefaultNote, setPrevDefaultNote] = React.useState(defaultNote);
   if (
     open !== prevOpen ||

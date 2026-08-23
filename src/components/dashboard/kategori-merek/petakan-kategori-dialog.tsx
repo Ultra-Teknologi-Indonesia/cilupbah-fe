@@ -179,7 +179,11 @@ export function PetakanKategoriDialog({
   const [prevOpen, setPrevOpen] = React.useState(open);
   const [prevMappedId, setPrevMappedId] = React.useState(mappedExternalId);
   const [prevFlatLen, setPrevFlatLen] = React.useState(flat.length);
-  if (open !== prevOpen || mappedExternalId !== prevMappedId || flat.length !== prevFlatLen) {
+  if (
+    open !== prevOpen ||
+    mappedExternalId !== prevMappedId ||
+    flat.length !== prevFlatLen
+  ) {
     setPrevOpen(open);
     setPrevMappedId(mappedExternalId);
     setPrevFlatLen(flat.length);
@@ -263,7 +267,8 @@ export function PetakanKategoriDialog({
         <div className="px-6 py-4">
           {isLoading ? (
             <div className="flex items-center justify-center gap-2 py-16 text-muted-foreground">
-              <Loader2Icon className="size-4 animate-spin" /></div>
+              <Loader2Icon className="size-4 animate-spin" />
+            </div>
           ) : isError ? (
             <div className="py-16 text-center text-sm text-destructive">
               Gagal memuat kategori. Pastikan kategori {channelName} sudah

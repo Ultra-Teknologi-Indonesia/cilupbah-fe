@@ -4,7 +4,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { useMemo, useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { PackageIcon,
+import {
+  PackageIcon,
   ArrowUpDown,
   ChevronUpIcon,
   ChevronDownIcon,
@@ -12,7 +13,8 @@ import { PackageIcon,
   BoxIcon,
   MapPinIcon,
   RefreshCwIcon,
-  Loader2Icon } from "lucide-react";
+  Loader2Icon,
+} from "lucide-react";
 import Image from "next/image";
 
 import { cn } from "@/lib/utils";
@@ -186,7 +188,10 @@ function StockQtyBadge({
     default: value > 0 ? "" : "text-muted-foreground/50",
     warning: value > 0 ? "text-warning" : "text-muted-foreground/50",
     success: value > 0 ? "text-success" : "text-muted-foreground/50",
-    info: value > 0 ? "text-blue-600 dark:text-blue-400" : "text-muted-foreground/50",
+    info:
+      value > 0
+        ? "text-blue-600 dark:text-blue-400"
+        : "text-muted-foreground/50",
   };
   return (
     <span
@@ -243,10 +248,7 @@ function MetricCells({
   const onHand = stock?.on_hand ?? 0;
   const onOrder = stock?.on_order ?? 0;
   const available = stock?.available ?? 0;
-  const cellCls = cn(
-    "px-2.5 py-3 text-right",
-    emphasize && "bg-muted/30",
-  );
+  const cellCls = cn("px-2.5 py-3 text-right", emphasize && "bg-muted/30");
   const scopeLabel = locationId ? "di lokasi ini" : "di semua lokasi";
   return (
     <>
@@ -368,7 +370,9 @@ function parseSortParam(raw: string | null): {
     "on_hand",
     "available",
   ];
-  return valid.includes(key) ? { field: key, dir } : { field: null, dir: "asc" };
+  return valid.includes(key)
+    ? { field: key, dir }
+    : { field: null, dir: "asc" };
 }
 
 export function PosisiStokView() {
@@ -407,18 +411,14 @@ export function PosisiStokView() {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setHiddenLocations(parsed.filter((x) => typeof x === "string"));
       }
-    } catch {
-
-    }
+    } catch {}
   }, []);
 
   const updateHiddenLocations = useCallback((next: string[]) => {
     setHiddenLocations(next);
     try {
       window.localStorage.setItem(HIDDEN_LOCATIONS_KEY, JSON.stringify(next));
-    } catch {
-
-    }
+    } catch {}
   }, []);
 
   const prefetchDetail = useCallback(
@@ -521,18 +521,18 @@ export function PosisiStokView() {
     locations: [],
   };
 
-  const hiddenSet = useMemo(
-    () => new Set(hiddenLocations),
-    [hiddenLocations],
-  );
+  const hiddenSet = useMemo(() => new Set(hiddenLocations), [hiddenLocations]);
   const visibleLocations = useMemo(
-    () => meta.locations.filter((l) => !hiddenSet.has(l.location_id)).sort((a, b) => {
-      const aKecil = a.location_name.toLowerCase().includes("kecil");
-      const bKecil = b.location_name.toLowerCase().includes("kecil");
-      if (aKecil && !bKecil) return -1;
-      if (!aKecil && bKecil) return 1;
-      return a.location_name.localeCompare(b.location_name);
-    }),
+    () =>
+      meta.locations
+        .filter((l) => !hiddenSet.has(l.location_id))
+        .sort((a, b) => {
+          const aKecil = a.location_name.toLowerCase().includes("kecil");
+          const bKecil = b.location_name.toLowerCase().includes("kecil");
+          if (aKecil && !bKecil) return -1;
+          if (!aKecil && bKecil) return 1;
+          return a.location_name.localeCompare(b.location_name);
+        }),
     [meta.locations, hiddenSet],
   );
 
@@ -661,9 +661,7 @@ export function PosisiStokView() {
             />
           }
           onReset={
-            list.hasActiveFilter || !!list.search
-              ? list.resetAll
-              : undefined
+            list.hasActiveFilter || !!list.search ? list.resetAll : undefined
           }
           hasFilter={list.hasActiveFilter || !!list.search}
           activeCount={list.activeFilterCount}
@@ -745,225 +743,229 @@ export function PosisiStokView() {
                 viewportClassName="[&>div]:!block"
               >
                 <Table scrollContainer={false}>
-                <TableHeader>
-
-                  <TableRow className="border-b border-border/60">
-                    <TableHead
-                      rowSpan={2}
-                      className="sticky left-0 z-30 bg-background px-3 align-bottom text-xs font-medium uppercase tracking-wider text-muted-foreground"
-                      style={{ width: PRODUCT_COL_W, minWidth: PRODUCT_COL_W }}
-                    >
-                      <span className="inline-flex items-center gap-2">
-                        <Checkbox
-                          checked={
-                            allPageSelected
-                              ? true
-                              : somePageSelected
-                                ? "indeterminate"
-                                : false
-                          }
-                          onCheckedChange={togglePage}
-                          disabled={items.length === 0}
-                          aria-label="Pilih semua produk di halaman ini"
-                        />
-                        <SortHeader
-                          label="Produk"
-                          field="item_code"
-                          activeField={sortField}
-                          dir={sortDir}
-                          onSort={handleSort}
-                        />
-                      </span>
-                    </TableHead>
-                    <TableHead
-                      rowSpan={2}
-                      className="sticky z-30 border-r border-border/40 bg-background px-3 text-right align-bottom text-xs font-medium uppercase tracking-wider text-muted-foreground"
-                      style={{
-                        left: PRODUCT_COL_W,
-                        width: COST_COL_W,
-                        minWidth: COST_COL_W,
-                      }}
-                    >
-                      <span className="inline-flex items-center justify-end gap-1">
-                        <SortHeader
-                          label="Harga Pokok"
-                          field="average_cost"
-                          activeField={sortField}
-                          dir={sortDir}
-                          onSort={handleSort}
-                          align="right"
-                        />
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <InfoIcon className="size-3 opacity-60" />
-                          </TooltipTrigger>
-                          <TooltipContent side="top">
-                            Metode valuasi: Moving Average (rata-rata
-                            tertimbang).
-                          </TooltipContent>
-                        </Tooltip>
-                      </span>
-                    </TableHead>
-
-                    {visibleLocations.map((l) => (
+                  <TableHeader>
+                    <TableRow className="border-b border-border/60">
                       <TableHead
-                        key={l.location_id}
-                        colSpan={3}
-                        className="border-l border-border/40 px-2.5 py-2 text-center text-xs font-semibold text-foreground"
+                        rowSpan={2}
+                        className="sticky left-0 z-30 bg-background px-3 align-bottom text-xs font-medium uppercase tracking-wider text-muted-foreground"
+                        style={{
+                          width: PRODUCT_COL_W,
+                          minWidth: PRODUCT_COL_W,
+                        }}
                       >
-                        <span className="inline-flex items-center gap-1.5">
-                          <MapPinIcon className="size-3 text-muted-foreground" />
-                          {l.location_name}
+                        <span className="inline-flex items-center gap-2">
+                          <Checkbox
+                            checked={
+                              allPageSelected
+                                ? true
+                                : somePageSelected
+                                  ? "indeterminate"
+                                  : false
+                            }
+                            onCheckedChange={togglePage}
+                            disabled={items.length === 0}
+                            aria-label="Pilih semua produk di halaman ini"
+                          />
+                          <SortHeader
+                            label="Produk"
+                            field="item_code"
+                            activeField={sortField}
+                            dir={sortDir}
+                            onSort={handleSort}
+                          />
                         </span>
                       </TableHead>
-                    ))}
+                      <TableHead
+                        rowSpan={2}
+                        className="sticky z-30 border-r border-border/40 bg-background px-3 text-right align-bottom text-xs font-medium uppercase tracking-wider text-muted-foreground"
+                        style={{
+                          left: PRODUCT_COL_W,
+                          width: COST_COL_W,
+                          minWidth: COST_COL_W,
+                        }}
+                      >
+                        <span className="inline-flex items-center justify-end gap-1">
+                          <SortHeader
+                            label="Harga Pokok"
+                            field="average_cost"
+                            activeField={sortField}
+                            dir={sortDir}
+                            onSort={handleSort}
+                            align="right"
+                          />
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <InfoIcon className="size-3 opacity-60" />
+                            </TooltipTrigger>
+                            <TooltipContent side="top">
+                              Metode valuasi: Moving Average (rata-rata
+                              tertimbang).
+                            </TooltipContent>
+                          </Tooltip>
+                        </span>
+                      </TableHead>
 
-                    <TableHead
-                      rowSpan={2}
-                      className="border-l border-border/60 px-2.5 align-bottom text-right text-2xs font-medium uppercase tracking-wide text-muted-foreground"
-                    >
-                      Transit
-                    </TableHead>
+                      {visibleLocations.map((l) => (
+                        <TableHead
+                          key={l.location_id}
+                          colSpan={3}
+                          className="border-l border-border/40 px-2.5 py-2 text-center text-xs font-semibold text-foreground"
+                        >
+                          <span className="inline-flex items-center gap-1.5">
+                            <MapPinIcon className="size-3 text-muted-foreground" />
+                            {l.location_name}
+                          </span>
+                        </TableHead>
+                      ))}
 
-                    <TableHead
-                      colSpan={3}
-                      className="border-l border-border/60 bg-muted/40 px-2.5 py-2 text-center text-xs font-semibold text-foreground"
-                    >
-                      Total Stok
-                    </TableHead>
-                  </TableRow>
+                      <TableHead
+                        rowSpan={2}
+                        className="border-l border-border/60 px-2.5 align-bottom text-right text-2xs font-medium uppercase tracking-wide text-muted-foreground"
+                      >
+                        Transit
+                      </TableHead>
 
-                  <TableRow className="border-b border-border/60">
-                    {visibleLocations.map((l) => (
+                      <TableHead
+                        colSpan={3}
+                        className="border-l border-border/60 bg-muted/40 px-2.5 py-2 text-center text-xs font-semibold text-foreground"
+                      >
+                        Total Stok
+                      </TableHead>
+                    </TableRow>
+
+                    <TableRow className="border-b border-border/60">
+                      {visibleLocations.map((l) => (
+                        <MetricSubHeaders
+                          key={l.location_id}
+                          borderLeft
+                          sortField={sortField}
+                          sortDir={sortDir}
+                        />
+                      ))}
                       <MetricSubHeaders
-                        key={l.location_id}
+                        total
                         borderLeft
                         sortField={sortField}
                         sortDir={sortDir}
+                        onSort={handleSort}
                       />
-                    ))}
-                    <MetricSubHeaders
-                      total
-                      borderLeft
-                      sortField={sortField}
-                      sortDir={sortDir}
-                      onSort={handleSort}
-                    />
-                  </TableRow>
-                </TableHeader>
+                    </TableRow>
+                  </TableHeader>
 
-                <TableBody>
-                  {items.map((item: StockItem) => {
-                    const locMap = new Map(
-                      item.location_stocks.map((l) => [l.location_id, l]),
-                    );
-                    return (
-                      <TableRow
-                        key={item.item_id}
-                        onMouseEnter={() => prefetchDetail(item.item_id)}
-                        onFocus={() => prefetchDetail(item.item_id)}
-                        className="group border-b border-border/20 transition-colors last:border-0 hover:bg-muted/40"
-                      >
-                        <TableCell
-                          className="sticky left-0 z-20 bg-background px-3 py-3"
-                          style={{
-                            width: PRODUCT_COL_W,
-                            minWidth: PRODUCT_COL_W,
-                          }}
+                  <TableBody>
+                    {items.map((item: StockItem) => {
+                      const locMap = new Map(
+                        item.location_stocks.map((l) => [l.location_id, l]),
+                      );
+                      return (
+                        <TableRow
+                          key={item.item_id}
+                          onMouseEnter={() => prefetchDetail(item.item_id)}
+                          onFocus={() => prefetchDetail(item.item_id)}
+                          className="group border-b border-border/20 transition-colors last:border-0 hover:bg-muted/40"
                         >
-                          <div className="flex items-center gap-3">
-                            <span
-                              className="shrink-0"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <Checkbox
-                                checked={selected.has(item.item_id)}
-                                onCheckedChange={() => toggleRow(item.item_id)}
-                                aria-label={`Pilih ${item.item_name || item.item_code}`}
-                              />
-                            </span>
-                            <Link
-                              href={`/dashboard/posisi-stok/${item.item_id}`}
-                              aria-label={`Buka detail ${item.item_name || item.item_code}`}
-                              className="shrink-0"
-                            >
-                              {item.thumbnail ? (
-                                <Image
-                                  src={item.thumbnail}
-                                  alt={item.item_name ?? item.item_code}
-                                  width={40}
-                                  height={40}
-                                  className="h-10 w-10 shrink-0 rounded-xl border border-border/40 object-cover"
+                          <TableCell
+                            className="sticky left-0 z-20 bg-background px-3 py-3"
+                            style={{
+                              width: PRODUCT_COL_W,
+                              minWidth: PRODUCT_COL_W,
+                            }}
+                          >
+                            <div className="flex items-center gap-3">
+                              <span
+                                className="shrink-0"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <Checkbox
+                                  checked={selected.has(item.item_id)}
+                                  onCheckedChange={() =>
+                                    toggleRow(item.item_id)
+                                  }
+                                  aria-label={`Pilih ${item.item_name || item.item_code}`}
                                 />
-                              ) : (
-                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted/60">
-                                  <PackageIcon className="size-5 text-muted-foreground/60" />
-                                </div>
-                              )}
-                            </Link>
-                            <div className="flex min-w-0 flex-col gap-0.5">
-                              <div className="flex flex-wrap items-center gap-1.5">
-                                <Link
-                                  href={`/dashboard/posisi-stok/${item.item_id}`}
-                                  className="whitespace-normal break-words text-sm font-medium text-foreground transition-colors hover:text-primary hover:underline"
-                                >
-                                  {item.item_name || item.item_code}
-                                </Link>
-                                {item.is_bundle && (
-                                  <Badge
-                                    variant="outline"
-                                    className="shrink-0 text-2xs leading-tight border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400"
-                                  >
-                                    Bundle
-                                  </Badge>
+                              </span>
+                              <Link
+                                href={`/dashboard/posisi-stok/${item.item_id}`}
+                                aria-label={`Buka detail ${item.item_name || item.item_code}`}
+                                className="shrink-0"
+                              >
+                                {item.thumbnail ? (
+                                  <Image
+                                    src={item.thumbnail}
+                                    alt={item.item_name ?? item.item_code}
+                                    width={40}
+                                    height={40}
+                                    className="h-10 w-10 shrink-0 rounded-xl border border-border/40 object-cover"
+                                  />
+                                ) : (
+                                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted/60">
+                                    <PackageIcon className="size-5 text-muted-foreground/60" />
+                                  </div>
                                 )}
+                              </Link>
+                              <div className="flex min-w-0 flex-col gap-0.5">
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  <Link
+                                    href={`/dashboard/posisi-stok/${item.item_id}`}
+                                    className="whitespace-normal break-words text-sm font-medium text-foreground transition-colors hover:text-primary hover:underline"
+                                  >
+                                    {item.item_name || item.item_code}
+                                  </Link>
+                                  {item.is_bundle && (
+                                    <Badge
+                                      variant="outline"
+                                      className="shrink-0 text-2xs leading-tight border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400"
+                                    >
+                                      Bundle
+                                    </Badge>
+                                  )}
+                                </div>
+                                {item.variation_values.length > 0 && (
+                                  <span className="whitespace-normal break-words text-xs text-foreground">
+                                    {item.variation_values
+                                      .map((v) => v.value)
+                                      .join(", ")}
+                                  </span>
+                                )}
+                                <CopySku sku={item.item_code} />
                               </div>
-                              {item.variation_values.length > 0 && (
-                                <span className="whitespace-normal break-words text-xs text-foreground">
-                                  {item.variation_values
-                                    .map((v) => v.value)
-                                    .join(", ")}
-                                </span>
-                              )}
-                              <CopySku sku={item.item_code} />
                             </div>
-                          </div>
-                        </TableCell>
-                        <TableCell
-                          className="sticky z-20 whitespace-nowrap border-r border-border/40 bg-background px-3 py-3 text-right text-sm text-foreground"
-                          style={{ left: PRODUCT_COL_W }}
-                        >
-                          {formatCurrency(Number(item.average_cost))}
-                        </TableCell>
+                          </TableCell>
+                          <TableCell
+                            className="sticky z-20 whitespace-nowrap border-r border-border/40 bg-background px-3 py-3 text-right text-sm text-foreground"
+                            style={{ left: PRODUCT_COL_W }}
+                          >
+                            {formatCurrency(Number(item.average_cost))}
+                          </TableCell>
 
-                        {visibleLocations.map((l) => (
+                          {visibleLocations.map((l) => (
+                            <MetricCells
+                              key={l.location_id}
+                              stock={locMap.get(l.location_id)}
+                              itemId={item.item_id}
+                              locationId={l.location_id}
+                            />
+                          ))}
+
+                          <TableCell className="border-l border-border/60 px-2.5 py-3 text-right">
+                            <DrillableQty
+                              value={item.total_stocks.transit ?? 0}
+                              variant="info"
+                              itemId={item.item_id}
+                              metric="transit"
+                              title="Lihat kronologi transfer antar gudang"
+                            />
+                          </TableCell>
+
                           <MetricCells
-                            key={l.location_id}
-                            stock={locMap.get(l.location_id)}
+                            stock={item.total_stocks}
+                            emphasize
                             itemId={item.item_id}
-                            locationId={l.location_id}
                           />
-                        ))}
-
-                        <TableCell className="border-l border-border/60 px-2.5 py-3 text-right">
-                          <DrillableQty
-                            value={item.total_stocks.transit ?? 0}
-                            variant="info"
-                            itemId={item.item_id}
-                            metric="transit"
-                            title="Lihat kronologi transfer antar gudang"
-                          />
-                        </TableCell>
-
-                        <MetricCells
-                          stock={item.total_stocks}
-                          emphasize
-                          itemId={item.item_id}
-                        />
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
                 </Table>
               </ScrollArea>
 
@@ -1029,7 +1031,11 @@ function MetricSubHeaders({
   return (
     <>
       <TableHead
-        className={cn(base, emphasize, borderLeft && "border-l border-border/40")}
+        className={cn(
+          base,
+          emphasize,
+          borderLeft && "border-l border-border/40",
+        )}
       >
         {total && onSort ? (
           <SortHeader

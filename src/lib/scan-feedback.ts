@@ -164,11 +164,95 @@ function zzfx(
   source.start();
 }
 
-const SFX_SUCCESS          = [2.4,,1046,.002,.02,.22,,1,,,,,,,,,,.3,.05] as const;
-const SFX_ERROR            = [2.4,,440,.003,.03,.16,1,1,,,-130,.09,,,,,,.4] as const;
-const SFX_CANCELED         = [2,0,180,.01,.16,.3,1,1,,-60,.1,,,.7] as const;
-const SFX_CANCEL_REQUESTED = [2,0,700,.01,.09,.2,0,1,,90,.06,,,.6] as const;
-const SFX_COURIER_MISMATCH = [2,0,340,.01,.2,.3,0,1,,-260,.14,,,.9] as const;
+const SFX_SUCCESS = [
+  2.4,
+  ,
+  1046,
+  0.002,
+  0.02,
+  0.22,
+  ,
+  1,
+  ,
+  ,
+  ,
+  ,
+  ,
+  ,
+  ,
+  ,
+  ,
+  0.3,
+  0.05,
+] as const;
+const SFX_ERROR = [
+  2.4,
+  ,
+  440,
+  0.003,
+  0.03,
+  0.16,
+  1,
+  1,
+  ,
+  ,
+  -130,
+  0.09,
+  ,
+  ,
+  ,
+  ,
+  ,
+  0.4,
+] as const;
+const SFX_CANCELED = [
+  2,
+  0,
+  180,
+  0.01,
+  0.16,
+  0.3,
+  1,
+  1,
+  ,
+  -60,
+  0.1,
+  ,
+  ,
+  0.7,
+] as const;
+const SFX_CANCEL_REQUESTED = [
+  2,
+  0,
+  700,
+  0.01,
+  0.09,
+  0.2,
+  0,
+  1,
+  ,
+  90,
+  0.06,
+  ,
+  ,
+  0.6,
+] as const;
+const SFX_COURIER_MISMATCH = [
+  2,
+  0,
+  340,
+  0.01,
+  0.2,
+  0.3,
+  0,
+  1,
+  ,
+  -260,
+  0.14,
+  ,
+  ,
+  0.9,
+] as const;
 
 const VOICE_SRC: Partial<Record<ScanFeedbackKind, string>> = {
   sku_mismatch: "/audio/sku-yang-discan-tidak-sesuai.mp3",

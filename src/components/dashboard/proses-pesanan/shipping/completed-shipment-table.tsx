@@ -282,8 +282,7 @@ export function CompletedShipmentTable() {
             const eligible = selected
               .filter(
                 (r) =>
-                  r.orderId &&
-                  (r.source ?? "").toLowerCase() !== "woocommerce",
+                  r.orderId && (r.source ?? "").toLowerCase() !== "woocommerce",
               )
               .map((r) => ({ id: r.orderId as string, source: r.source }));
             return (

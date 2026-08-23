@@ -2,11 +2,7 @@ import { fetchClient, fetchBlob } from "@/lib/api-client";
 import type { ApiPaginated } from "@/types/api.types";
 
 export type OrderImportBatchState =
-  | "queued"
-  | "processing"
-  | "done"
-  | "done_with_errors"
-  | "failed";
+  "queued" | "processing" | "done" | "done_with_errors" | "failed";
 
 export interface OrderImportBatch {
   id: string;
@@ -135,10 +131,7 @@ export const OrderImportService = {
   },
 
   downloadTemplate: (): Promise<void> =>
-    fetchBlob(
-      "/sales/orders/import/template",
-      "Template_Import_Pesanan.xlsx",
-    ),
+    fetchBlob("/sales/orders/import/template", "Template_Import_Pesanan.xlsx"),
 
   downloadErrors: (batchId: string, batchNo?: string): Promise<void> =>
     fetchBlob(

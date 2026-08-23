@@ -17,7 +17,8 @@ export const locationFormSchema = z.object({
     .optional()
     .or(z.literal(""))
     .refine((val) => !val || PHONE_E164_REGEX.test(val), {
-      message: "Format No. Telepon tidak valid. Gunakan format internasional (contoh: +628123456789)",
+      message:
+        "Format No. Telepon tidak valid. Gunakan format internasional (contoh: +628123456789)",
     }),
   email: z
     .string()

@@ -83,7 +83,10 @@ function ProductImage({ src, alt }: { src?: string | null; alt: string }) {
   return (
     <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted/40">
       {src && !failed ? (
-        <Image unoptimized width={400} height={400}
+        <Image
+          unoptimized
+          width={400}
+          height={400}
           src={src}
           alt={alt}
           className="size-full object-cover"
@@ -263,9 +266,7 @@ export function PesananFormPage({ mode, id }: Props) {
   const canSubmit = Boolean(contactId && locationId && orderDate && itemsValid);
   const isPending = createMut.isPending || updateMut.isPending;
   const mutationError = (createMut.error || updateMut.error) as
-    | { errors?: Record<string, string[]> }
-    | undefined
-    | null;
+    { errors?: Record<string, string[]> } | undefined | null;
   const validationErrors = mutationError?.errors;
   const itemErrors = useMemo(() => {
     if (!validationErrors) return [];
@@ -353,7 +354,6 @@ export function PesananFormPage({ mode, id }: Props) {
 
       <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
         <div className="flex flex-col gap-6">
-
           <LiquidGlass
             radius={16}
             intensity="subtle"
@@ -618,7 +618,11 @@ export function PesananFormPage({ mode, id }: Props) {
                         colSpan={showReceivedColumn ? 6 : 5}
                         className="h-32 text-center text-muted-foreground"
                       >
-                        <EmptyState icon={PackageIcon} title="Belum ada produk" description="Klik tombol di bawah untuk menambahkan." />
+                        <EmptyState
+                          icon={PackageIcon}
+                          title="Belum ada produk"
+                          description="Klik tombol di bawah untuk menambahkan."
+                        />
                       </TableCell>
                     </TableRow>
                   )}

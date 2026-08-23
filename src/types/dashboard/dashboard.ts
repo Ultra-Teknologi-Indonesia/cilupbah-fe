@@ -23,10 +23,7 @@ export interface DashboardSummaryParams {
 }
 
 export type DashboardQueue =
-  | "ready-to-process"
-  | "empty-stock"
-  | "failed-pick"
-  | "pending-cancel";
+  "ready-to-process" | "empty-stock" | "failed-pick" | "pending-cancel";
 
 export interface DashboardQueueRow {
   id: string;

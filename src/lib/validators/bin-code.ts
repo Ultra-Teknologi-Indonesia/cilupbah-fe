@@ -1,5 +1,3 @@
-
-
 export function matchesKnownBin(
   code: string,
   knownBins: Iterable<string | null | undefined>,

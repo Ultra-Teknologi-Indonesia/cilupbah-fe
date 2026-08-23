@@ -10,7 +10,9 @@ export const resetPasswordSchema = z
       .regex(/[a-z]/, { message: "Harus mengandung huruf kecil" })
       .regex(/\d/, { message: "Harus mengandung angka" })
       .regex(/[^A-Za-z0-9]/, { message: "Harus mengandung karakter spesial" }),
-    password_confirmation: z.string().min(1, "Konfirmasi kata sandi wajib diisi"),
+    password_confirmation: z
+      .string()
+      .min(1, "Konfirmasi kata sandi wajib diisi"),
   })
   .refine((d) => d.password === d.password_confirmation, {
     path: ["password_confirmation"],

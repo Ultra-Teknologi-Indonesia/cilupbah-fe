@@ -1,11 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  useRouter,
-  useSearchParams,
-  usePathname,
-} from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { BellIcon, CheckCheckIcon, Loader2Icon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -92,11 +88,9 @@ export function NotifikasiView() {
   );
 
   const setTab = (v: TabKey) => setParams({ tab: v, page: undefined });
-  const setDomain = (v: DomainKey) =>
-    setParams({ domain: v, page: undefined });
+  const setDomain = (v: DomainKey) => setParams({ domain: v, page: undefined });
   const setPage = (v: number) => setParams({ page: v });
-  const setPerPage = (v: number) =>
-    setParams({ per_page: v, page: undefined });
+  const setPerPage = (v: number) => setParams({ per_page: v, page: undefined });
 
   const { data: unreadCount = 0 } = useUnreadNotificationCount();
   const { data, isLoading, isFetching } = useNotifications({

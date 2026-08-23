@@ -137,7 +137,9 @@ export function RoleFormDialog({
               Batal
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending && <Loader2Icon className="mr-2 size-4 animate-spin" />}
+              {isPending && (
+                <Loader2Icon className="mr-2 size-4 animate-spin" />
+              )}
               {isEdit ? "Simpan" : "Tambah"}
             </Button>
           </DialogFooter>

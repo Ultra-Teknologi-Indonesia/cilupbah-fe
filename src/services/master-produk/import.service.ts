@@ -163,12 +163,18 @@ export const ImportService = {
 
   listRows: async (
     batchId: string,
-    params: { page?: number; perPage?: number; status?: string; search?: string } = {},
+    params: {
+      page?: number;
+      perPage?: number;
+      status?: string;
+      search?: string;
+    } = {},
   ): Promise<{ items: ImportBatchRow[]; meta: PageMeta }> => {
     const q = new URLSearchParams();
     q.set("page", String(params.page ?? 1));
     q.set("per_page", String(params.perPage ?? 25));
-    if (params.status && params.status !== "all") q.set("status", params.status);
+    if (params.status && params.status !== "all")
+      q.set("status", params.status);
     if (params.search) q.set("search", params.search);
 
     const res = await fetchClient<ApiPaginated<RawImportBatchRow>>(

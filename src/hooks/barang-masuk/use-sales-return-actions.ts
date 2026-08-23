@@ -22,8 +22,7 @@ export function useAcceptSalesReturn() {
       qc.invalidateQueries({ queryKey: ["sales-return"] });
       qc.invalidateQueries({ queryKey: ["inbound"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal menyetujui retur"),
+    onError: (err) => apiError(err, "Gagal menyetujui retur"),
   });
 }
 
@@ -43,8 +42,7 @@ export function useRejectSalesReturn() {
       toast.success("Retur berhasil ditolak");
       qc.invalidateQueries({ queryKey: ["sales-return"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal menolak retur"),
+    onError: (err) => apiError(err, "Gagal menolak retur"),
   });
 }
 
@@ -59,8 +57,7 @@ export function useCreateSalesReturn() {
       qc.invalidateQueries({ queryKey: ["sales-return"] });
       qc.invalidateQueries({ queryKey: ["inbound"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal membuat retur"),
+    onError: (err) => apiError(err, "Gagal membuat retur"),
   });
 }
 
@@ -76,8 +73,7 @@ export function useSyncReturnTracking() {
       );
       qc.invalidateQueries({ queryKey: ["sales-return"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal sinkron resi retur"),
+    onError: (err) => apiError(err, "Gagal sinkron resi retur"),
   });
 }
 
@@ -89,8 +85,7 @@ export function useSyncReturnDetail() {
       toast.success("Sinkronisasi detail marketplace selesai");
       qc.invalidateQueries({ queryKey: ["sales-return"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal sinkron detail retur"),
+    onError: (err) => apiError(err, "Gagal sinkron detail retur"),
   });
 }
 
@@ -102,8 +97,7 @@ export function useChannelAcceptSalesReturn() {
       toast.success("Retur berhasil disetujui di marketplace");
       qc.invalidateQueries({ queryKey: ["sales-return"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal menyetujui retur di marketplace"),
+    onError: (err) => apiError(err, "Gagal menyetujui retur di marketplace"),
   });
 }
 
@@ -123,8 +117,7 @@ export function useChannelRejectSalesReturn() {
       toast.success("Retur berhasil ditolak di marketplace");
       qc.invalidateQueries({ queryKey: ["sales-return"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal menolak retur di marketplace"),
+    onError: (err) => apiError(err, "Gagal menolak retur di marketplace"),
   });
 }
 
@@ -138,7 +131,6 @@ export function useCompleteSalesReturn() {
       qc.invalidateQueries({ queryKey: ["sales-return"] });
       qc.invalidateQueries({ queryKey: ["inbound"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal menyelesaikan retur"),
+    onError: (err) => apiError(err, "Gagal menyelesaikan retur"),
   });
 }

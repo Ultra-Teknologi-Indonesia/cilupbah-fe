@@ -21,7 +21,13 @@ export function TabBukuHarga({ productId }: { productId: string }) {
   const [perPage, setPerPage] = React.useState(20);
   const [sort, setSort] = React.useState("");
 
-  const { data, isLoading, isError, refetch, isFetching: _isFetching } = useProductPriceBook(
+  const {
+    data,
+    isLoading,
+    isError,
+    refetch,
+    isFetching: _isFetching,
+  } = useProductPriceBook(
     productId,
     { page, perPage, sort: sort || undefined },
     true,

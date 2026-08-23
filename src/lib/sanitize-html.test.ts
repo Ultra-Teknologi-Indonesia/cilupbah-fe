@@ -10,7 +10,7 @@ describe("sanitizeHtml", () => {
   });
 
   it("membuang tag <script>", () => {
-    const out = sanitizeHtml('<p>halo</p><script>alert(1)</script>');
+    const out = sanitizeHtml("<p>halo</p><script>alert(1)</script>");
     expect(out).toContain("halo");
     expect(out).not.toContain("<script");
     expect(out.toLowerCase()).not.toContain("alert(1)");
@@ -28,7 +28,9 @@ describe("sanitizeHtml", () => {
   });
 
   it("mempertahankan markup deskripsi produk yang wajar", () => {
-    const out = sanitizeHtml("<p><strong>Bahan:</strong> katun</p><ul><li>Adem</li></ul>");
+    const out = sanitizeHtml(
+      "<p><strong>Bahan:</strong> katun</p><ul><li>Adem</li></ul>",
+    );
     expect(out).toContain("<strong>");
     expect(out).toContain("<li>");
     expect(out).toContain("katun");

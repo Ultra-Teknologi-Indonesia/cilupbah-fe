@@ -74,7 +74,14 @@ function VariantImageCell({
   return (
     <label className="group relative flex size-12 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-dashed border-border transition-colors hover:border-primary/50 hover:bg-muted/40">
       {src ? (
-        <Image unoptimized width={400} height={400} src={src} alt="" className="size-full object-cover" />
+        <Image
+          unoptimized
+          width={400}
+          height={400}
+          src={src}
+          alt=""
+          className="size-full object-cover"
+        />
       ) : (
         <ImageIcon className="size-4 text-muted-foreground" />
       )}

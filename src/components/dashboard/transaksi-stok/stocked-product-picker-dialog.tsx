@@ -178,10 +178,7 @@ export function StockedProductPickerDialog({
   const total = data?.meta?.total ?? 0;
   const lastPage = Math.max(1, Math.ceil(total / perPage));
 
-  const toggleSelect = (
-    group: (typeof groups)[number],
-    variant: RawRow,
-  ) => {
+  const toggleSelect = (group: (typeof groups)[number], variant: RawRow) => {
     setSelected((prev) => {
       const next = new Map(prev);
       if (next.has(variant.item_id)) {

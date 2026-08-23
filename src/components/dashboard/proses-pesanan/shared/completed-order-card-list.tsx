@@ -189,8 +189,7 @@ export function FulfillmentCardList({
   }, []);
 
   const allSelected =
-    eligibleIds.size > 0 &&
-    [...eligibleIds].every((id) => selectedIds.has(id));
+    eligibleIds.size > 0 && [...eligibleIds].every((id) => selectedIds.has(id));
   const someSelected =
     !allSelected && [...eligibleIds].some((id) => selectedIds.has(id));
 
@@ -235,7 +234,6 @@ export function FulfillmentCardList({
 
   return (
     <div>
-
       <FulfillmentFilterBar
         value={list.filters as FulfillmentFilterValue}
         onChange={(v) =>

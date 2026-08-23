@@ -64,7 +64,11 @@ export function TerimaTransferDialog({
     detail.data?.status === "RECEIVED" || inbound?.status === "RECEIVED";
   const isBusy = receive.isPending || isSubmitting;
   const canSubmit =
-    !!inbound?.source_id && !!receivedBy && items.length > 0 && !isAlreadyReceived && !isBusy;
+    !!inbound?.source_id &&
+    !!receivedBy &&
+    items.length > 0 &&
+    !isAlreadyReceived &&
+    !isBusy;
 
   const handleSubmit = () => {
     if (!inbound?.source_id || isBusy || isAlreadyReceived) return;
@@ -99,7 +103,8 @@ export function TerimaTransferDialog({
       <DialogContent className="flex max-h-[90vh] flex-col gap-4 sm:max-w-[720px]">
         <DialogHeader>
           <DialogTitle>
-            Terima Transfer {inbound?.reference_number ?? inbound?.transaction_number}
+            Terima Transfer{" "}
+            {inbound?.reference_number ?? inbound?.transaction_number}
           </DialogTitle>
         </DialogHeader>
 
@@ -207,9 +212,7 @@ export function TerimaTransferDialog({
             Batal
           </Button>
           <Button onClick={handleSubmit} disabled={!canSubmit || isBusy}>
-            {isBusy && (
-              <Loader2Icon className="mr-2 size-4 animate-spin" />
-            )}
+            {isBusy && <Loader2Icon className="mr-2 size-4 animate-spin" />}
             Terima
           </Button>
         </DialogFooter>

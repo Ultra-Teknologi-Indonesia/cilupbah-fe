@@ -30,7 +30,7 @@ interface CourierPickupDialogProps {
   pickup?: CourierPickup | null;
 }
 
-const MAX_PHOTO_BYTES = 4 * 1024 * 1024; 
+const MAX_PHOTO_BYTES = 4 * 1024 * 1024;
 
 export function CourierPickupDialog({
   open,
@@ -167,7 +167,10 @@ export function CourierPickupDialog({
 
             {previewUrl ? (
               <div className="relative w-fit">
-                <Image unoptimized width={400} height={400}
+                <Image
+                  unoptimized
+                  width={400}
+                  height={400}
                   src={previewUrl}
                   alt="Pratinjau foto identitas kurir"
                   className="h-40 w-auto rounded-xl border border-border/60 object-cover"
@@ -183,7 +186,10 @@ export function CourierPickupDialog({
               </div>
             ) : existingPhoto ? (
               <div className="flex items-center gap-3">
-                <Image unoptimized width={400} height={400}
+                <Image
+                  unoptimized
+                  width={400}
+                  height={400}
                   src={pickup?.id_photo_thumb ?? existingPhoto}
                   alt="Foto identitas kurir"
                   className="h-16 w-16 rounded-xl border border-border/60 object-cover"

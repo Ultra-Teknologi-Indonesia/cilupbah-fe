@@ -32,7 +32,9 @@ export function useExportRackAllocation() {
   });
 }
 
-export function useInventorySettingProducts(params: InventorySettingListParams) {
+export function useInventorySettingProducts(
+  params: InventorySettingListParams,
+) {
   return useQuery({
     queryKey: [KEY, "products", params] as const,
     queryFn: () => InventorySettingService.listProducts(params),

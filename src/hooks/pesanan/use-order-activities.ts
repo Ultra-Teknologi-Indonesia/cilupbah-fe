@@ -9,11 +9,13 @@ const STALE = 15_000;
 
 export const orderActivityKeys = {
   all: ["pesanan", "activities"] as const,
-  detail: (orderId: string) =>
-    ["pesanan", "activities", orderId] as const,
+  detail: (orderId: string) => ["pesanan", "activities", orderId] as const,
 };
 
-export function useOrderActivities(orderId: string | undefined, enabled = true) {
+export function useOrderActivities(
+  orderId: string | undefined,
+  enabled = true,
+) {
   return useInfiniteQuery<OrderActivityResponse>({
     queryKey: orderActivityKeys.detail(orderId ?? ""),
     enabled: enabled && Boolean(orderId),

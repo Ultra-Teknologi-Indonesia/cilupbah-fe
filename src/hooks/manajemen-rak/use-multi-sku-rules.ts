@@ -16,7 +16,10 @@ export const multiSkuRuleKeys = {
     ["multi-sku-rules", "suggestions", locationId] as const,
 };
 
-export function useMultiSkuRules(locationId: string | undefined, enabled = true) {
+export function useMultiSkuRules(
+  locationId: string | undefined,
+  enabled = true,
+) {
   return useQuery({
     queryKey: multiSkuRuleKeys.list(locationId ?? ""),
     queryFn: () => BinMultiSkuRuleService.list(locationId!),

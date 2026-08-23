@@ -11,8 +11,7 @@ async function writeToClipboard(text: string): Promise<boolean> {
       await navigator.clipboard.writeText(text);
       return true;
     }
-  } catch {
-  }
+  } catch {}
 
   try {
     const textarea = document.createElement("textarea");
@@ -31,7 +30,6 @@ async function writeToClipboard(text: string): Promise<boolean> {
 }
 
 export interface UseCopyToClipboardOptions {
-
   resetDelay?: number;
 }
 

@@ -42,7 +42,7 @@ export function PesananView() {
     () => (SUB_PILL_CONFIG[tab] ?? []).map((p) => p.key),
     [tab],
   );
-  const [subValue, setSubUrl] = useUrlTab("sub", "", { 
+  const [subValue, setSubUrl] = useUrlTab("sub", "", {
     validValues: subKeys,
     clearKeys: ["page"],
   });
@@ -124,15 +124,23 @@ export function PesananView() {
       contact_status:
         (filters.contact_status as OrderListParams["contact_status"]) ||
         undefined,
-      decision:
-        (filters.decision as OrderListParams["decision"]) || undefined,
+      decision: (filters.decision as OrderListParams["decision"]) || undefined,
       status: filters.status.length > 0 ? filters.status : undefined,
       shadow: (filters.shadow as OrderListParams["shadow"]) || undefined,
       sort: `${sortDir === "asc" ? "" : "-"}${sortBy || "transaction_date"}`,
       page: listSearch.page,
       per_page: listSearch.perPage,
     }),
-    [tab, subFilter, listSearch.debouncedSearch, listSearch.page, listSearch.perPage, filters, sortDir, sortBy],
+    [
+      tab,
+      subFilter,
+      listSearch.debouncedSearch,
+      listSearch.page,
+      listSearch.perPage,
+      filters,
+      sortDir,
+      sortBy,
+    ],
   );
 
   const { data, isLoading, isFetching, refetch } = useOrders(params);
@@ -234,7 +242,12 @@ export function PesananView() {
           trailing={
             <div className="flex items-center gap-2">
               <Can permission="import-pesanan">
-                <Button asChild variant="outline" size="sm" className="h-9 rounded-full gap-1.5">
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="h-9 rounded-full gap-1.5"
+                >
                   <Link href="/dashboard/pesanan/import">
                     <ImportIcon className="size-4" />
                     Import
@@ -242,7 +255,12 @@ export function PesananView() {
                 </Button>
               </Can>
               <Can permission="create-pesanan">
-                <Button asChild variant="primary" size="sm" className="h-9 rounded-full gap-1.5">
+                <Button
+                  asChild
+                  variant="primary"
+                  size="sm"
+                  className="h-9 rounded-full gap-1.5"
+                >
                   <Link href="/dashboard/pesanan/tambah">
                     <PlusIcon className="size-4" />
                     Buat Pesanan

@@ -75,7 +75,12 @@ export function useRackImportRows(
   },
 ) {
   return useQuery({
-    queryKey: ["persediaan", "rack-import-rows", batchId ?? "", params] as const,
+    queryKey: [
+      "persediaan",
+      "rack-import-rows",
+      batchId ?? "",
+      params,
+    ] as const,
     queryFn: () => RackImportService.listRows(batchId as string, params),
     enabled: !!batchId,
     placeholderData: keepPreviousData,
@@ -105,7 +110,9 @@ export function useConfirmRackImport() {
       toast.success("Penerapan dimulai", {
         description: `${batch.placeRows} SKU sedang ditempatkan ke rak.`,
       });
-      qc.invalidateQueries({ queryKey: ["persediaan", "rack-import-batch", batch.id] });
+      qc.invalidateQueries({
+        queryKey: ["persediaan", "rack-import-batch", batch.id],
+      });
       qc.invalidateQueries({ queryKey: ["persediaan", "rack-import-batches"] });
       qc.invalidateQueries({ queryKey: ["inventory"] });
     },

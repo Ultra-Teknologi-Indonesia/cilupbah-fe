@@ -52,11 +52,7 @@ export function Markdown({ children, className }: MarkdownProps) {
   );
 }
 
-function MediaFigure({
-  src,
-  alt,
-  title,
-}: React.ComponentProps<"img">) {
+function MediaFigure({ src, alt, title }: React.ComponentProps<"img">) {
   const source = typeof src === "string" ? src : "";
   if (!source) return null;
   const caption = title || alt || "";
@@ -107,7 +103,12 @@ function LinkOrEmbed({ href, children }: React.ComponentProps<"a">) {
     return <a href={url}>{children}</a>;
   }
   return (
-    <a href={url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1">
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      className="inline-flex items-center gap-1"
+    >
       {children}
       <ExternalLinkIcon className="size-3" />
     </a>

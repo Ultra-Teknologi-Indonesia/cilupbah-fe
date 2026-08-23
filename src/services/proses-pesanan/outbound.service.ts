@@ -223,13 +223,19 @@ function mapShipment(raw: RawShipment): Shipment {
     driverPhone: raw.driver_phone ?? null,
     driverVehiclePlate: raw.driver_vehicle_plate ?? null,
     driverBookingCode: raw.driver_booking_code ?? null,
-    driverCallMethod: (raw.driver_call_method as Shipment["driverCallMethod"]) ?? null,
-    driverCallStatus: (raw.driver_call_status as Shipment["driverCallStatus"]) ?? null,
+    driverCallMethod:
+      (raw.driver_call_method as Shipment["driverCallMethod"]) ?? null,
+    driverCallStatus:
+      (raw.driver_call_status as Shipment["driverCallStatus"]) ?? null,
     driverCalledAt: raw.driver_called_at ?? null,
     driverCalledBy: raw.driver_called_by ?? null,
     driverIdCardUrl: raw.driver_id_card_url ?? null,
     shipperId:
-      raw.shipper_id != null ? String(raw.shipper_id) : raw.shipper?.id != null ? String(raw.shipper.id) : null,
+      raw.shipper_id != null
+        ? String(raw.shipper_id)
+        : raw.shipper?.id != null
+          ? String(raw.shipper.id)
+          : null,
     shipperName: raw.shipper?.name ?? raw.shipper?.email ?? null,
   };
 }
@@ -1022,15 +1028,13 @@ export const OutboundService = {
     driver_call_status: "pending" | "success" | "failed";
     driver_call_message: string | null;
     driver_call_attempted_at: string | null;
-    label:
-      | {
-          type: string;
-          url?: string;
-          document_base64?: string;
-          content_type?: string;
-          source?: string;
-        }
-      | null;
+    label: {
+      type: string;
+      url?: string;
+      document_base64?: string;
+      content_type?: string;
+      source?: string;
+    } | null;
     label_preparing?: boolean;
     label_error?: string;
   }> => {
@@ -1045,22 +1049,19 @@ export const OutboundService = {
         driver_call_status: "pending" | "success" | "failed";
         driver_call_message: string | null;
         driver_call_attempted_at: string | null;
-        label:
-          | {
-              type: string;
-              url?: string;
-              document_base64?: string;
-              content_type?: string;
-              source?: string;
-            }
-          | null;
+        label: {
+          type: string;
+          url?: string;
+          document_base64?: string;
+          content_type?: string;
+          source?: string;
+        } | null;
         label_preparing?: boolean;
         label_error?: string;
       }>
-    >(
-      `/sales/${orderId}/print-with-driver-call${qs ? `?${qs}` : ""}`,
-      { method: "POST" },
-    );
+    >(`/sales/${orderId}/print-with-driver-call${qs ? `?${qs}` : ""}`, {
+      method: "POST",
+    });
 
     return res.data;
   },
@@ -1118,7 +1119,11 @@ export const OutboundService = {
   }): Promise<{
     summary: {
       success: number;
-      failed: Array<{ order_id: string; status: string; reason: string | null }>;
+      failed: Array<{
+        order_id: string;
+        status: string;
+        reason: string | null;
+      }>;
     };
     results: Array<{
       order_id: string;
@@ -1362,7 +1367,9 @@ export const OutboundService = {
     const res = await fetchClient<{
       success?: boolean;
       data: RawPaginator<RawShipmentOrder>;
-    }>(`/outbound/shipments/${encodeURIComponent(id)}/orders?${buildQuery(params)}`);
+    }>(
+      `/outbound/shipments/${encodeURIComponent(id)}/orders?${buildQuery(params)}`,
+    );
     return {
       items: (res.data?.data ?? []).map(mapShipmentOrderItem),
       meta: paginatorMeta(res.data, params.per_page),

@@ -379,7 +379,9 @@ export function Combobox({
                 </li>
               );
             })}
-            {onLoadMore && <li ref={sentinelRef} aria-hidden className="h-px" />}
+            {onLoadMore && (
+              <li ref={sentinelRef} aria-hidden className="h-px" />
+            )}
             {loadingMore && (
               <li className="px-3 py-2 text-center text-xs text-muted-foreground">
                 Memuat…

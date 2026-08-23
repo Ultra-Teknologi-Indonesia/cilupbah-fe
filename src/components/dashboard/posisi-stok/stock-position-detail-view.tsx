@@ -306,16 +306,16 @@ function StockSummaryCards({
     {
       label: "Di Meja Packing",
       value: pickedNotPacked,
-      color:
-        pickedNotPacked > 0
-          ? "text-warning"
-          : "text-muted-foreground",
+      color: pickedNotPacked > 0 ? "text-warning" : "text-muted-foreground",
     },
     { label: "On Order", value: onOrder, color: "" },
     {
       label: "Transit",
       value: transit,
-      color: transit > 0 ? "text-blue-600 dark:text-blue-400" : "text-muted-foreground",
+      color:
+        transit > 0
+          ? "text-blue-600 dark:text-blue-400"
+          : "text-muted-foreground",
     },
     {
       label: "Available",
@@ -417,8 +417,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
   );
 
   const setView = useCallback(
-    (v: MovementView) =>
-      updateUrl({ view: v === "all" ? "" : v, page: "" }),
+    (v: MovementView) => updateUrl({ view: v === "all" ? "" : v, page: "" }),
     [updateUrl],
   );
   const setSource = useCallback(
@@ -442,8 +441,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
     [updateUrl],
   );
   const setPerPage = useCallback(
-    (n: number) =>
-      updateUrl({ per_page: n === 20 ? "" : String(n), page: "" }),
+    (n: number) => updateUrl({ per_page: n === 20 ? "" : String(n), page: "" }),
     [updateUrl],
   );
   const resetFilters = useCallback(() => {
@@ -471,7 +469,17 @@ function MovementsSection({ itemId }: { itemId: string }) {
       per_page: perPage,
       sort: "-transaction_date",
     }),
-    [itemId, source, drill, direction, locationId, storeId, view, page, perPage],
+    [
+      itemId,
+      source,
+      drill,
+      direction,
+      locationId,
+      storeId,
+      view,
+      page,
+      perPage,
+    ],
   );
 
   const { data, isLoading } = useStockMovements(params);
@@ -689,71 +697,71 @@ function MovementsSection({ itemId }: { itemId: string }) {
                   <TableCell className="px-3 py-2.5 font-mono text-xs text-muted-foreground tabular-nums">
                     {formatTime(m.transaction_date)}
                   </TableCell>
-              <TableCell className="px-3 py-2.5 text-xs text-muted-foreground">
-                {formatDateTime(m.updated_at)}
-              </TableCell>
-              <TableCell className="px-3 py-2.5">
-                <span className="inline-flex items-center gap-1">
-                  <MapPinIcon className="size-3 text-muted-foreground" />
-                  {m.location_name}
-                </span>
-              </TableCell>
-              <TableCell className="px-3 py-2.5">
-                {m.bin_code ? (
-                  <code className="rounded bg-muted/60 px-1.5 py-0.5 text-xs font-medium">
-                    {m.bin_code}
-                  </code>
-                ) : (
-                  <span className="text-muted-foreground">—</span>
-                )}
-              </TableCell>
-              <TableCell className="px-3 py-2.5">
-                {(() => {
-                  const { label, href, hint, extraOrders } =
-                    resolveTransactionDisplay(m);
-                  return (
-                    <span
-                      className="inline-flex items-baseline gap-1"
-                      title={hint}
-                    >
-                      {href ? (
-                        <Link
-                          href={href}
-                          className="font-mono text-xs text-primary hover:underline"
-                        >
-                          {label}
-                        </Link>
-                      ) : (
-                        <span className="font-mono text-xs">{label}</span>
-                      )}
-                      {extraOrders > 0 && (
-                        <span className="text-xs text-muted-foreground">
-                          +{extraOrders}
-                        </span>
-                      )}
+                  <TableCell className="px-3 py-2.5 text-xs text-muted-foreground">
+                    {formatDateTime(m.updated_at)}
+                  </TableCell>
+                  <TableCell className="px-3 py-2.5">
+                    <span className="inline-flex items-center gap-1">
+                      <MapPinIcon className="size-3 text-muted-foreground" />
+                      {m.location_name}
                     </span>
-                  );
-                })()}
-              </TableCell>
-              <TableCell className="px-3 py-2.5">
-                {m.reference_number ? (
-                  <span className="font-mono text-xs text-muted-foreground">
-                    {m.reference_number}
-                  </span>
-                ) : (
-                  <span className="text-muted-foreground">—</span>
-                )}
-              </TableCell>
-              <TableCell className="px-3 py-2.5">
-                <SourceBadge
-                  category={m.source_category}
-                  label={m.source_label}
-                  isVariance={m.is_variance}
-                />
-              </TableCell>
-              <TableCell className="px-3 py-2.5 text-right">
-                <QtyCell qty={m.qty} />
-              </TableCell>
+                  </TableCell>
+                  <TableCell className="px-3 py-2.5">
+                    {m.bin_code ? (
+                      <code className="rounded bg-muted/60 px-1.5 py-0.5 text-xs font-medium">
+                        {m.bin_code}
+                      </code>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="px-3 py-2.5">
+                    {(() => {
+                      const { label, href, hint, extraOrders } =
+                        resolveTransactionDisplay(m);
+                      return (
+                        <span
+                          className="inline-flex items-baseline gap-1"
+                          title={hint}
+                        >
+                          {href ? (
+                            <Link
+                              href={href}
+                              className="font-mono text-xs text-primary hover:underline"
+                            >
+                              {label}
+                            </Link>
+                          ) : (
+                            <span className="font-mono text-xs">{label}</span>
+                          )}
+                          {extraOrders > 0 && (
+                            <span className="text-xs text-muted-foreground">
+                              +{extraOrders}
+                            </span>
+                          )}
+                        </span>
+                      );
+                    })()}
+                  </TableCell>
+                  <TableCell className="px-3 py-2.5">
+                    {m.reference_number ? (
+                      <span className="font-mono text-xs text-muted-foreground">
+                        {m.reference_number}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="px-3 py-2.5">
+                    <SourceBadge
+                      category={m.source_category}
+                      label={m.source_label}
+                      isVariance={m.is_variance}
+                    />
+                  </TableCell>
+                  <TableCell className="px-3 py-2.5 text-right">
+                    <QtyCell qty={m.qty} />
+                  </TableCell>
                   <TableCell className="px-3 py-2.5 text-right font-mono text-sm tabular-nums">
                     {m.balance}
                   </TableCell>
@@ -804,7 +812,10 @@ function BinSection({ itemId }: { itemId: string }) {
 
   const locationOptions = useMemo(
     () =>
-      (locData?.items ?? []).map((l) => ({ value: l.id, label: l.locationName })),
+      (locData?.items ?? []).map((l) => ({
+        value: l.id,
+        label: l.locationName,
+      })),
     [locData],
   );
 
@@ -871,7 +882,9 @@ function BinSection({ itemId }: { itemId: string }) {
     [bins, locationId, zoneId, floor, row, col],
   );
 
-  const activeCount = [locationId, zoneId, floor, row, col].filter(Boolean).length;
+  const activeCount = [locationId, zoneId, floor, row, col].filter(
+    Boolean,
+  ).length;
   const hasFilter = activeCount > 0;
 
   const filterBar = (
@@ -1032,7 +1045,9 @@ function BinSection({ itemId }: { itemId: string }) {
                 </span>
               </TableCell>
               <TableCell className="px-3 py-2.5 text-sm">
-                {b.zone_name ?? <span className="text-muted-foreground">—</span>}
+                {b.zone_name ?? (
+                  <span className="text-muted-foreground">—</span>
+                )}
               </TableCell>
               <TableCell className="px-3 py-2.5">
                 {b.bin_code ? (
@@ -1109,15 +1124,17 @@ function PesananSection({ itemId }: { itemId: string }) {
     [updateUrl],
   );
   const setPerPage = useCallback(
-    (n: number) =>
-      updateUrl({ per_page: n === 20 ? "" : String(n), page: "" }),
+    (n: number) => updateUrl({ per_page: n === 20 ? "" : String(n), page: "" }),
     [updateUrl],
   );
 
   const { data: locData } = useLocations({ perPage: 100 });
   const locationOptions = useMemo(
     () =>
-      (locData?.items ?? []).map((l) => ({ value: l.id, label: l.locationName })),
+      (locData?.items ?? []).map((l) => ({
+        value: l.id,
+        label: l.locationName,
+      })),
     [locData],
   );
 
@@ -1196,7 +1213,8 @@ function PesananSection({ itemId }: { itemId: string }) {
 
   const itemQty = (o: Order) =>
     o.items.reduce(
-      (sum, it) => (it.item_id === itemId ? sum + Number(it.qty_in_base || 0) : sum),
+      (sum, it) =>
+        it.item_id === itemId ? sum + Number(it.qty_in_base || 0) : sum,
       0,
     ) || o.total_qty;
 
@@ -1247,7 +1265,9 @@ function PesananSection({ itemId }: { itemId: string }) {
                       {channelMeta.label}
                     </Badge>
                   ) : (
-                    <span className="text-muted-foreground">{o.source ?? "—"}</span>
+                    <span className="text-muted-foreground">
+                      {o.source ?? "—"}
+                    </span>
                   )}
                 </TableCell>
                 <TableCell className="px-3 py-2.5 text-muted-foreground">
@@ -1266,7 +1286,10 @@ function PesananSection({ itemId }: { itemId: string }) {
                   {statusMeta ? (
                     <Badge
                       variant="outline"
-                      className={cn("text-2xs font-medium", statusMeta.className)}
+                      className={cn(
+                        "text-2xs font-medium",
+                        statusMeta.className,
+                      )}
                     >
                       {statusMeta.label}
                     </Badge>
@@ -1312,11 +1335,9 @@ function PesananSection({ itemId }: { itemId: string }) {
 type DetailTab = "kronologi" | "rak" | "pesanan";
 
 export function StockPositionDetailView({ itemId }: { itemId: string }) {
-  const [activeTab, setActiveTab] = useUrlTab<DetailTab>(
-    "tab",
-    "kronologi",
-    { validValues: ["kronologi", "rak", "pesanan"] as const },
-  );
+  const [activeTab, setActiveTab] = useUrlTab<DetailTab>("tab", "kronologi", {
+    validValues: ["kronologi", "rak", "pesanan"] as const,
+  });
 
   const { data, isLoading } = useStockItem(itemId);
   const item = data?.data ?? null;

@@ -88,7 +88,12 @@ export function PillTabs<T extends string>({
 }) {
   return (
     <Tabs value={active || ""} onValueChange={(val) => onSelect(val as T)}>
-      <TabsList className={cn("h-auto w-full flex-wrap justify-start gap-1 bg-transparent p-0", className)}>
+      <TabsList
+        className={cn(
+          "h-auto w-full flex-wrap justify-start gap-1 bg-transparent p-0",
+          className,
+        )}
+      >
         {items.map((item) => (
           <PillTab
             key={item.key}

@@ -26,13 +26,15 @@ export function useUsers(params: UserListParams = {}) {
   });
 }
 
-export function useUserLookup(params: {
-  q?: string;
-  search?: string;
-  role?: string | string[];
-  page?: number;
-  perPage?: number;
-} = {}) {
+export function useUserLookup(
+  params: {
+    q?: string;
+    search?: string;
+    role?: string | string[];
+    page?: number;
+    perPage?: number;
+  } = {},
+) {
   return useQuery({
     queryKey: ["pengaturan", "pengguna", "lookup", params],
     queryFn: () => UserService.lookup(params),

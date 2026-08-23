@@ -130,7 +130,6 @@ export function ProductMediaManager({
 
   return (
     <div className="flex flex-col gap-6">
-
       <div>
         <div className="mb-2 flex items-center justify-between">
           <h4 className="text-sm font-semibold">Gambar Produk</h4>
@@ -159,7 +158,14 @@ export function ProductMediaManager({
                 dragIdx === idx && "opacity-50",
               )}
             >
-              <Image unoptimized width={400} height={400} src={item.url} alt="" className="size-full object-cover" />
+              <Image
+                unoptimized
+                width={400}
+                height={400}
+                src={item.url}
+                alt=""
+                className="size-full object-cover"
+              />
 
               {item.isPrimary && (
                 <span className="absolute left-1 top-1 rounded-xl bg-primary px-1.5 py-0.5 text-2xs font-medium text-primary-foreground">
@@ -222,7 +228,6 @@ export function ProductMediaManager({
         </p>
         {video ? (
           <div className="relative w-40 overflow-hidden rounded-xl border border-border/60 bg-muted/30">
-
             <video
               src={video.url}
               muted

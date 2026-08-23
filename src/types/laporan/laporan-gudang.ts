@@ -49,11 +49,7 @@ export interface ShipmentFilterOptions {
 }
 
 export type OrderPerformanceJenis =
-  | "picker"
-  | "packer"
-  | "shipper"
-  | "pesanan"
-  | "kurir";
+  "picker" | "packer" | "shipper" | "pesanan" | "kurir";
 
 export type OrderPerformanceMode = "detail" | "summary";
 

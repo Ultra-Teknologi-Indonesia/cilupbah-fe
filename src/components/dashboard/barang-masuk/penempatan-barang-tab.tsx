@@ -11,7 +11,7 @@ import {
   DownloadIcon,
   PrinterIcon,
   Trash2Icon,
-  } from "lucide-react";
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -100,7 +100,10 @@ function handleExportPutaway(items: Putaway[]) {
 
 function primaryAction(item: Putaway): { label: string; href: string } {
   if (item.status === "COMPLETED") {
-    return { label: "Lihat", href: `/dashboard/barang-masuk/penempatan/${item.id}` };
+    return {
+      label: "Lihat",
+      href: `/dashboard/barang-masuk/penempatan/${item.id}`,
+    };
   }
   const href = `/dashboard/barang-masuk/putaway/${item.id}`;
   return item.status === "IN_PROGRESS"
@@ -130,10 +133,14 @@ const sortByStatus: Record<string, string> = {
 
 export function PenempatanBarangTab() {
   const router = useRouter();
-  const [statusTab, setStatusTab] = useUrlTab<StatusTab>("status", "NOT_STARTED", {
-    validValues: STATUS_TABS,
-    clearKeys: ["penempatan_page"],
-  });
+  const [statusTab, setStatusTab] = useUrlTab<StatusTab>(
+    "status",
+    "NOT_STARTED",
+    {
+      validValues: STATUS_TABS,
+      clearKeys: ["penempatan_page"],
+    },
+  );
   const list = useListState<FilterState>(EMPTY_FILTERS, {
     perPage: 20,
     debounceMs: 350,
@@ -155,9 +162,18 @@ export function PenempatanBarangTab() {
       per_page: list.perPage,
       "filter[status]": statusTab === "ALL" ? undefined : statusTab,
       "filter[location_id]": list.filters.location_id || undefined,
-      sort: statusTab !== "ALL" ? sortByStatus[statusTab] ?? undefined : undefined,
+      sort:
+        statusTab !== "ALL"
+          ? (sortByStatus[statusTab] ?? undefined)
+          : undefined,
     }),
-    [list.debouncedSearch, list.page, list.perPage, list.filters.location_id, statusTab],
+    [
+      list.debouncedSearch,
+      list.page,
+      list.perPage,
+      list.filters.location_id,
+      statusTab,
+    ],
   );
 
   const { data, isLoading, isFetching } = usePutaways(params);
@@ -194,7 +210,9 @@ export function PenempatanBarangTab() {
               table.getIsAllPageRowsSelected() ||
               (table.getIsSomePageRowsSelected() && "indeterminate")
             }
-            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
             aria-label="Pilih semua"
           />
         ),
@@ -225,7 +243,11 @@ export function PenempatanBarangTab() {
         id: "no_pembelian",
         accessorFn: (row) => {
           const sources = row.sources;
-          return sources?.[0]?.reference_number ?? row.inbound?.reference_number ?? "";
+          return (
+            sources?.[0]?.reference_number ??
+            row.inbound?.reference_number ??
+            ""
+          );
         },
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="No. Penerimaan" />
@@ -233,10 +255,10 @@ export function PenempatanBarangTab() {
         enableSorting: true,
         cell: ({ row }) => {
           const sources = row.original.sources;
-          const ref = sources?.[0]?.reference_number ?? row.original.inbound?.reference_number;
-          return (
-            <span className="text-foreground">{ref ?? "—"}</span>
-          );
+          const ref =
+            sources?.[0]?.reference_number ??
+            row.original.inbound?.reference_number;
+          return <span className="text-foreground">{ref ?? "—"}</span>;
         },
       },
       {
@@ -466,9 +488,7 @@ export function PenempatanBarangTab() {
           searchPlaceholder="Cari no. penempatan..."
           align="end"
           onReset={
-            list.hasActiveFilter || !!list.search
-              ? list.resetAll
-              : undefined
+            list.hasActiveFilter || !!list.search ? list.resetAll : undefined
           }
           hasFilter={list.hasActiveFilter || !!list.search}
           activeCount={list.activeFilterCount}
@@ -502,8 +522,12 @@ export function PenempatanBarangTab() {
             onPaginationChange={list.onPaginationChange}
             tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
             emptyState={
-              <EmptyState icon={ArchiveIcon} title="Belum ada penempatan barang" description="Dokumen penempatan ke rak akan tampil di sini setelah
-                    penerimaan." />
+              <EmptyState
+                icon={ArchiveIcon}
+                title="Belum ada penempatan barang"
+                description="Dokumen penempatan ke rak akan tampil di sini setelah
+                    penerimaan."
+              />
             }
           />
         </div>

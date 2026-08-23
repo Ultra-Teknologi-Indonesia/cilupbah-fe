@@ -173,8 +173,7 @@ export function useUploadDraft() {
       toast.success("Draft diantrekan untuk upload");
       invalidate();
     },
-    onError: (err) =>
-      apiError(err, "Gagal mengupload draft"),
+    onError: (err) => apiError(err, "Gagal mengupload draft"),
   });
 }
 
@@ -192,8 +191,7 @@ export function useDeleteDraft() {
       toast.success("Draft dihapus");
       invalidate();
     },
-    onError: (err) =>
-      apiError(err, "Gagal menghapus draft"),
+    onError: (err) => apiError(err, "Gagal menghapus draft"),
   });
 }
 
@@ -218,8 +216,7 @@ export function useReuploadHistory() {
       toast.success("Produk diantrekan untuk upload ulang");
       invalidate();
     },
-    onError: (err) =>
-      apiError(err, "Gagal mengantrekan upload ulang"),
+    onError: (err) => apiError(err, "Gagal mengantrekan upload ulang"),
   });
 }
 
@@ -231,7 +228,6 @@ export function useBulkDeleteHistories() {
       toast.success("Riwayat upload dihapus");
       invalidate();
     },
-    onError: (err) =>
-      apiError(err, "Gagal menghapus riwayat"),
+    onError: (err) => apiError(err, "Gagal menghapus riwayat"),
   });
 }

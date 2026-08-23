@@ -119,9 +119,7 @@ export function MonitorStockTable({
           <div
             className={cn(
               "text-right tabular-nums font-medium",
-              row.original.available <= 0
-                ? "text-destructive"
-                : "",
+              row.original.available <= 0 ? "text-destructive" : "",
             )}
           >
             {row.original.available}
@@ -163,7 +161,11 @@ export function MonitorStockTable({
       }}
       tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
       emptyState={
-        <EmptyState icon={PackageOpenIcon} className="py-20" title={emptyText} />
+        <EmptyState
+          icon={PackageOpenIcon}
+          className="py-20"
+          title={emptyText}
+        />
       }
     />
   );

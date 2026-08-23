@@ -80,9 +80,7 @@ export function DownloadMassalDialog({
       );
       onOpenChange(false);
       onQueued?.();
-    } catch {
-
-    }
+    } catch {}
   };
 
   return (

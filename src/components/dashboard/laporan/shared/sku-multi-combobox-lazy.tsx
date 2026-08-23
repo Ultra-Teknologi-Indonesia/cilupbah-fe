@@ -21,7 +21,9 @@ export function SkuMultiComboboxLazy({
 }: SkuMultiComboboxLazyProps) {
   const [rawQuery, setRawQuery] = React.useState("");
   const [query, setQuery] = React.useState("");
-  const [cache, setCache] = React.useState<Map<string, LookupOption>>(new Map());
+  const [cache, setCache] = React.useState<Map<string, LookupOption>>(
+    new Map(),
+  );
 
   React.useEffect(() => {
     const t = setTimeout(() => setQuery(rawQuery), DEBOUNCE_MS);

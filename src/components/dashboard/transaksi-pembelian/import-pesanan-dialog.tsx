@@ -384,7 +384,9 @@ export function ImportPesananDialog({ open, onOpenChange }: Props) {
                 <div className="max-h-24 overflow-y-auto rounded-xl border border-rose-500/30 bg-rose-500/10 dark:bg-rose-950/20 px-3.5 py-2 text-xs text-rose-700 dark:text-rose-400">
                   <div className="font-semibold mb-0.5 flex items-center gap-1.5">
                     <AlertTriangleIcon className="size-3.5 shrink-0" />
-                    <span>Ditemukan {preview.errors.length} masalah validasi:</span>
+                    <span>
+                      Ditemukan {preview.errors.length} masalah validasi:
+                    </span>
                   </div>
                   <div className="space-y-0.5 pl-5">
                     {preview.errors.map((e, i) => {

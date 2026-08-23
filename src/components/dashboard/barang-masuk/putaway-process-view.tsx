@@ -164,9 +164,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
 
   const visibleList = useMemo(
     () =>
-      allItems.filter(
-        (it) => it.putaway_qty > 0 || scannedItemIds.has(it.id),
-      ),
+      allItems.filter((it) => it.putaway_qty > 0 || scannedItemIds.has(it.id)),
     [allItems, scannedItemIds],
   );
 
@@ -272,25 +270,25 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
       allItems
         .filter((it) => isCompleted || it.qty - it.putaway_qty > 0)
         .map((it) => {
-        const sku = it.variant?.sku ?? it.product?.sku ?? "—";
-        const opts =
-          it.product?.options?.map((o) => o.value).join(" / ") ??
-          it.variant?.variation_values?.map((v) => v.value).join(" / ");
-        return {
-          id: it.id,
-          primary:
-            it.product?.product?.name ?? (opts ? `${sku} — ${opts}` : sku),
-          secondary: opts ? `${sku} · ${opts}` : sku,
-          imageUrl: it.product?.media?.[0]?.url,
-          codes: [
-            it.variant?.sku,
-            it.product?.sku,
-            it.serial_no,
-            it.batch_no,
-          ].filter(Boolean) as string[],
-          done: it.qty - it.putaway_qty <= 0,
-        };
-      }),
+          const sku = it.variant?.sku ?? it.product?.sku ?? "—";
+          const opts =
+            it.product?.options?.map((o) => o.value).join(" / ") ??
+            it.variant?.variation_values?.map((v) => v.value).join(" / ");
+          return {
+            id: it.id,
+            primary:
+              it.product?.product?.name ?? (opts ? `${sku} — ${opts}` : sku),
+            secondary: opts ? `${sku} · ${opts}` : sku,
+            imageUrl: it.product?.media?.[0]?.url,
+            codes: [
+              it.variant?.sku,
+              it.product?.sku,
+              it.serial_no,
+              it.batch_no,
+            ].filter(Boolean) as string[],
+            done: it.qty - it.putaway_qty <= 0,
+          };
+        }),
     [allItems, isCompleted],
   );
 
@@ -437,7 +435,6 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
         </LiquidGlass>
       ) : (
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
-
           <aside className="flex w-full flex-col gap-5 lg:sticky lg:top-4 lg:w-64 lg:shrink-0">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -672,7 +669,9 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
         confirmLabel="Selesaikan"
         loading={completeMutation.isPending}
         onConfirm={() =>
-          completeMutation.mutate(id, { onSuccess: () => setCompleteOpen(false) })
+          completeMutation.mutate(id, {
+            onSuccess: () => setCompleteOpen(false),
+          })
         }
       />
 
@@ -1109,15 +1108,17 @@ function PlacementRow({
   const handleSave = useCallback(() => {
     if (!selectedBinId || processMutation.isPending) return;
     const qtyNum = parseInt(qty) || 0;
-    if (qtyNum > lastSavedQty.current)
-      saveNow(selectedBinId, qtyNum, onSaved);
+    if (qtyNum > lastSavedQty.current) saveNow(selectedBinId, qtyNum, onSaved);
   }, [selectedBinId, qty, processMutation.isPending, saveNow, onSaved]);
 
-  const handleSelectBin = useCallback((binId: string | null) => {
-    if (binLocked) return;
-    setSelectedBinId(binId);
-    if (binId) setTimeout(() => qtyInputRef.current?.focus(), 50);
-  }, [binLocked]);
+  const handleSelectBin = useCallback(
+    (binId: string | null) => {
+      if (binLocked) return;
+      setSelectedBinId(binId);
+      if (binId) setTimeout(() => qtyInputRef.current?.focus(), 50);
+    },
+    [binLocked],
+  );
 
   return (
     <div className="flex items-start gap-3">
@@ -1133,8 +1134,7 @@ function PlacementRow({
           className={cn(
             "h-8 w-52 rounded-lg text-xs",
             binLocked && "opacity-80",
-            selectedBin &&
-              "border-success ring-1 ring-success/30",
+            selectedBin && "border-success ring-1 ring-success/30",
           )}
         />
         {binLocked && (
@@ -1162,7 +1162,11 @@ function PlacementRow({
             <Button
               type="button"
               size="sm"
-              disabled={!selectedBinId || processMutation.isPending || (parseInt(qty) || 0) <= lastSaved}
+              disabled={
+                !selectedBinId ||
+                processMutation.isPending ||
+                (parseInt(qty) || 0) <= lastSaved
+              }
               onClick={handleSave}
               className="h-8 px-3 text-xs"
             >
@@ -1181,7 +1185,8 @@ function PlacementRow({
           const qtyNum = parseInt(qty) || 0;
           return qtyNum > entry.maxQty ? (
             <p className="text-amber-600 text-xs">
-              Melebihi data sistem (tersedia: {entry.maxQty}) — akan tercatat minus
+              Melebihi data sistem (tersedia: {entry.maxQty}) — akan tercatat
+              minus
             </p>
           ) : null;
         })()}

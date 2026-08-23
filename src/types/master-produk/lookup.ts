@@ -9,4 +9,3 @@ export interface RawCategory {
   name: string;
   children?: RawCategory[];
 }
-

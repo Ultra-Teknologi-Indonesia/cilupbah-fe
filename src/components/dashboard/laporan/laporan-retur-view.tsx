@@ -436,9 +436,7 @@ export function LaporanReturView() {
       >
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/40 px-4 py-3 sm:px-5">
           <div>
-            <SectionTitle>
-              Laporan Retur Detail
-            </SectionTitle>
+            <SectionTitle>Laporan Retur Detail</SectionTitle>
             <p className="text-xs text-muted-foreground">
               Total{" "}
               <Badge variant="secondary" className="tabular-nums">
@@ -455,10 +453,7 @@ export function LaporanReturView() {
               disabled={query.isFetching}
             >
               <RefreshCwIcon
-                className={cn(
-                  "size-3.5",
-                  query.isFetching && "animate-spin",
-                )}
+                className={cn("size-3.5", query.isFetching && "animate-spin")}
               />
               <span className="ml-1.5">Muat Ulang</span>
             </Button>

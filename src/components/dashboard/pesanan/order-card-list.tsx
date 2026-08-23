@@ -102,7 +102,9 @@ export function OrderCardList({
   const selectable = TABS_WITH_ACTIONS.has(tab);
 
   // Progressive streaming render for large datasets (> 30 items) to prevent UI thread freezing
-  const [renderedCount, setRenderedCount] = useState(() => (orders.length > 40 ? 30 : orders.length));
+  const [renderedCount, setRenderedCount] = useState(() =>
+    orders.length > 40 ? 30 : orders.length,
+  );
 
   useEffect(() => {
     setRenderedCount(orders.length > 40 ? 30 : orders.length);

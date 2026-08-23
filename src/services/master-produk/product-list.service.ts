@@ -34,7 +34,8 @@ function mapMasterItem(raw: RawMasterItem): Product {
     categoryName: raw.category_name ?? "—",
     sellPrice: raw.sell_price,
     totalVariants: raw.total_variants,
-    totalComponents: raw.total_components ?? (raw.is_bundle ? raw.total_variants : undefined),
+    totalComponents:
+      raw.total_components ?? (raw.is_bundle ? raw.total_variants : undefined),
     lastModified: raw.last_modified,
     thumbnail: raw.thumbnail,
     variations: raw.variations ?? [],

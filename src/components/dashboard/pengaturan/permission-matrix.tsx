@@ -134,9 +134,7 @@ export function PermissionMatrix({
     return catalog
       .map((g) => ({
         ...g,
-        resources: g.resources.filter((r) =>
-          r.label.toLowerCase().includes(q),
-        ),
+        resources: g.resources.filter((r) => r.label.toLowerCase().includes(q)),
       }))
       .filter((g) => g.resources.length > 0);
   }, [catalog, q]);
@@ -154,7 +152,6 @@ export function PermissionMatrix({
 
   return (
     <div className="flex flex-col gap-3">
-
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="relative w-full max-w-xs">
           <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -270,7 +267,9 @@ export function PermissionMatrix({
                         return (
                           <TableRow key={resource.key} className="align-top">
                             <TableCell className="py-2.5">
-                              <div className="font-medium">{resource.label}</div>
+                              <div className="font-medium">
+                                {resource.label}
+                              </div>
                               {resource.extras.length > 0 && (
                                 <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1.5">
                                   {resource.extras.map((extra) => {
@@ -340,7 +339,9 @@ export function PermissionMatrix({
                               <Checkbox
                                 checked={rAll}
                                 disabled={disabled}
-                                onCheckedChange={() => toggleMany(rPerms, !rAll)}
+                                onCheckedChange={() =>
+                                  toggleMany(rPerms, !rAll)
+                                }
                                 aria-label={`Pilih semua ${resource.label}`}
                               />
                             </TableCell>

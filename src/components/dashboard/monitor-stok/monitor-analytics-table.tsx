@@ -115,9 +115,7 @@ export function MonitorAnalyticsTable({
             {row.original.last_sold ? (
               formatDate(row.original.last_sold)
             ) : (
-              <span className="text-warning">
-                Belum pernah
-              </span>
+              <span className="text-warning">Belum pernah</span>
             )}
           </div>
         ),
@@ -201,7 +199,11 @@ export function MonitorAnalyticsTable({
       }}
       tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"
       emptyState={
-        <EmptyState icon={PackageOpenIcon} title={emptyText} className="py-20" />
+        <EmptyState
+          icon={PackageOpenIcon}
+          title={emptyText}
+          className="py-20"
+        />
       }
     />
   );

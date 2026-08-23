@@ -102,7 +102,6 @@ export function VideoPlayer({
       onMouseLeave={() => playing && setShowControls(false)}
       {...props}
     >
-
       <video
         ref={videoRef}
         src={src}
@@ -142,7 +141,6 @@ export function VideoPlayer({
           showControls ? "opacity-100" : "pointer-events-none opacity-0",
         )}
       >
-
         <div
           role="slider"
           tabIndex={0}
@@ -211,7 +209,6 @@ export function VideoThumbnail({
 
   return (
     <div className={cn("relative overflow-hidden", className)} {...props}>
-
       <video
         ref={videoRef}
         src={src}

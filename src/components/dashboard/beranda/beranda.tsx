@@ -56,7 +56,11 @@ export function Beranda() {
         }
       />
 
-      <KpiRow summary={summary} isLoading={isLoading} periodLabel={periodLabel} />
+      <KpiRow
+        summary={summary}
+        isLoading={isLoading}
+        periodLabel={periodLabel}
+      />
 
       <section className="flex flex-col gap-4">
         <div>

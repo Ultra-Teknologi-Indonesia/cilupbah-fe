@@ -6,7 +6,6 @@ import { getServerQueryClient } from "@/lib/api-server";
 import { ChannelService } from "@/services/channel/channel.service";
 
 export default async function IntegrasiChannelPage() {
-
   const qc = getServerQueryClient();
   await qc.prefetchQuery({
     queryKey: ["channel", "stores"],

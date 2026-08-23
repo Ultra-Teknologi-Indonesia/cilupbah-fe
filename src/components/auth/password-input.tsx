@@ -6,8 +6,10 @@ import { Eye, EyeOff, Lock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-interface PasswordInputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> {
+interface PasswordInputProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "type"
+> {
   showIcon?: boolean;
 }
 

@@ -134,8 +134,8 @@ export function OrderPerformanceDialog({
         <DialogHeader>
           <DialogTitle>Performa Proses Pesanan</DialogTitle>
           <DialogDescription>
-            Performa picker, packer, shipper, dan kurir, atau rincian durasi tiap
-            tahapan pesanan.
+            Performa picker, packer, shipper, dan kurir, atau rincian durasi
+            tiap tahapan pesanan.
           </DialogDescription>
         </DialogHeader>
 
@@ -147,7 +147,9 @@ export function OrderPerformanceDialog({
             <Combobox
               options={JENIS_OPTIONS}
               value={jenis}
-              onChange={(v) => setJenis((v ?? "") as OrderPerformanceJenis | "")}
+              onChange={(v) =>
+                setJenis((v ?? "") as OrderPerformanceJenis | "")
+              }
               placeholder="Pilih jenis laporan…"
               searchPlaceholder="Cari jenis…"
               emptyText="Jenis tidak ditemukan."
@@ -213,7 +215,9 @@ export function OrderPerformanceDialog({
                       !disabled && effectiveMode === o.value
                         ? "border-primary bg-primary/10 font-medium text-primary"
                         : "border-border",
-                      !disabled && effectiveMode !== o.value && "hover:bg-muted/50",
+                      !disabled &&
+                        effectiveMode !== o.value &&
+                        "hover:bg-muted/50",
                     )}
                   >
                     <RadioGroupItem value={o.value} disabled={disabled} />

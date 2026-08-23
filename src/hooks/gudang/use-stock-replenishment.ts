@@ -20,7 +20,9 @@ const KEYS = {
   pendingCount: () => [...KEYS.all, "pending-count"] as const,
 };
 
-export function useStockReplenishments(params: StockReplenishmentListParams = {}) {
+export function useStockReplenishments(
+  params: StockReplenishmentListParams = {},
+) {
   return useQuery({
     queryKey: KEYS.list(params),
     queryFn: () => StockReplenishmentService.list(params),

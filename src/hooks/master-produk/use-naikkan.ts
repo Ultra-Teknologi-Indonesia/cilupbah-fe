@@ -89,8 +89,7 @@ export function useCreateNaikkan() {
       toast.success("Data naikkan produk berhasil dibuat");
       qc.invalidateQueries({ queryKey: [KEY, "list"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal membuat data naikkan"),
+    onError: (err) => apiError(err, "Gagal membuat data naikkan"),
   });
 }
 
@@ -103,8 +102,7 @@ export function useAddNaikkanProduct(raiseProductId: string) {
       toast.success("Produk ditambahkan");
       qc.invalidateQueries({ queryKey: [KEY, "detail", raiseProductId] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal menambahkan produk"),
+    onError: (err) => apiError(err, "Gagal menambahkan produk"),
   });
 }
 
@@ -121,8 +119,7 @@ export function useUpdateNaikkanProduct(raiseProductId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [KEY, "detail", raiseProductId] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal memperbarui produk"),
+    onError: (err) => apiError(err, "Gagal memperbarui produk"),
   });
 }
 
@@ -135,8 +132,7 @@ export function useRemoveNaikkanProduct(raiseProductId: string) {
       toast.success("Produk dilepas dari naikkan");
       qc.invalidateQueries({ queryKey: [KEY, "detail", raiseProductId] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal melepas produk"),
+    onError: (err) => apiError(err, "Gagal melepas produk"),
   });
 }
 
@@ -149,8 +145,7 @@ export function useExecuteRaise(raiseProductId: string) {
       toast.success("Produk diantrekan untuk dinaikkan");
       qc.invalidateQueries({ queryKey: [KEY] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal menaikkan produk"),
+    onError: (err) => apiError(err, "Gagal menaikkan produk"),
   });
 }
 
@@ -162,7 +157,6 @@ export function useDeleteNaikkan() {
       toast.success("Data naikkan produk dihapus");
       qc.invalidateQueries({ queryKey: [KEY, "list"] });
     },
-    onError: (err) =>
-      apiError(err, "Gagal menghapus data naikkan"),
+    onError: (err) => apiError(err, "Gagal menghapus data naikkan"),
   });
 }

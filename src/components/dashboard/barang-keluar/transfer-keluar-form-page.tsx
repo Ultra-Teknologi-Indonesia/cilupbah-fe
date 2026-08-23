@@ -89,7 +89,10 @@ function newRowId(): string {
   return `row_${Math.random().toString(36).slice(2)}${Date.now()}`;
 }
 
-export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps) {
+export function TransferKeluarFormPage({
+  mode,
+  id,
+}: TransferKeluarFormPageProps) {
   const router = useRouter();
   const qc = useQueryClient();
   const currentUser = useAuthStore((s) => s.user);
@@ -97,8 +100,8 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
     currentUser?.roles?.some((r) =>
       ["owner", "admin", "adm", "administrator"].includes(r.toLowerCase()),
     ) ||
-      currentUser?.permissions?.includes("edit-transfer-keluar") ||
-      currentUser?.permissions?.includes("edit-barang-keluar"),
+    currentUser?.permissions?.includes("edit-transfer-keluar") ||
+    currentUser?.permissions?.includes("edit-barang-keluar"),
   );
 
   const [transferNo, setTransferNo] = useState("[auto]");
@@ -125,7 +128,10 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
 
   const locationOptions = useMemo(
     () =>
-      (locData?.items ?? []).map((l) => ({ value: l.id, label: l.locationName })),
+      (locData?.items ?? []).map((l) => ({
+        value: l.id,
+        label: l.locationName,
+      })),
     [locData],
   );
 
@@ -162,7 +168,9 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
         const srcLoc = detail.source_location_id;
         const uniqueSkus = Array.from(
           new Set(
-            detail.items.map((it) => it.product?.sku).filter(Boolean) as string[],
+            detail.items
+              .map((it) => it.product?.sku)
+              .filter(Boolean) as string[],
           ),
         );
         const stockBySku = new Map<
@@ -178,9 +186,7 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
               stockBySku.set(sku, {
                 available_bins: r.data.available_bins ?? [],
               });
-            } catch {
-
-            }
+            } catch {}
           }),
         );
 
@@ -489,9 +495,7 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
       if (!keptServerIds.has(oid)) {
         try {
           await OutboundTransferService.removeItem(id, oid);
-        } catch {
-
-        }
+        } catch {}
       }
     }
 
@@ -551,7 +555,9 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
   return (
     <div className="flex flex-col gap-5">
       <PageTitle
-        title={mode === "edit" ? "Ubah Transfer Keluar" : "Tambah Transfer Keluar"}
+        title={
+          mode === "edit" ? "Ubah Transfer Keluar" : "Tambah Transfer Keluar"
+        }
         backHref={cancelHref}
         breadcrumb={[
           { label: "Gudang" },
@@ -689,8 +695,7 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
                 disabled={!sourceLocationId || scanning}
                 className={cn(
                   "h-10 pl-9 text-base transition-colors",
-                  scanFlash === "ok" &&
-                    "border-success ring-2 ring-success/30",
+                  scanFlash === "ok" && "border-success ring-2 ring-success/30",
                   scanFlash === "err" &&
                     "border-destructive ring-2 ring-destructive/30",
                 )}
@@ -832,9 +837,7 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
                       <TableCell
                         className={cn(
                           "px-3 py-2.5 text-right font-mono tabular-nums",
-                          noStock
-                            ? "text-warning"
-                            : "text-muted-foreground",
+                          noStock ? "text-warning" : "text-muted-foreground",
                         )}
                       >
                         {l.binOnHand}
@@ -854,9 +857,7 @@ export function TransferKeluarFormPage({ mode, id }: TransferKeluarFormPageProps
                             const n = Number(raw);
                             if (Number.isNaN(n)) return;
                             const clamped =
-                              l.binOnHand > 0
-                                ? Math.min(n, l.binOnHand)
-                                : n;
+                              l.binOnHand > 0 ? Math.min(n, l.binOnHand) : n;
                             updateLine(l.rowId, { qty: String(clamped) });
                           }}
                           onBlur={(e) => {

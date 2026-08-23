@@ -16,9 +16,7 @@ import type { DetailVariant } from "@/types/master-produk";
 
 export function VariantTable({ variants }: { variants: DetailVariant[] }) {
   if (variants.length === 0) {
-    return (
-      <EmptyState title="Belum ada varian." />
-    );
+    return <EmptyState title="Belum ada varian." />;
   }
 
   return (

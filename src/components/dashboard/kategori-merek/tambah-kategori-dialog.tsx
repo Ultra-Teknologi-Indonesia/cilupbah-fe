@@ -63,7 +63,17 @@ function ColumnItem({
   onSelect: () => void;
 }) {
   return (
-    <Button type="button" variant="ghost" onClick={onSelect} className={cn("flex h-auto w-full items-center justify-between gap-2 rounded-xl px-3 py-2 text-left text-sm font-normal transition-colors", isActive ? "bg-primary/10 font-medium text-primary hover:bg-primary/20 hover:text-primary" : "hover:bg-muted/60")}>
+    <Button
+      type="button"
+      variant="ghost"
+      onClick={onSelect}
+      className={cn(
+        "flex h-auto w-full items-center justify-between gap-2 rounded-xl px-3 py-2 text-left text-sm font-normal transition-colors",
+        isActive
+          ? "bg-primary/10 font-medium text-primary hover:bg-primary/20 hover:text-primary"
+          : "hover:bg-muted/60",
+      )}
+    >
       <span className="truncate">{node.name}</span>
       {node.children?.length ? (
         <ChevronRightIcon className="size-4 shrink-0 opacity-50" />
@@ -213,7 +223,6 @@ export function TambahKategoriDialog({
           intensity="strong"
           className="bg-white/85 dark:bg-neutral-900/85"
         >
-
           <div className="flex items-center justify-between border-b border-border/60 px-5 py-4 sm:px-6">
             <div>
               <DialogTitle className="text-lg">Buat Kategori</DialogTitle>
@@ -230,12 +239,36 @@ export function TambahKategoriDialog({
 
           <form onSubmit={handleSubmit}>
             <div className="space-y-4 px-5 py-4 sm:px-6">
-
               <div className="flex items-center gap-3">
-                <Button type="button" variant="outline" onClick={() => { setMode("root"); setPathIds([]); setSearch(""); setDebouncedSearch(""); }} className={cn("h-auto rounded-full px-4 py-1.5 text-sm font-medium transition-colors", mode === "root" ? "border-primary bg-primary/10 text-primary hover:bg-primary/20" : "border-border hover:bg-muted/60")}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setMode("root");
+                    setPathIds([]);
+                    setSearch("");
+                    setDebouncedSearch("");
+                  }}
+                  className={cn(
+                    "h-auto rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
+                    mode === "root"
+                      ? "border-primary bg-primary/10 text-primary hover:bg-primary/20"
+                      : "border-border hover:bg-muted/60",
+                  )}
+                >
                   Kategori Baru
                 </Button>
-                <Button type="button" variant="outline" onClick={() => setMode("sub")} className={cn("h-auto rounded-full px-4 py-1.5 text-sm font-medium transition-colors", mode === "sub" ? "border-primary bg-primary/10 text-primary hover:bg-primary/20" : "border-border hover:bg-muted/60")}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setMode("sub")}
+                  className={cn(
+                    "h-auto rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
+                    mode === "sub"
+                      ? "border-primary bg-primary/10 text-primary hover:bg-primary/20"
+                      : "border-border hover:bg-muted/60",
+                  )}
+                >
                   Sub-Kategori
                 </Button>
               </div>
@@ -272,7 +305,20 @@ export function TambahKategoriDialog({
                         <ul className="flex flex-col gap-0.5 p-1.5">
                           {searchHits.map((item) => (
                             <li key={item.node.id}>
-                              <Button variant="ghost" onClick={() => { const ids = item.trail.map((t) => t.id); setPathIds(ids.slice(0, 3)); setSearch(""); setDebouncedSearch(""); }} className={cn("flex h-auto w-full flex-col items-start gap-0.5 rounded-xl px-3 py-2 text-left text-sm font-normal transition-colors hover:bg-muted/60", pathIds.includes(item.node.id) && "bg-primary/10 hover:bg-primary/20")}>
+                              <Button
+                                variant="ghost"
+                                onClick={() => {
+                                  const ids = item.trail.map((t) => t.id);
+                                  setPathIds(ids.slice(0, 3));
+                                  setSearch("");
+                                  setDebouncedSearch("");
+                                }}
+                                className={cn(
+                                  "flex h-auto w-full flex-col items-start gap-0.5 rounded-xl px-3 py-2 text-left text-sm font-normal transition-colors hover:bg-muted/60",
+                                  pathIds.includes(item.node.id) &&
+                                    "bg-primary/10 hover:bg-primary/20",
+                                )}
+                              >
                                 <span className="truncate font-medium">
                                   {item.node.name}
                                 </span>
@@ -318,7 +364,15 @@ export function TambahKategoriDialog({
                       {parentLabel.replace(/ > /g, " / ")}
                       {" / "}
                     </span>
-                    <Input id="kategori-name" type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nama sub-kategori" autoFocus className="min-w-0 flex-1 border-0 bg-transparent px-3 py-2.5 text-sm outline-none shadow-none focus-visible:ring-0 placeholder:text-muted-foreground" />
+                    <Input
+                      id="kategori-name"
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Nama sub-kategori"
+                      autoFocus
+                      className="min-w-0 flex-1 border-0 bg-transparent px-3 py-2.5 text-sm outline-none shadow-none focus-visible:ring-0 placeholder:text-muted-foreground"
+                    />
                   </div>
                 ) : (
                   <Input

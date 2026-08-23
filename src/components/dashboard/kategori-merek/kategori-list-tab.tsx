@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {  Loader2Icon, PencilIcon, Trash2Icon  } from "lucide-react";
+import { Loader2Icon, PencilIcon, Trash2Icon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -118,10 +118,10 @@ export function KategoriListTab({ search }: { search: string }) {
         </span>
       </div>
 
-      {isLoading ||
-      (debouncedSearch.length >= 2 && searchQuery.isFetching) ? (
+      {isLoading || (debouncedSearch.length >= 2 && searchQuery.isFetching) ? (
         <div className="flex items-center justify-center gap-2 py-16 text-muted-foreground">
-          <Loader2Icon className="size-4 animate-spin" /></div>
+          <Loader2Icon className="size-4 animate-spin" />
+        </div>
       ) : isError ? (
         <div className="py-16 text-center text-sm text-destructive">
           Gagal memuat data kategori.

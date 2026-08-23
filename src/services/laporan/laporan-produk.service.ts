@@ -1,6 +1,9 @@
 import { fetchBlobRaw, fetchClient } from "@/lib/api-client";
 import type { ApiPaginated } from "@/types/api.types";
-import type { SalesProductParams, SkuOption } from "@/types/laporan/laporan-produk";
+import type {
+  SalesProductParams,
+  SkuOption,
+} from "@/types/laporan/laporan-produk";
 
 const XLSX_MIME =
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";

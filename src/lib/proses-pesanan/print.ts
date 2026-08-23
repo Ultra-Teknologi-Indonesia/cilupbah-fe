@@ -173,9 +173,7 @@ function manifestDoc(shipments: Row[]): string {
       const shipmentNo = get(s, "shipment_no") ?? "";
       const createdBy = get(s, "created_by") ?? "";
       const shipmentDate = get(s, "shipment_date");
-      const fmtDate = shipmentDate
-        ? formatDateTime(String(shipmentDate))
-        : "—";
+      const fmtDate = shipmentDate ? formatDateTime(String(shipmentDate)) : "—";
 
       const head = `<tr>
         <th style="width:36px">No</th>

@@ -272,8 +272,7 @@ export function PenyesuaianFormPage({
       const systemQty = item.system_qty ?? 0;
       const actualQty = item.actual_qty ?? 0;
       const delta = String(actualQty - systemQty);
-      const unitCost =
-        item.unit_cost != null ? String(item.unit_cost) : "";
+      const unitCost = item.unit_cost != null ? String(item.unit_cost) : "";
 
       return {
         itemId: item.item_id,
@@ -774,7 +773,9 @@ export function PenyesuaianFormPage({
                 <TableHead className="w-12 text-center">#</TableHead>
                 <TableHead className="min-w-[220px]">Produk / SKU</TableHead>
                 <TableHead className="min-w-[180px]">Rak (Bin)</TableHead>
-                <TableHead className="w-32 text-right">Selisih (+ / -)</TableHead>
+                <TableHead className="w-32 text-right">
+                  Selisih (+ / -)
+                </TableHead>
                 <TableHead className="w-24 text-right">Stok Sistem</TableHead>
                 <TableHead className="w-24 text-right">Stok Fisik</TableHead>
                 <TableHead className="min-w-[180px]">Catatan Baris</TableHead>
@@ -870,7 +871,8 @@ export function PenyesuaianFormPage({
                           placeholder="+/-"
                           className={cn(
                             "h-9 w-24 text-right font-mono text-xs",
-                            isInvalid && "border-destructive focus-visible:ring-destructive",
+                            isInvalid &&
+                              "border-destructive focus-visible:ring-destructive",
                           )}
                         />
                       </TableCell>

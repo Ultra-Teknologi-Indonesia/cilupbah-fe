@@ -127,7 +127,10 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       return `${count} pesanan`;
     },
     fetchPdf: async (id) => {
-      const orderIds = id.split(",").map((s) => s.trim()).filter(Boolean);
+      const orderIds = id
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
       const blob = await OutboundService.picklistBulkPdf(orderIds);
       return { blob, meta: { count: orderIds.length } };
     },
@@ -145,7 +148,10 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       return `${count} faktur`;
     },
     fetchPdf: async (id) => {
-      const orderIds = id.split(",").map((s) => s.trim()).filter(Boolean);
+      const orderIds = id
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
       const blob = await OutboundService.invoiceBulkPdf(orderIds);
       return { blob, meta: { count: orderIds.length } };
     },
@@ -277,7 +283,10 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       return `${count} dokumen`;
     },
     fetchPdf: async (id) => {
-      const ids = id.split(",").map((s) => s.trim()).filter(Boolean);
+      const ids = id
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
       const blob = await PutawayService.bulkPdf(ids);
       return { blob, meta: { count: ids.length } };
     },
@@ -310,7 +319,10 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       return `${count} dokumen`;
     },
     fetchPdf: async (id) => {
-      const ids = id.split(",").map((s) => s.trim()).filter(Boolean);
+      const ids = id
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
       const blob = await StockAdjustmentService.bulkPdf(ids);
       return { blob, meta: { count: ids.length } };
     },
@@ -368,7 +380,10 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       return `${count} pesanan`;
     },
     fetchPdf: async (id) => {
-      const orderIds = id.split(",").map((s) => s.trim()).filter(Boolean);
+      const orderIds = id
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
       const blob = await OutboundService.manifestBulkPdf(orderIds);
       return { blob, meta: { count: orderIds.length } };
     },
@@ -421,7 +436,10 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       return `${count} dokumen`;
     },
     fetchPdf: async (id) => {
-      const ids = id.split(",").map((s) => s.trim()).filter(Boolean);
+      const ids = id
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
       const blob = await OutboundTransferService.bulkPdf(ids);
       return { blob, meta: { count: ids.length } };
     },
@@ -435,7 +453,8 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
   "bin-transfer-out": {
     title: "Surat Jalan Transfer Internal",
     subtitle: (id, meta) =>
-      (meta?.transfer_number as string | undefined) ?? `TRFO-${id.slice(0, 8)}…`,
+      (meta?.transfer_number as string | undefined) ??
+      `TRFO-${id.slice(0, 8)}…`,
     fetchPdf: async (id) => {
       const blob = await fetchBlobRaw(
         `/inventory/bin-transfers/${encodeURIComponent(id)}/pdf`,

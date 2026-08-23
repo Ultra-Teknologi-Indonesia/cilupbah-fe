@@ -75,7 +75,8 @@ export function KategoriMappingTab({ search }: { search: string }) {
 
       {isLoading ? (
         <div className="flex items-center justify-center gap-2 py-16 text-muted-foreground">
-          <Loader2Icon className="size-4 animate-spin" /></div>
+          <Loader2Icon className="size-4 animate-spin" />
+        </div>
       ) : isError ? (
         <div className="py-16 text-center text-sm text-destructive">
           Gagal memuat data pemetaan kategori.
@@ -162,7 +163,12 @@ export function KategoriMappingTab({ search }: { search: string }) {
                   <TableCell className="px-1 align-top">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="size-8" aria-label="Menu aksi">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-8"
+                          aria-label="Menu aksi"
+                        >
                           <MoreHorizontalIcon className="size-4" />
                         </Button>
                       </DropdownMenuTrigger>

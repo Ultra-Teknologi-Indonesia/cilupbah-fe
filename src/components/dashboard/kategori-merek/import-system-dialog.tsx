@@ -206,7 +206,8 @@ export function ImportSystemDialog({
           <div className="px-5 sm:px-6">
             {isLoading ? (
               <div className="flex items-center justify-center gap-2 py-16 text-muted-foreground">
-                <Loader2Icon className="size-4 animate-spin" /></div>
+                <Loader2Icon className="size-4 animate-spin" />
+              </div>
             ) : filtered.length === 0 ? (
               <div className="py-16 text-center text-sm text-muted-foreground">
                 {search

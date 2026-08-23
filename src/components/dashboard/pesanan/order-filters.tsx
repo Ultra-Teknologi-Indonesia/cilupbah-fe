@@ -201,7 +201,10 @@ export function OrderFilters({
 
     // If user has selected or typed a value not in the active list, keep it visible
     for (const val of filters.shipping_provider) {
-      if (val && !list.some((o) => o.value.toLowerCase() === val.toLowerCase())) {
+      if (
+        val &&
+        !list.some((o) => o.value.toLowerCase() === val.toLowerCase())
+      ) {
         list.push({ value: val, label: val });
       }
     }

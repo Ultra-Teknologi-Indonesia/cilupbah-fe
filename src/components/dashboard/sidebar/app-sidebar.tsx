@@ -38,8 +38,7 @@ export function DashboardSidebar() {
     setActiveGroupId(findGroupIdForPath(pathname, dashboardGroups));
   }
 
-  const activeGroup =
-    groups.find((g) => g.id === activeGroupId) ?? groups[0];
+  const activeGroup = groups.find((g) => g.id === activeGroupId) ?? groups[0];
 
   const panelOpen = open && !isLeafGroup(activeGroup);
 

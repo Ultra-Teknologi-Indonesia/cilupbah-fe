@@ -108,7 +108,9 @@ export function UnassignReasonDialog({
                   className="flex cursor-pointer items-center gap-3 rounded-xl border border-border px-3 py-2 hover:bg-muted/50"
                 >
                   <RadioGroupItem value={code} id={`reason-${code}`} />
-                  <span className="text-sm">{UNASSIGN_REASON_LABELS[code]}</span>
+                  <span className="text-sm">
+                    {UNASSIGN_REASON_LABELS[code]}
+                  </span>
                 </label>
               ))}
             </RadioGroup>
@@ -116,7 +118,12 @@ export function UnassignReasonDialog({
 
           <div className="space-y-2">
             <Label htmlFor="reason-note">
-              Catatan {noteRequired ? <span className="text-destructive">*</span> : "(opsional)"}
+              Catatan{" "}
+              {noteRequired ? (
+                <span className="text-destructive">*</span>
+              ) : (
+                "(opsional)"
+              )}
             </Label>
             <Textarea
               id="reason-note"

@@ -63,9 +63,7 @@ export function PelangganDetailView({ id }: { id: string }) {
   }
 
   if (isLoading) {
-    return (
-      <DetailSkeleton />
-    );
+    return <DetailSkeleton />;
   }
 
   if (isError || !contact) {
@@ -205,7 +203,10 @@ export function PelangganDetailView({ id }: { id: string }) {
                 <Field label="Jabatan" value={contact.pic_title} />
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="No. Telepon" value={formatPhoneDisplay(contact.phone)} />
+                <Field
+                  label="No. Telepon"
+                  value={formatPhoneDisplay(contact.phone)}
+                />
                 <Field label="Email" value={contact.email} />
               </div>
               <Field label="Fax" value={formatPhoneDisplay(contact.fax)} />

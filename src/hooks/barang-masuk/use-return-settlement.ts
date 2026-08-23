@@ -41,8 +41,7 @@ export function useCreateReturnSettlement() {
       toast.success("Settlement dibuat");
       invalidate();
     },
-    onError: (e) =>
-      apiError(e, "Gagal membuat settlement"),
+    onError: (e) => apiError(e, "Gagal membuat settlement"),
   });
 }
 
@@ -54,8 +53,7 @@ export function useConfirmReturnSettlement() {
       toast.success("Settlement dikonfirmasi");
       invalidate();
     },
-    onError: (e) =>
-      apiError(e, "Gagal konfirmasi settlement"),
+    onError: (e) => apiError(e, "Gagal konfirmasi settlement"),
   });
 }
 
@@ -67,8 +65,7 @@ export function useCompleteReturnSettlement() {
       toast.success("Settlement selesai");
       invalidate();
     },
-    onError: (e) =>
-      apiError(e, "Gagal menyelesaikan settlement"),
+    onError: (e) => apiError(e, "Gagal menyelesaikan settlement"),
   });
 }
 
@@ -80,8 +77,7 @@ export function useDeleteReturnSettlement() {
       toast.success("Settlement dihapus");
       invalidate();
     },
-    onError: (e) =>
-      apiError(e, "Gagal menghapus settlement"),
+    onError: (e) => apiError(e, "Gagal menghapus settlement"),
   });
 }
 
@@ -94,8 +90,7 @@ export function useAddRefund() {
       toast.success("Refund ditambahkan");
       invalidate();
     },
-    onError: (e) =>
-      apiError(e, "Gagal menambah refund"),
+    onError: (e) => apiError(e, "Gagal menambah refund"),
   });
 }
 
@@ -107,8 +102,7 @@ export function useRemoveRefund() {
       toast.success("Refund dihapus");
       invalidate();
     },
-    onError: (e) =>
-      apiError(e, "Gagal menghapus refund"),
+    onError: (e) => apiError(e, "Gagal menghapus refund"),
   });
 }
 
@@ -121,8 +115,7 @@ export function useAddInvoiceDeduction() {
       toast.success("Potong faktur ditambahkan");
       invalidate();
     },
-    onError: (e) =>
-      apiError(e, "Gagal menambah potong faktur"),
+    onError: (e) => apiError(e, "Gagal menambah potong faktur"),
   });
 }
 
@@ -135,7 +128,6 @@ export function useRemoveInvoiceDeduction() {
       toast.success("Potong faktur dihapus");
       invalidate();
     },
-    onError: (e) =>
-      apiError(e, "Gagal menghapus potong faktur"),
+    onError: (e) => apiError(e, "Gagal menghapus potong faktur"),
   });
 }

@@ -416,9 +416,7 @@ export function PackingDetailView({ id }: { id: string }) {
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_420px]">
-
         <div className="flex flex-col gap-4">
-
           <div className="rounded-2xl border border-border bg-card p-5">
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
               <div>

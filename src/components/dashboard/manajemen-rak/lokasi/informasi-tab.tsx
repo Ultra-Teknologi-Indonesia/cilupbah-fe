@@ -51,7 +51,6 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
 
   return (
     <div className="space-y-6">
-
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField
           control={form.control}

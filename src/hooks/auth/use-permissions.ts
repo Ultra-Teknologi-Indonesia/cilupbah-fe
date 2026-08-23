@@ -5,7 +5,6 @@ import { useMemo } from "react";
 import { useMe } from "@/hooks/auth/use-auth";
 
 export interface PermissionChecks {
-
   isOwner: boolean;
 
   permissions: string[];

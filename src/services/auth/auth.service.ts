@@ -78,9 +78,8 @@ export const AuthService = {
   },
 
   sessions: async (): Promise<UserSession[]> => {
-    const res = await fetchClient<ApiResponse<UserSession[]>>(
-      "/profile/sessions",
-    );
+    const res =
+      await fetchClient<ApiResponse<UserSession[]>>("/profile/sessions");
     return res.data;
   },
 

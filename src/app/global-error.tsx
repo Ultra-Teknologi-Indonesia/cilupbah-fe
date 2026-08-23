@@ -34,8 +34,8 @@ export default function GlobalError({
             Terjadi kesalahan
           </h2>
           <p style={{ color: "#6b7280", maxWidth: "28rem" }}>
-            Maaf, terjadi kendala tak terduga. Silakan coba lagi. Jika berlanjut,
-            laporkan ke admin/developer.
+            Maaf, terjadi kendala tak terduga. Silakan coba lagi. Jika
+            berlanjut, laporkan ke admin/developer.
           </p>
           <button
             onClick={() => reset()}

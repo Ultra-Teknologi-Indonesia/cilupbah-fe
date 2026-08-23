@@ -18,8 +18,7 @@ export function useDeleteProduct() {
       toast.success("Produk berhasil dihapus");
       qc.invalidateQueries({ queryKey: LIST_KEY });
     },
-    onError: (err) =>
-      apiError(err, "Gagal menghapus produk"),
+    onError: (err) => apiError(err, "Gagal menghapus produk"),
   });
 }
 
@@ -38,8 +37,7 @@ export function useArchiveProduct() {
       qc.invalidateQueries({ queryKey: LIST_KEY });
       qc.invalidateQueries({ queryKey: ARCHIVE_KEY });
     },
-    onError: (err) =>
-      apiError(err, "Gagal mengarsipkan produk"),
+    onError: (err) => apiError(err, "Gagal mengarsipkan produk"),
   });
 }
 
@@ -58,8 +56,7 @@ export function useBulkArchive() {
       qc.invalidateQueries({ queryKey: LIST_KEY });
       qc.invalidateQueries({ queryKey: ARCHIVE_KEY });
     },
-    onError: (err) =>
-      apiError(err, "Gagal mengarsipkan produk"),
+    onError: (err) => apiError(err, "Gagal mengarsipkan produk"),
   });
 }
 
@@ -77,8 +74,7 @@ export function useBulkRestore() {
       qc.invalidateQueries({ queryKey: LIST_KEY });
       qc.invalidateQueries({ queryKey: ARCHIVE_KEY });
     },
-    onError: (err) =>
-      apiError(err, "Gagal memulihkan produk"),
+    onError: (err) => apiError(err, "Gagal memulihkan produk"),
   });
 }
 
@@ -95,7 +91,6 @@ export function useBulkDelete() {
         });
       qc.invalidateQueries({ queryKey: LIST_KEY });
     },
-    onError: (err) =>
-      apiError(err, "Gagal menghapus produk"),
+    onError: (err) => apiError(err, "Gagal menghapus produk"),
   });
 }

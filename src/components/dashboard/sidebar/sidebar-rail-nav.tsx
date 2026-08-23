@@ -24,11 +24,7 @@ import { useLogout, useMe } from "@/hooks/auth/use-auth";
 import { getInitials } from "@/lib/format";
 import { Logo } from "./logo";
 import { NotificationsPopover } from "./nav-notifications";
-import {
-  isLeafGroup,
-  type NavGroup,
-  type NavZone,
-} from "./nav-data";
+import { isLeafGroup, type NavGroup, type NavZone } from "./nav-data";
 import { useVisibleNav } from "./use-visible-nav";
 import type { Route } from "./nav-main";
 
@@ -189,7 +185,10 @@ export function SidebarRailNav({
               className="mt-1 rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/30"
             >
               <Avatar className="size-9">
-                <AvatarImage src={me.data?.avatar_url ?? ""} alt={displayName} />
+                <AvatarImage
+                  src={me.data?.avatar_url ?? ""}
+                  alt={displayName}
+                />
                 <AvatarFallback className="bg-primary/10 text-primary font-medium">
                   {initials || "?"}
                 </AvatarFallback>

@@ -32,9 +32,7 @@ export function ImageUploadField({
   const upload = useMediaUpload();
   const uploading = upload.isPending;
 
-  const handleSelect = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const picked = event.target.files?.[0];
     if (inputRef.current) inputRef.current.value = "";
     if (!picked) return;

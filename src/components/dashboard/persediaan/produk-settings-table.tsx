@@ -114,7 +114,11 @@ export function ProdukSettingsTable() {
       </Button>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="primary" size="sm" className="h-9 gap-2 rounded-full">
+          <Button
+            variant="primary"
+            size="sm"
+            className="h-9 gap-2 rounded-full"
+          >
             <UploadIcon className="size-4" />
             <span className="hidden sm:inline">Import</span>
             <ChevronDownIcon className="size-4" />
@@ -297,7 +301,10 @@ export function ProdukSettingsTable() {
         type={importType}
         onOpenChange={(o) => !o && setImportType(null)}
       />
-      <RackImportDialog open={rackImportOpen} onOpenChange={setRackImportOpen} />
+      <RackImportDialog
+        open={rackImportOpen}
+        onOpenChange={setRackImportOpen}
+      />
       <AlokasiRakDialog
         itemId={rakItem?.itemId ?? null}
         sku={rakItem?.sku}

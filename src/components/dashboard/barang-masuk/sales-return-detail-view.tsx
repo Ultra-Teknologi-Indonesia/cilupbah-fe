@@ -92,7 +92,12 @@ export function SalesReturnDetailView({ id }: { id: string }) {
   const channelRejectMut = useChannelRejectSalesReturn();
 
   const [action, setAction] = useState<
-    null | "accept" | "reject" | "complete" | "channel-accept" | "channel-reject"
+    | null
+    | "accept"
+    | "reject"
+    | "complete"
+    | "channel-accept"
+    | "channel-reject"
   >(null);
   const [processedBy, setProcessedBy] = useState("");
   const [reason, setReason] = useState("");
@@ -295,8 +300,7 @@ export function SalesReturnDetailView({ id }: { id: string }) {
                   }}
                   className="text-destructive hover:bg-destructive/10"
                 >
-                  <XCircleIcon className="mr-1.5 size-4" /> Tolak di
-                  Marketplace
+                  <XCircleIcon className="mr-1.5 size-4" /> Tolak di Marketplace
                 </Button>
               </div>
             )}

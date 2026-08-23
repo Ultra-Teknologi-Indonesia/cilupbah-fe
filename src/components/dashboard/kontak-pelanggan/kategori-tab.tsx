@@ -50,10 +50,13 @@ const EMPTY_FORM: CategoryFormData = {
 const EMPTY_FILTERS = {};
 
 export function KategoriTab() {
-  const { search, setSearch, debouncedSearch } = useListState<typeof EMPTY_FILTERS>(
-    EMPTY_FILTERS,
-    { perPage: 20, debounceMs: 300, namespace: "kat_pelanggan" },
-  );
+  const { search, setSearch, debouncedSearch } = useListState<
+    typeof EMPTY_FILTERS
+  >(EMPTY_FILTERS, {
+    perPage: 20,
+    debounceMs: 300,
+    namespace: "kat_pelanggan",
+  });
 
   const {
     data: categories = [],

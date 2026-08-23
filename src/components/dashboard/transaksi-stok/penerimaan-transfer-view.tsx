@@ -37,7 +37,7 @@ import { toast } from "sonner";
 const LIST_HREF = "/dashboard/transaksi-stok?tab=transfer";
 
 interface ReceiveLine {
-  itemId: string; 
+  itemId: string;
   destBinId: string;
   qty: string;
 }
@@ -56,19 +56,17 @@ function DestinationBinCombobox({
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 250);
 
-  const {
-    data,
-    isLoading,
-    hasNextPage,
-    fetchNextPage,
-    isFetchingNextPage,
-  } = useLocationBinsInfinite(locationId || undefined, {
-    search: debouncedSearch.trim() || undefined,
-    perPage: 30,
-    sort: "bin_final_code",
-  });
+  const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } =
+    useLocationBinsInfinite(locationId || undefined, {
+      search: debouncedSearch.trim() || undefined,
+      perPage: 30,
+      sort: "bin_final_code",
+    });
 
-  const labelCacheRef = useMemo(() => ({ current: {} as Record<string, string> }), []);
+  const labelCacheRef = useMemo(
+    () => ({ current: {} as Record<string, string> }),
+    [],
+  );
 
   const options: ComboboxOption[] = useMemo(() => {
     const rawItems = data?.pages.flatMap((p) => p.items) ?? [];
@@ -81,7 +79,11 @@ function DestinationBinCombobox({
       label: b.binFinalCode,
     }));
 
-    if (value && !list.some((o) => o.value === value) && labelCacheRef.current[value]) {
+    if (
+      value &&
+      !list.some((o) => o.value === value) &&
+      labelCacheRef.current[value]
+    ) {
       list.unshift({
         value,
         label: labelCacheRef.current[value],
@@ -461,8 +463,8 @@ export function PenerimaanTransferView() {
               <p className="text-xs text-muted-foreground">
                 {validLines.length} dari {pendingItems.length} item siap
                 diterima. Qty Terima boleh kurang dari sisa (sisanya tetap
-                Sedang Dijalan). Jika semua item diterima penuh, transfer menjadi
-                Selesai.
+                Sedang Dijalan). Jika semua item diterima penuh, transfer
+                menjadi Selesai.
               </p>
             )}
           </div>

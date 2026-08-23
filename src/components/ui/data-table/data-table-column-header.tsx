@@ -1,11 +1,7 @@
 "use client";
 
 import type { Column } from "@tanstack/react-table";
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  ChevronsUpDownIcon,
-} from "lucide-react";
+import { ArrowDownIcon, ArrowUpIcon, ChevronsUpDownIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -49,4 +45,3 @@ export function DataTableColumnHeader<TData, TValue>({
     </div>
   );
 }
-

@@ -110,7 +110,10 @@ export function ArchiveView() {
           <div className="flex items-center gap-2.5">
             <div className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-xl border border-border bg-muted/40">
               {row.original.thumbnail ? (
-                <Image unoptimized width={400} height={400}
+                <Image
+                  unoptimized
+                  width={400}
+                  height={400}
                   src={row.original.thumbnail}
                   alt={row.original.itemName}
                   className="size-full object-cover"

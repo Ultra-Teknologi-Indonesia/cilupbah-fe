@@ -336,8 +336,8 @@ export const DownloadService = {
       `/${params.channel}/download/search?${search.toString()}`,
     );
     const meta =
-      ((res as { meta?: { next_offset?: number | null; has_more?: boolean } })
-        .meta ?? {});
+      (res as { meta?: { next_offset?: number | null; has_more?: boolean } })
+        .meta ?? {};
     return {
       items: (res.data ?? []).map(mapSearchItem),
       nextOffset: meta.next_offset ?? null,
@@ -374,19 +374,21 @@ export const DownloadService = {
       },
     );
     const rawMeta =
-      ((res as {
-        meta?: {
-          total_found?: number;
-          total_stores?: number;
-          failed_stores?: any[];
-        };
-      }).meta ?? {});
+      (
+        res as {
+          meta?: {
+            total_found?: number;
+            total_stores?: number;
+            failed_stores?: any[];
+          };
+        }
+      ).meta ?? {};
 
     return {
       items: (res.data ?? []).map(mapSearchItem),
       meta: {
         totalFound: rawMeta.total_found ?? (res.data ?? []).length,
-        totalStores: rawMeta.total_stores ?? (params.shopIds?.length ?? 0),
+        totalStores: rawMeta.total_stores ?? params.shopIds?.length ?? 0,
         failedStores: (rawMeta.failed_stores ?? []).map((f: any) => ({
           shopId: f.shop_id,
           shopName: f.shop_name,

@@ -1,8 +1,5 @@
 export type StockReplenishmentStatus =
-  | "PENDING"
-  | "ACCEPTED"
-  | "REJECTED"
-  | "DONE";
+  "PENDING" | "ACCEPTED" | "REJECTED" | "DONE";
 
 export interface StockReplenishmentItem {
   id: string;

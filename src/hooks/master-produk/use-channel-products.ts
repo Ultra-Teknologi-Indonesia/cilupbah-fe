@@ -57,8 +57,7 @@ export function useUnlinkListing() {
       toast.success("Koneksi channel diputus");
       invalidate();
     },
-    onError: (err) =>
-      apiError(err, "Gagal memutus koneksi"),
+    onError: (err) => apiError(err, "Gagal memutus koneksi"),
   });
 }
 
@@ -83,8 +82,7 @@ export function useBulkUnlinkListing() {
       if (failed > 0) toast.error(`${failed} koneksi gagal diputus`);
       invalidate();
     },
-    onError: (err) =>
-      apiError(err, "Gagal memutus koneksi"),
+    onError: (err) => apiError(err, "Gagal memutus koneksi"),
   });
 }
 
@@ -97,8 +95,7 @@ export function useDownloadChannel() {
       toast.success("Download produk dari channel diantrekan");
       invalidate();
     },
-    onError: (err) =>
-      apiError(err, "Gagal memulai download"),
+    onError: (err) => apiError(err, "Gagal memulai download"),
   });
 }
 

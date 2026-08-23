@@ -62,11 +62,7 @@ function parseDateStr(s: string): Date | undefined {
   return new Date(`${s}T00:00:00`);
 }
 
-export function PindahBinListTable({
-  status,
-}: {
-  status: BinTransferStatus;
-}) {
+export function PindahBinListTable({ status }: { status: BinTransferStatus }) {
   const router = useRouter();
   const list = useListState<FilterState>(EMPTY_FILTERS, {
     urlSync: true,
@@ -156,7 +152,10 @@ export function PindahBinListTable({
       {
         accessorKey: "transfer_number",
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="No. Transfer Internal" />
+          <DataTableColumnHeader
+            column={column}
+            title="No. Transfer Internal"
+          />
         ),
         enableSorting: true,
         cell: ({ row }) => (
@@ -308,7 +307,15 @@ export function PindahBinListTable({
     });
 
     return base;
-  }, [isTransit, printingId, handlePrint, handleReprint, router, canEdit, canDelete]);
+  }, [
+    isTransit,
+    printingId,
+    handlePrint,
+    handleReprint,
+    router,
+    canEdit,
+    canDelete,
+  ]);
 
   const handleExport = useCallback(() => {
     if (items.length === 0) return;

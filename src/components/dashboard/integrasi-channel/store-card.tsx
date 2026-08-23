@@ -87,11 +87,15 @@ export function StoreCard({
       <div className="space-y-1">
         {/* Prioritas catatan: jika integrasi bermasalah tampilkan catatan integrasi, jika tidak tampilkan catatan order sync */}
         {(() => {
-          const primaryNote = store.integration.status !== "normal" && store.integration.note
-            ? { text: store.integration.note, isError: store.integration.status === "error" }
-            : store.orderSync.note
-              ? { text: store.orderSync.note, isError: status === "problem" }
-              : null;
+          const primaryNote =
+            store.integration.status !== "normal" && store.integration.note
+              ? {
+                  text: store.integration.note,
+                  isError: store.integration.status === "error",
+                }
+              : store.orderSync.note
+                ? { text: store.orderSync.note, isError: status === "problem" }
+                : null;
 
           if (!primaryNote) return null;
 
@@ -99,7 +103,9 @@ export function StoreCard({
             <p
               className={cn(
                 "text-xs leading-relaxed",
-                primaryNote.isError ? "text-destructive font-medium" : "text-muted-foreground"
+                primaryNote.isError
+                  ? "text-destructive font-medium"
+                  : "text-muted-foreground",
               )}
             >
               {primaryNote.text}
@@ -160,7 +166,10 @@ export function StoreCard({
               onCheckedChange={(v) => onToggleShadow(store.id, v)}
               aria-label={`Shadow mode ${store.shopName}`}
             />
-            <span className="text-xs text-muted-foreground" title="Mode simulasi: tarik order tanpa potong stok">
+            <span
+              className="text-xs text-muted-foreground"
+              title="Mode simulasi: tarik order tanpa potong stok"
+            >
               Shadow Mode
             </span>
           </div>

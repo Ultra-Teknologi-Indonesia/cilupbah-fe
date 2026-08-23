@@ -46,7 +46,11 @@ export function CopyJsonButton({
       onClick={handleCopy}
       className={cn("gap-1.5", className)}
     >
-      {copied ? <CheckIcon className="size-4" /> : <CopyIcon className="size-4" />}
+      {copied ? (
+        <CheckIcon className="size-4" />
+      ) : (
+        <CopyIcon className="size-4" />
+      )}
       {label}
     </Button>
   );

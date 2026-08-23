@@ -36,8 +36,7 @@ export function getPasswordStrength(password: string) {
       color: "bg-destructive",
       percent: passed <= 1 ? 20 : 40,
     };
-  if (passed <= 3)
-    return { level: "Sedang", color: "bg-warning", percent: 60 };
+  if (passed <= 3) return { level: "Sedang", color: "bg-warning", percent: 60 };
   if (passed <= 4) return { level: "Kuat", color: "bg-success", percent: 80 };
   return { level: "Sangat Kuat", color: "bg-success", percent: 100 };
 }

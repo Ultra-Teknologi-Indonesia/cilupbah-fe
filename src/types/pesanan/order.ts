@@ -14,27 +14,15 @@ export type OrderTab =
 export type ChannelCancelSub = "pending" | "failed" | "accepted";
 
 export type CancellationSub =
-  | "pending"
-  | "accepted"
-  | "rejected"
-  | "cancelled"
-  | "post_pack";
+  "pending" | "accepted" | "rejected" | "cancelled" | "post_pack";
 export type ReturnSub = "pending" | "accepted" | "rejected";
 export type SubFilter = CancellationSub | ReturnSub | null;
 
 export type OrderStatus =
-  | "pending"
-  | "reserved"
-  | "picked"
-  | "packed"
-  | "shipped"
-  | "cancelled";
+  "pending" | "reserved" | "picked" | "packed" | "shipped" | "cancelled";
 
 export type ContactChannel =
-  | "marketplace_chat"
-  | "whatsapp"
-  | "phone"
-  | "other";
+  "marketplace_chat" | "whatsapp" | "phone" | "other";
 
 export type CustomerDecision = "waiting" | "cancel" | "replace";
 

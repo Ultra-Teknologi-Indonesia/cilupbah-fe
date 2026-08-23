@@ -21,10 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  useMyHistories,
-  useMyLoginHistories,
-} from "@/hooks/auth/use-profile";
+import { useMyHistories, useMyLoginHistories } from "@/hooks/auth/use-profile";
 import { formatDateTime } from "@/lib/format";
 import type {
   LoginHistoryEntry,
@@ -222,7 +219,8 @@ function DeviceLine({
   device: string | null;
 }) {
   const parts = [browser, os, device].filter(Boolean);
-  if (parts.length === 0) return <span className="text-muted-foreground">—</span>;
+  if (parts.length === 0)
+    return <span className="text-muted-foreground">—</span>;
   return (
     <div className="flex items-center gap-2">
       <MonitorIcon className="size-3.5 text-muted-foreground" />

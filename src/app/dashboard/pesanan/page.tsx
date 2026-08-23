@@ -15,7 +15,6 @@ const INITIAL_ORDER_PARAMS: OrderListParams = {
 };
 
 export default async function PesananPage() {
-
   const qc = getServerQueryClient();
   await Promise.all([
     qc.prefetchQuery({

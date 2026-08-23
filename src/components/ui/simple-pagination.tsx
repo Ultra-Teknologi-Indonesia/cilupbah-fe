@@ -26,7 +26,9 @@ export function scrollDashboardToTop() {
   if (typeof window === "undefined") return;
 
   // 1. Scroll dashboard layout container (.overflow-y-auto)
-  const scrollContainers = document.querySelectorAll(".overflow-y-auto, [data-sidebar-inset]");
+  const scrollContainers = document.querySelectorAll(
+    ".overflow-y-auto, [data-sidebar-inset]",
+  );
   scrollContainers.forEach((el) => {
     if (el instanceof HTMLElement && el.scrollTop > 0) {
       el.scrollTo({ top: 0, behavior: "smooth" });
@@ -104,7 +106,9 @@ export function SimplePagination({
         )}
 
         <div className="flex w-[8.5rem] items-center justify-center gap-1.5 text-sm font-medium">
-          <span>Halaman {lastPage === 0 ? 0 : page} dari {lastPage}</span>
+          <span>
+            Halaman {lastPage === 0 ? 0 : page} dari {lastPage}
+          </span>
           {isFetching && (
             <Loader2Icon className="size-3.5 animate-spin text-primary" />
           )}

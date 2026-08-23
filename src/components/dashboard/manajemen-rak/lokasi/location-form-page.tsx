@@ -35,10 +35,7 @@ import type {
 import { apiError } from "@/lib/toast";
 
 import { InformasiTab } from "./informasi-tab";
-import {
-  LayoutGudangTab,
-  type BinSkuAssignment,
-} from "./layout-gudang-tab";
+import { LayoutGudangTab, type BinSkuAssignment } from "./layout-gudang-tab";
 import { ZonaTab } from "./zona-tab";
 
 const LIST_HREF = "/dashboard/lokasi";
@@ -200,7 +197,10 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
 
         if (layoutEnabled && locationId && assignmentsRef.current.length > 0) {
           for (const a of assignmentsRef.current) {
-            await assignBinSku.mutateAsync({ binId: a.binId, itemId: a.itemId });
+            await assignBinSku.mutateAsync({
+              binId: a.binId,
+              itemId: a.itemId,
+            });
           }
         }
 
@@ -216,9 +216,15 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
     },
     (errors) => {
       const errorKeys = Object.keys(errors);
-      const firstError = errorKeys.length > 0 ? (errors as Record<string, { message?: string }>)[errorKeys[0]]?.message : null;
+      const firstError =
+        errorKeys.length > 0
+          ? (errors as Record<string, { message?: string }>)[errorKeys[0]]
+              ?.message
+          : null;
       setSection("informasi");
-      toast.error(firstError || "Lengkapi field wajib di tab Informasi Lokasi.");
+      toast.error(
+        firstError || "Lengkapi field wajib di tab Informasi Lokasi.",
+      );
     },
   );
 
@@ -264,7 +270,6 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
         )}
 
         <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
-
           <nav className="flex flex-col gap-2">
             {navItems
               .filter((n) => n.show)
@@ -293,7 +298,10 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
                 disabled={locked}
                 locationId={mode === "edit" ? id : undefined}
                 locationCode={detail.data?.locationCode}
-                isSmallWarehouse={detail.data?.isSmallWarehouse ?? detail.data?.enforcesStrictBinSku}
+                isSmallWarehouse={
+                  detail.data?.isSmallWarehouse ??
+                  detail.data?.enforcesStrictBinSku
+                }
                 initialBins={initialBins}
                 onApply={setAppliedPayload}
                 onBinsChange={(bins) => {

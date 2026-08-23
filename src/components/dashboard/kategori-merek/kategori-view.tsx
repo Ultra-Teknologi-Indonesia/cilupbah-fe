@@ -55,7 +55,16 @@ export function KategoriView() {
                   className="h-9 border-border bg-background pl-9 pr-8"
                 />
                 {list.search.length > 0 && (
-                  <Button variant="ghost" size="icon" type="button" onClick={() => list.setSearch("")} aria-label="Bersihkan pencarian" className="absolute right-2.5 top-1/2 size-5 -translate-y-1/2 text-muted-foreground"><XIcon className="size-3.5" /></Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    type="button"
+                    onClick={() => list.setSearch("")}
+                    aria-label="Bersihkan pencarian"
+                    className="absolute right-2.5 top-1/2 size-5 -translate-y-1/2 text-muted-foreground"
+                  >
+                    <XIcon className="size-3.5" />
+                  </Button>
                 )}
               </div>
               <Button

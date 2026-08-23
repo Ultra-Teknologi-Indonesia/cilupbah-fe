@@ -68,7 +68,7 @@ export function BarcodeReportDialog({
 
   function handleJenisChange(next: string) {
     setJenis(next as BarcodeJenis);
-    setIds([]); 
+    setIds([]);
   }
 
   function handleCetak() {
@@ -123,11 +123,7 @@ export function BarcodeReportDialog({
             <Label className="text-xs text-muted-foreground">
               {jenis === "sku" ? "SKU" : "SKU Induk"}
             </Label>
-            <ProductPickerCombobox
-              mode={jenis}
-              value={ids}
-              onChange={setIds}
-            />
+            <ProductPickerCombobox mode={jenis} value={ids} onChange={setIds} />
           </div>
 
           <div className="flex flex-col gap-2">

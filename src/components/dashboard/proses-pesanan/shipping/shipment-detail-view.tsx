@@ -228,17 +228,13 @@ function DriverSection({
               <span className="text-xs text-muted-foreground">
                 Plat Kendaraan
               </span>
-              <p className="font-medium">
-                {detail.driverVehiclePlate ?? "—"}
-              </p>
+              <p className="font-medium">{detail.driverVehiclePlate ?? "—"}</p>
             </div>
             <div>
               <span className="text-xs text-muted-foreground">
                 Kode Booking
               </span>
-              <p className="font-medium">
-                {detail.driverBookingCode ?? "—"}
-              </p>
+              <p className="font-medium">{detail.driverBookingCode ?? "—"}</p>
             </div>
           </div>
           {detail.driverIdCardUrl && (
@@ -252,7 +248,10 @@ function DriverSection({
                 rel="noopener noreferrer"
                 className="mt-1 block"
               >
-                <Image unoptimized width={400} height={400}
+                <Image
+                  unoptimized
+                  width={400}
+                  height={400}
                   src={detail.driverIdCardUrl}
                   alt="Kartu identitas driver"
                   className="h-20 rounded-md border border-border object-cover"
@@ -299,11 +298,7 @@ function DriverSection({
             {hasDriver ? "Edit Driver" : "Catat Driver"}
           </p>
           {editing && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setEditing(false)}
-            >
+            <Button variant="ghost" size="sm" onClick={() => setEditing(false)}>
               Batal
             </Button>
           )}
@@ -548,11 +543,12 @@ export function ShipmentDetailView({ id }: { id: string }) {
   const debouncedSearch = useDebouncedValue(searchQuery, 400);
 
   const { data: detail, isLoading } = useShipmentDetail(id, !!id);
-  const { data: ordersData, isFetching: isFetchingOrders } = useShipmentOrdersPaginated(
-    id,
-    { page, per_page: perPage, q: debouncedSearch },
-    !!id
-  );
+  const { data: ordersData, isFetching: isFetchingOrders } =
+    useShipmentOrdersPaginated(
+      id,
+      { page, per_page: perPage, q: debouncedSearch },
+      !!id,
+    );
 
   const scanOrder = useScanOrderToShipment();
   const removeOrder = useRemoveOrderFromShipment();
@@ -572,7 +568,13 @@ export function ShipmentDetailView({ id }: { id: string }) {
         activeEl instanceof HTMLTextAreaElement ||
         activeEl?.getAttribute("contenteditable") === "true";
 
-      if (!isInputOrTextarea && e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+      if (
+        !isInputOrTextarea &&
+        e.key.length === 1 &&
+        !e.ctrlKey &&
+        !e.altKey &&
+        !e.metaKey
+      ) {
         inputRef.current?.focus();
       }
     };
@@ -581,7 +583,8 @@ export function ShipmentDetailView({ id }: { id: string }) {
     return () => window.removeEventListener("keydown", handleGlobalKeyDown);
   }, [detail?.status]);
 
-  const [prevDebouncedSearch, setPrevDebouncedSearch] = React.useState(debouncedSearch);
+  const [prevDebouncedSearch, setPrevDebouncedSearch] =
+    React.useState(debouncedSearch);
   if (debouncedSearch !== prevDebouncedSearch) {
     setPrevDebouncedSearch(debouncedSearch);
     setPage(1);

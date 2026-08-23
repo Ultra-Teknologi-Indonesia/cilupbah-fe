@@ -73,21 +73,30 @@ function StateBadge({ state }: { state: ImportBatchState }) {
   switch (state) {
     case "queued":
       return (
-        <Badge variant="outline" className="border-muted-foreground/30 text-muted-foreground">
+        <Badge
+          variant="outline"
+          className="border-muted-foreground/30 text-muted-foreground"
+        >
           <ClockIcon className="mr-1 size-3" />
           Menunggu
         </Badge>
       );
     case "previewing":
       return (
-        <Badge variant="outline" className="border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 animate-pulse">
+        <Badge
+          variant="outline"
+          className="border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 animate-pulse"
+        >
           <Loader2Icon className="mr-1 size-3 animate-spin" />
           Validasi File
         </Badge>
       );
     case "previewed":
       return (
-        <Badge variant="outline" className="border-blue-500/30 bg-blue-500/10 text-blue-600 dark:text-blue-400">
+        <Badge
+          variant="outline"
+          className="border-blue-500/30 bg-blue-500/10 text-blue-600 dark:text-blue-400"
+        >
           <CheckCircle2Icon className="mr-1 size-3" />
           Siap Diterapkan
         </Badge>
@@ -95,28 +104,40 @@ function StateBadge({ state }: { state: ImportBatchState }) {
     case "confirming":
     case "processing":
       return (
-        <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary animate-pulse">
+        <Badge
+          variant="outline"
+          className="border-primary/30 bg-primary/10 text-primary animate-pulse"
+        >
           <Loader2Icon className="mr-1 size-3 animate-spin" />
           Menerapkan
         </Badge>
       );
     case "done":
       return (
-        <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+        <Badge
+          variant="outline"
+          className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+        >
           <CheckCircle2Icon className="mr-1 size-3" />
           Selesai
         </Badge>
       );
     case "done_with_errors":
       return (
-        <Badge variant="outline" className="border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400">
+        <Badge
+          variant="outline"
+          className="border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+        >
           <AlertTriangleIcon className="mr-1 size-3" />
           Selesai (Ada Error)
         </Badge>
       );
     case "failed":
       return (
-        <Badge variant="outline" className="border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400">
+        <Badge
+          variant="outline"
+          className="border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400"
+        >
           <XCircleIcon className="mr-1 size-3" />
           Gagal
         </Badge>
@@ -143,8 +164,13 @@ function ProgressBar({
     <div className="flex items-center gap-2">
       <div className="h-2 w-full max-w-[120px] overflow-hidden rounded-full bg-muted">
         <div
-          className={cn("h-full rounded-full transition-all duration-300", color)}
-          style={{ width: `${Math.min(100, Math.max(state === "previewing" || state === "confirming" ? 10 : 0, percent))}%` }}
+          className={cn(
+            "h-full rounded-full transition-all duration-300",
+            color,
+          )}
+          style={{
+            width: `${Math.min(100, Math.max(state === "previewing" || state === "confirming" ? 10 : 0, percent))}%`,
+          }}
         />
       </div>
       <span className="tabular-nums text-xs text-muted-foreground font-medium">
@@ -429,7 +455,9 @@ export function ImportView() {
               <SelectItem value="previewed">Siap Diterapkan</SelectItem>
               <SelectItem value="processing">Sedang Menerapkan</SelectItem>
               <SelectItem value="done">Selesai</SelectItem>
-              <SelectItem value="done_with_errors">Selesai (Ada Error)</SelectItem>
+              <SelectItem value="done_with_errors">
+                Selesai (Ada Error)
+              </SelectItem>
               <SelectItem value="failed">Gagal</SelectItem>
             </SelectContent>
           </Select>

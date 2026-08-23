@@ -41,10 +41,7 @@ export function ChannelGroup({
           <div className="min-w-0">
             <h2 className="truncate text-sm font-semibold">{group.name}</h2>
             <span className="inline-flex items-center gap-1 text-xs text-success">
-              <span
-                aria-hidden
-                className="size-1.5 rounded-full bg-success"
-              />
+              <span aria-hidden className="size-1.5 rounded-full bg-success" />
               Tersambung
             </span>
           </div>

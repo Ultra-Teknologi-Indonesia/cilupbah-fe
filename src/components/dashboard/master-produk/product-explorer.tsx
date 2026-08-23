@@ -116,78 +116,80 @@ export function ProductExplorer({ query }: { query: Query }) {
               {toggleBtn("table", "Tampilan tabel", TableIcon)}
             </div>
             <Can permission="import-produk">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-9 gap-2">
-                  <UploadIcon className="size-4" />
-                  <span className="hidden sm:inline">Impor</span>
-                  <ChevronDownIcon className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-64">
-                <DropdownMenuItem
-                  onSelect={() => setImportType("single")}
-                  className="flex-col items-start gap-0.5"
-                >
-                  <span className="flex items-center gap-2 font-medium">
-                    <PackageIcon className="size-4" />
-                    Import Produk Satuan
-                  </span>
-                  <span className="pl-6 text-xs text-muted-foreground">
-                    Buat/update produk dari file Excel.
-                  </span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onSelect={() => setImportType("bundle")}
-                  className="flex-col items-start gap-0.5"
-                >
-                  <span className="flex items-center gap-2 font-medium">
-                    <LayersIcon className="size-4" />
-                    Import Produk Bundle
-                  </span>
-                  <span className="pl-6 text-xs text-muted-foreground">
-                    Atur komposisi bundle dari file Excel.
-                  </span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-9 gap-2">
+                    <UploadIcon className="size-4" />
+                    <span className="hidden sm:inline">Impor</span>
+                    <ChevronDownIcon className="size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-64">
+                  <DropdownMenuItem
+                    onSelect={() => setImportType("single")}
+                    className="flex-col items-start gap-0.5"
+                  >
+                    <span className="flex items-center gap-2 font-medium">
+                      <PackageIcon className="size-4" />
+                      Import Produk Satuan
+                    </span>
+                    <span className="pl-6 text-xs text-muted-foreground">
+                      Buat/update produk dari file Excel.
+                    </span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={() => setImportType("bundle")}
+                    className="flex-col items-start gap-0.5"
+                  >
+                    <span className="flex items-center gap-2 font-medium">
+                      <LayersIcon className="size-4" />
+                      Import Produk Bundle
+                    </span>
+                    <span className="pl-6 text-xs text-muted-foreground">
+                      Atur komposisi bundle dari file Excel.
+                    </span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </Can>
             <Can permission="create-produk">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="primary" size="sm" className="h-9 gap-2">
-                  <PlusIcon className="size-4" />
-                  <span className="hidden sm:inline">Buat Produk</span>
-                  <ChevronDownIcon className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-64">
-                <DropdownMenuItem
-                  onSelect={() => router.push("/dashboard/produk/buat")}
-                  className="flex-col items-start gap-0.5"
-                >
-                  <span className="flex items-center gap-2 font-medium">
-                    <PackageIcon className="size-4" />
-                    Buat Produk Satuan
-                  </span>
-                  <span className="pl-6 text-xs text-muted-foreground">
-                    Produk dengan varian, harga, dan media.
-                  </span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onSelect={() => router.push("/dashboard/produk/buat-bundle")}
-                  className="flex-col items-start gap-0.5"
-                >
-                  <span className="flex items-center gap-2 font-medium">
-                    <LayersIcon className="size-4" />
-                    Buat Produk Bundle
-                  </span>
-                  <span className="pl-6 text-xs text-muted-foreground">
-                    Gabungkan beberapa produk jadi satu SKU.
-                  </span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="primary" size="sm" className="h-9 gap-2">
+                    <PlusIcon className="size-4" />
+                    <span className="hidden sm:inline">Buat Produk</span>
+                    <ChevronDownIcon className="size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-64">
+                  <DropdownMenuItem
+                    onSelect={() => router.push("/dashboard/produk/buat")}
+                    className="flex-col items-start gap-0.5"
+                  >
+                    <span className="flex items-center gap-2 font-medium">
+                      <PackageIcon className="size-4" />
+                      Buat Produk Satuan
+                    </span>
+                    <span className="pl-6 text-xs text-muted-foreground">
+                      Produk dengan varian, harga, dan media.
+                    </span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={() =>
+                      router.push("/dashboard/produk/buat-bundle")
+                    }
+                    className="flex-col items-start gap-0.5"
+                  >
+                    <span className="flex items-center gap-2 font-medium">
+                      <LayersIcon className="size-4" />
+                      Buat Produk Bundle
+                    </span>
+                    <span className="pl-6 text-xs text-muted-foreground">
+                      Gabungkan beberapa produk jadi satu SKU.
+                    </span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </Can>
           </div>
         </div>

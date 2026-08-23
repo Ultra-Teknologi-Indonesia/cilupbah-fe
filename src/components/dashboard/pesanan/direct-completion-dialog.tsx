@@ -164,7 +164,9 @@ function DirectCompletionBody({
           onClick={submit}
           disabled={completableCount === 0 || complete.isPending}
         >
-          {complete.isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+          {complete.isPending && (
+            <Loader2 className="mr-2 size-4 animate-spin" />
+          )}
           Selesaikan
         </Button>
       </DialogFooter>
@@ -179,7 +181,9 @@ function ItemSummary({ item }: { item: DirectCompletionItem }) {
         <div className="min-w-0">
           <p className="truncate text-sm font-medium">{item.sku}</p>
           {item.name && (
-            <p className="truncate text-xs text-muted-foreground">{item.name}</p>
+            <p className="truncate text-xs text-muted-foreground">
+              {item.name}
+            </p>
           )}
         </div>
         <p className="text-xs font-medium tabular-nums">

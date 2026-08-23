@@ -32,7 +32,8 @@ function downloadFilename(rawUrl: string): string {
 function isBlockedIp(ip: string): boolean {
   let addr = ip.toLowerCase();
   // IPv4-mapped IPv6 (::ffff:10.0.0.1) → periksa bagian IPv4-nya.
-  if (addr.startsWith("::ffff:") && net.isIPv4(addr.slice(7))) addr = addr.slice(7);
+  if (addr.startsWith("::ffff:") && net.isIPv4(addr.slice(7)))
+    addr = addr.slice(7);
 
   if (net.isIPv4(addr)) {
     const [a, b] = addr.split(".").map(Number);
@@ -97,7 +98,10 @@ export async function GET(request: NextRequest) {
 
   const url = request.nextUrl.searchParams.get("url");
   if (!url) {
-    return NextResponse.json({ error: "Missing url parameter" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Missing url parameter" },
+      { status: 400 },
+    );
   }
 
   try {
@@ -117,7 +121,10 @@ export async function GET(request: NextRequest) {
 
     const cl = response.headers.get("content-length");
     if (cl && Number(cl) > MAX_BYTES) {
-      return NextResponse.json({ error: "Resource too large" }, { status: 413 });
+      return NextResponse.json(
+        { error: "Resource too large" },
+        { status: 413 },
+      );
     }
 
     const headers = new Headers();

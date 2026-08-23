@@ -222,9 +222,7 @@ export const LaporanGudangService = {
     );
   },
 
-  putawayPerformancePdf: (
-    params: PutawayPerformanceParams,
-  ): Promise<Blob> => {
+  putawayPerformancePdf: (params: PutawayPerformanceParams): Promise<Blob> => {
     return fetchBlobPost(
       `/reports/wms/putaway-performance/pdf`,
       params,

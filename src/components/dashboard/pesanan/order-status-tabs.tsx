@@ -27,10 +27,7 @@ export function OrderStatusTabs({
   const grouped = zones.map((z) => TAB_CONFIG.filter((t) => t.zone === z));
 
   return (
-    <Tabs
-      value={active}
-      onValueChange={(val) => onChange(val as OrderTab)}
-    >
+    <Tabs value={active} onValueChange={(val) => onChange(val as OrderTab)}>
       <TabsList className="h-auto flex flex-wrap items-center gap-1.5 bg-transparent p-0 rounded-none">
         {grouped.map((tabs, zi) => (
           <div key={zi} className="contents">

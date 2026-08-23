@@ -75,7 +75,8 @@ export function PenjualanProdukDialog({
         from: formatDateISO(startDate),
         to: formatDateISO(endDate),
         item_ids: itemIds.length ? itemIds : undefined,
-        location_ids: pickLocation && locationIds.length ? locationIds : undefined,
+        location_ids:
+          pickLocation && locationIds.length ? locationIds : undefined,
       },
       {
         onSuccess: () => {
@@ -93,7 +94,8 @@ export function PenjualanProdukDialog({
         <DialogHeader>
           <DialogTitle>Penjualan Produk</DialogTitle>
           <DialogDescription>
-            Penjualan per produk (1 baris per barang pesanan) dalam format Excel.
+            Penjualan per produk (1 baris per barang pesanan) dalam format
+            Excel.
           </DialogDescription>
         </DialogHeader>
 
