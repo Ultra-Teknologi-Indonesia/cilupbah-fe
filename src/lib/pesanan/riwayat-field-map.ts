@@ -8,6 +8,8 @@ export const RIWAYAT_FIELD_LABELS: Record<string, string> = {
   is_escrow_updated: "Escrow Diperbarui",
   cancel_reason: "Alasan Batal",
   cancel_reason_detail: "Detail Alasan Batal",
+  pick_fail_reason: "Alasan Gagal Picking",
+  pick_failed_at: "Waktu Gagal Picking",
   tracking_number: "No. Resi",
   shipping_provider: "Ekspedisi",
   courier: "Kurir",
