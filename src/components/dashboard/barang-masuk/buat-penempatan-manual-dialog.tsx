@@ -42,6 +42,7 @@ export function BuatPenempatanManualDialog({
     role: "putaway",
   });
   const [assignedTo, setAssignedTo] = useState("");
+  const [notes, setNotes] = useState("");
 
   const { totalSku, totalQty } = useMemo(() => {
     const skuSet = new Set<string>();
@@ -77,6 +78,7 @@ export function BuatPenempatanManualDialog({
           data: {
             inbound_ids: inbounds.map((i) => i.id),
             assigned_to: assignedTo || undefined,
+            notes: notes || undefined,
           },
         },
       );
@@ -90,6 +92,7 @@ export function BuatPenempatanManualDialog({
       queryClient.invalidateQueries({ queryKey: ["purchase-order"] });
       onOpenChange(false);
       setAssignedTo("");
+      setNotes("");
       onSuccess?.(data);
     },
     onError: (error) => {
@@ -156,6 +159,18 @@ export function BuatPenempatanManualDialog({
               searchPlaceholder="Cari pengguna..."
               className="w-full"
               disabled={usersLoading}
+            />
+          </div>
+
+          <div className="grid grid-cols-[120px_1fr] items-start gap-4">
+            <Label className="mt-2 text-sm font-medium text-muted-foreground">
+              Keterangan
+            </Label>
+            <textarea
+              className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Catatan penempatan... (opsional)"
             />
           </div>
         </div>

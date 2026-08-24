@@ -325,6 +325,15 @@ export function PenempatanBarangTab() {
         ),
       },
       {
+        accessorKey: "notes",
+        header: "Keterangan",
+        cell: ({ row }) => (
+          <span className="text-muted-foreground truncate max-w-[200px] block" title={row.original.notes ?? ""}>
+            {row.original.notes ?? "—"}
+          </span>
+        ),
+      },
+      {
         id: "progress",
         header: "Progress",
         cell: ({ row }) => {
