@@ -56,8 +56,19 @@ export async function fetchClient<T>(
     ? endpoint
     : `/${endpoint}`;
 
+  const requestOptions: AxiosRequestConfig = { ...options };
+  if (
+    typeof FormData !== "undefined" &&
+    options?.data instanceof FormData
+  ) {
+    requestOptions.headers = {
+      ...(options.headers || {}),
+      "Content-Type": undefined,
+    };
+  }
+
   try {
-    const response = await apiClient(formattedEndpoint, options);
+    const response = await apiClient(formattedEndpoint, requestOptions);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {

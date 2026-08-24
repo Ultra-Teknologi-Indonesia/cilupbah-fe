@@ -303,7 +303,16 @@ function findStepEntry(
 ): StatusHistoryEntry | undefined {
   const actions = STEP_ACTIONS[stepKey];
   if (!actions || !history?.length) return undefined;
-  return history.find((h) => actions.includes(h.action));
+  const matching = history.filter((h) => actions.includes(h.action));
+  if (!matching.length) return undefined;
+
+  const human = matching.find(
+    (h) =>
+      (h.actor_name && h.actor_name.trim().toLowerCase() !== "system") ||
+      (h.actor_email && h.actor_email.trim().toLowerCase() !== "system"),
+  );
+
+  return human ?? matching[matching.length - 1] ?? matching[0];
 }
 
 function StepKeterangan({

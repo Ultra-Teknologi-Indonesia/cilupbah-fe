@@ -371,7 +371,11 @@ export const OrderService = {
     fd.append("photo", file);
     return fetchClient<ApiResponse<Order>>(
       `/sales/${orderId}/courier-pickup/photo`,
-      { method: "POST", data: fd },
+      {
+        method: "POST",
+        data: fd,
+        headers: { "Content-Type": undefined as unknown as string },
+      },
     );
   },
 

@@ -174,16 +174,48 @@ function TimelineRow({ cluster }: { cluster: Cluster }) {
   );
 }
 
+function isSystemActivity(activity: OrderActivity): boolean {
+  const email = (activity.email ?? "").trim().toLowerCase();
+  const name = (activity.actor_name ?? "").trim().toLowerCase();
+  return email === "system" || name === "system" || (!email && !name);
+}
+
+function deduplicateActivities(items: OrderActivity[]): OrderActivity[] {
+  const filtered: OrderActivity[] = [];
+  for (let i = 0; i < items.length; i++) {
+    const curr = items[i]!;
+    const isSystem = isSystemActivity(curr);
+
+    if (isSystem) {
+      const currTime = new Date(curr.action_date).getTime();
+      const hasHumanDuplicate = items.some((other, j) => {
+        if (i === j) return false;
+        const otherIsHuman = !isSystemActivity(other);
+        if (!otherIsHuman) return false;
+        if (other.action_label !== curr.action_label) return false;
+        const otherTime = new Date(other.action_date).getTime();
+        return Math.abs(currTime - otherTime) <= 10000;
+      });
+
+      if (hasHumanDuplicate) {
+        continue;
+      }
+    }
+    filtered.push(curr);
+  }
+  return filtered;
+}
+
 export function RiwayatPesananDialog({
   orderId,
   open,
   onOpenChange,
 }: RiwayatPesananDialogProps) {
   const query = useOrderActivities(orderId, open);
-  const items = useMemo(
-    () => query.data?.pages.flatMap((page) => page.data) ?? [],
-    [query.data],
-  );
+  const items = useMemo(() => {
+    const raw = query.data?.pages.flatMap((page) => page.data) ?? [];
+    return deduplicateActivities(raw);
+  }, [query.data]);
   const groups = useMemo(() => groupByDay(items, false), [items]);
 
   const sentinelRef = useRef<HTMLDivElement | null>(null);

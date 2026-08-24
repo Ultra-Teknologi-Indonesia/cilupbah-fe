@@ -101,12 +101,26 @@ function ProgressBar({ value, total }: { value: number; total: number }) {
 }
 
 function isSelectable(item: Inbound): boolean {
+  if (item.status === "CANCELLED") return false;
+  const isReturn = item.type === "SALES_RETURN";
   const totalRecv =
-    item.items?.reduce((s, i) => s + (i.received_qty || 0), 0) ?? 0;
+    item.items?.reduce(
+      (s, i) =>
+        s +
+        (isReturn && (i.received_qty || 0) === 0
+          ? i.expected_qty || 0
+          : i.received_qty || 0),
+      0,
+    ) ?? 0;
   const totalPutaway =
     item.items?.reduce((s, i) => s + (i.putaway_qty || 0), 0) ?? 0;
   const totalReserved =
     item.items?.reduce((s, i) => s + (i.reserved_qty || 0), 0) ?? 0;
+
+  if (isReturn) {
+    return totalRecv > 0 && totalPutaway + totalReserved < totalRecv;
+  }
+
   return (
     !["DRAFT", "CANCELLED"].includes(item.status) &&
     totalRecv > 0 &&
@@ -322,10 +336,18 @@ export function PenerimaanBarangTab() {
         id: "progress_penempatan",
         header: "Progress Penempatan",
         cell: ({ row }) => {
+          const item = row.original;
           const totalRecv =
-            row.original.items?.reduce((s, i) => s + i.received_qty, 0) ?? 0;
+            item.items?.reduce(
+              (s, i) =>
+                s +
+                (item.type === "SALES_RETURN" && (i.received_qty || 0) === 0
+                  ? i.expected_qty || 0
+                  : i.received_qty || 0),
+              0,
+            ) ?? 0;
           const totalPutaway =
-            row.original.items?.reduce((s, i) => s + i.putaway_qty, 0) ?? 0;
+            item.items?.reduce((s, i) => s + (i.putaway_qty || 0), 0) ?? 0;
           return <ProgressBar value={totalPutaway} total={totalRecv} />;
         },
       },

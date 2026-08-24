@@ -49,9 +49,13 @@ export function BuatPenempatanManualDialog({
     let qty = 0;
     for (const inbound of inbounds) {
       for (const item of inbound.items ?? []) {
+        const availableQty =
+          inbound.type === "SALES_RETURN" && (item.received_qty || 0) === 0
+            ? item.expected_qty || 0
+            : item.received_qty || 0;
         const pending = Math.max(
           0,
-          (item.received_qty || 0) -
+          availableQty -
             (item.putaway_qty || 0) -
             (item.reserved_qty || 0),
         );
