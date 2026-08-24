@@ -69,6 +69,7 @@ export const STATUS_FILTER_OPTIONS: { value: string; label: string }[] = [
   { value: "cancelled", label: "Batal" },
   { value: "unpaid", label: "Belum Bayar" },
   { value: "failed-pick", label: "Gagal Pengambilan" },
+  { value: "returned", label: "Retur" },
   { value: "waiting-shipment", label: "Menunggu Kirim" },
   { value: "picking-belum", label: "Pengambilan Belum" },
   { value: "picking-diproses", label: "Pengambilan Diproses" },

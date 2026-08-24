@@ -9,7 +9,7 @@ import { OrderService } from "@/services/pesanan/order.service";
 import type { OrderListParams } from "@/types/pesanan/order";
 
 const INITIAL_ORDER_PARAMS: OrderListParams = {
-  tab: "all",
+  tab: "ready-to-process",
   page: 1,
   per_page: 24,
 };

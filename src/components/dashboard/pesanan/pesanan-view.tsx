@@ -34,7 +34,7 @@ import { ExportOrdersDialog } from "./export-orders-dialog";
 const TAB_KEYS = TAB_CONFIG.map((t) => t.key as OrderTab);
 
 export function PesananView() {
-  const [tab, setTabUrl] = useUrlTab<OrderTab>("tab", "all", {
+  const [tab, setTabUrl] = useUrlTab<OrderTab>("tab", "ready-to-process", {
     validValues: TAB_KEYS,
     clearKeys: ["page", "sub"],
   });

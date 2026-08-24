@@ -340,7 +340,7 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       const blob = await OutboundService.invoicePdf(id);
       return { blob };
     },
-    backUrl: () => "/dashboard/pesanan?tab=all",
+    backUrl: () => "/dashboard/pesanan",
     filename: (id) => `INV-${id.slice(0, 8)}.pdf`,
   },
 
@@ -351,7 +351,7 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       const blob = await OutboundService.orderBreakdownPdf(id);
       return { blob };
     },
-    backUrl: () => "/dashboard/pesanan?tab=all",
+    backUrl: () => "/dashboard/pesanan",
     filename: (id) => `RINCIAN-${id.slice(0, 8)}.pdf`,
   },
 
