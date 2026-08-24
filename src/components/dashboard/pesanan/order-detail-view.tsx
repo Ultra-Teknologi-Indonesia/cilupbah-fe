@@ -1330,7 +1330,6 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
           open={requestCancelOpen}
           onOpenChange={setRequestCancelOpen}
           order={order}
-          onDone={refetch}
         />
       )}
       {order && (
