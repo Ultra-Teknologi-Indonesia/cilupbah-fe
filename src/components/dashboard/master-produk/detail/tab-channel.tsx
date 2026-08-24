@@ -23,6 +23,8 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -46,7 +48,9 @@ import {
   useUnlinkChannelMapping,
   useUnlinkVariantChannelMapping,
   useResyncChannelMapping,
+  useBulkUnlinkChannelMappings,
 } from "@/hooks/master-produk/use-product-tabs";
+import { useConnectedStores } from "@/hooks/channel/use-connected-stores";
 import { SyncStatusBadge, TabPagination } from "./tab-pagination";
 import type { ChannelListingRow } from "@/hooks/master-produk/use-product-tabs";
 import type { ChannelCode } from "@/types/channel";
@@ -302,10 +306,16 @@ function VariantCard({
 }
 
 export function TabChannel({ productId }: { productId: string }) {
-  const [channel, setChannel] = React.useState("");
+  const [shopId, setShopId] = React.useState("");
+  const [search, setSearch] = React.useState("");
+  const [searchDebounced, setSearchDebounced] = React.useState("");
+  const [sort, setSort] = React.useState("sku");
   const [viewMode, setViewMode] = React.useState<"table" | "card">("table");
   const [page, setPage] = React.useState(1);
   const [perPage, setPerPage] = React.useState(20);
+
+  const [selectedMappingIds, setSelectedMappingIds] = React.useState<string[]>([]);
+  const [isBulkUnlinkOpen, setIsBulkUnlinkOpen] = React.useState(false);
 
   // Unlink & Resync state
   const [targetUnlink, setTargetUnlink] = React.useState<{
@@ -313,31 +323,32 @@ export function TabChannel({ productId }: { productId: string }) {
     sku: string;
   } | null>(null);
 
+  React.useEffect(() => {
+    const t = setTimeout(() => {
+      setSearchDebounced(search);
+      setPage(1);
+    }, 500);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  const { data: stores } = useConnectedStores();
+
   const { data, isLoading, isError, refetch, isFetching } =
     useProductChannelListings(
       productId,
-      { page, perPage, channel: channel || undefined },
+      { page, perPage, shopId: shopId || undefined, search: searchDebounced || undefined, sort },
       true,
     );
 
   const unlinkChannel = useUnlinkChannelMapping(productId);
   const unlinkVariant = useUnlinkVariantChannelMapping(productId);
+  const bulkUnlink = useBulkUnlinkChannelMappings(productId);
   const resyncChannel = useResyncChannelMapping(productId);
 
   const rows = React.useMemo(() => data?.items ?? [], [data]);
   const meta = data?.meta;
   const lastPage = meta?.last_page ?? 1;
   const total = meta?.total ?? 0;
-
-  const channelOptions = React.useMemo(() => {
-    const m = new Map<string, string>();
-    rows.forEach((r) =>
-      r.listings.forEach((l) => {
-        if (l.channelCode) m.set(l.channelCode, l.channelName ?? l.channelCode);
-      }),
-    );
-    return [...m.entries()];
-  }, [rows]);
 
   const listingCount = React.useMemo(
     () => rows.reduce((sum, r) => sum + r.listings.length, 0),
@@ -382,6 +393,37 @@ export function TabChannel({ productId }: { productId: string }) {
     }
   };
 
+  const handleBulkUnlink = async () => {
+    if (selectedMappingIds.length === 0) return;
+    try {
+      await bulkUnlink.mutateAsync({ variant_mapping_ids: selectedMappingIds });
+      toast.success(`${selectedMappingIds.length} tautan berhasil dihapus.`);
+      setSelectedMappingIds([]);
+      setIsBulkUnlinkOpen(false);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Gagal menghapus tautan masal";
+      toast.error(msg);
+    }
+  };
+
+  const handleToggleSelectAll = () => {
+    if (selectedMappingIds.length === tableRows.length) {
+      setSelectedMappingIds([]);
+    } else {
+      setSelectedMappingIds(
+        tableRows
+          .map((r) => r.listing.variantChannelMappingId)
+          .filter(Boolean) as string[]
+      );
+    }
+  };
+
+  const handleToggleSelectRow = (id: string) => {
+    setSelectedMappingIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
   const handleResync = async (listing: Listing) => {
     if (!listing.productChannelMappingId) return;
 
@@ -402,30 +444,52 @@ export function TabChannel({ productId }: { productId: string }) {
       {/* Header Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/60 bg-card p-3">
         <div className="flex flex-wrap items-center gap-2.5">
+          <Input
+            placeholder="Cari SKU atau Varian..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="h-9 w-[200px]"
+          />
           <Select
-            value={channel || "all"}
+            value={shopId || "all"}
             onValueChange={(v) => {
-              setChannel(v === "all" ? "" : v);
+              setShopId(v === "all" ? "" : v);
               setPage(1);
             }}
           >
-            <SelectTrigger className="h-9 w-[200px]">
-              <SelectValue placeholder="Semua channel" />
+            <SelectTrigger className="h-9 w-[220px]">
+              <SelectValue placeholder="Semua toko marketplace" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Semua channel</SelectItem>
-              {channelOptions.map(([code, name]) => (
-                <SelectItem key={code} value={code}>
+              <SelectItem value="all">Semua toko marketplace</SelectItem>
+              {stores?.map((store) => (
+                <SelectItem key={store.id} value={store.id}>
                   <span className="flex items-center gap-2">
                     <ChannelLogo
-                      code={code as ChannelCode}
-                      name={name}
+                      code={store.channel?.code as ChannelCode}
+                      name={store.channel?.name || "Channel"}
                       className="size-4 text-2xs"
                     />
-                    {name}
+                    <span className="truncate max-w-[150px]">{store.shop_name} ({store.channel?.name || "Channel"})</span>
                   </span>
                 </SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+
+          {/* Sort Toggle (Simple, or can be a Select) */}
+          <Select
+            value={sort}
+            onValueChange={(v) => setSort(v)}
+          >
+            <SelectTrigger className="h-9 w-[140px]">
+              <SelectValue placeholder="Urutkan" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="sku">SKU (A-Z)</SelectItem>
+              <SelectItem value="-sku">SKU (Z-A)</SelectItem>
+              <SelectItem value="sell_price">Harga (Rendah)</SelectItem>
+              <SelectItem value="-sell_price">Harga (Tinggi)</SelectItem>
             </SelectContent>
           </Select>
 
@@ -503,46 +567,73 @@ export function TabChannel({ productId }: { productId: string }) {
           icon={StoreIcon}
           title="Belum ada listing channel"
           description={
-            channel
-              ? "Tidak ditemukan listing untuk channel yang dipilih."
+            shopId || searchDebounced
+              ? "Tidak ditemukan listing untuk pencarian atau toko yang dipilih."
               : "Produk ini belum diunggah atau terhubung ke marketplace mana pun."
           }
         />
       ) : viewMode === "table" ? (
         /* ================= JUBELIO-STYLE TABLE VIEW ================= */
-        <div className="overflow-hidden rounded-3xl border border-border/60 bg-card shadow-xs">
-          <Table>
-            <TableHeader className="bg-muted/40">
-              <TableRow>
-                <TableHead className="w-[180px]">Varian SKU</TableHead>
-                <TableHead className="w-[200px]">Toko & Channel</TableHead>
-                <TableHead className="w-[160px]">ID Marketplace</TableHead>
-                <TableHead className="w-[140px]">Tautan Produk</TableHead>
-                <TableHead className="w-[130px]">Status</TableHead>
-                <TableHead className="w-[110px] text-right">Aksi</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {tableRows.map((item, idx) => (
-                <TableRow
-                  key={item.listing.variantChannelMappingId ?? idx}
-                  className="hover:bg-muted/30 transition-colors"
-                >
-                  {/* SKU & Options */}
-                  <TableCell>
-                    <div className="flex flex-col">
-                      <span className="font-mono text-xs font-semibold text-primary">
-                        {item.sku}
-                      </span>
-                      {item.options.length > 0 && (
-                        <span className="text-2xs text-muted-foreground">
-                          {item.options.map((o) => o.value).join(" / ")}
+        <div className="flex flex-col gap-3">
+          {selectedMappingIds.length > 0 && (
+            <div className="flex items-center justify-between bg-muted/40 border border-border/60 rounded-2xl px-4 py-2">
+              <span className="text-sm font-medium">{selectedMappingIds.length} listing dipilih</span>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setIsBulkUnlinkOpen(true)}
+              >
+                <Trash2Icon className="size-4 mr-2" />
+                Hapus Link Masal
+              </Button>
+            </div>
+          )}
+          <div className="overflow-hidden rounded-3xl border border-border/60 bg-card shadow-xs">
+            <Table>
+              <TableHeader className="bg-muted/40">
+                <TableRow>
+                  <TableHead className="w-12 text-center">
+                    <Checkbox 
+                      checked={selectedMappingIds.length > 0 && selectedMappingIds.length === tableRows.length}
+                      onCheckedChange={handleToggleSelectAll}
+                    />
+                  </TableHead>
+                  <TableHead className="w-[180px]">Varian SKU</TableHead>
+                  <TableHead className="w-[200px]">Toko & Channel</TableHead>
+                  <TableHead className="w-[160px]">ID Marketplace</TableHead>
+                  <TableHead className="w-[140px]">Tautan Produk</TableHead>
+                  <TableHead className="w-[130px]">Status</TableHead>
+                  <TableHead className="w-[110px] text-right">Aksi</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {tableRows.map((item, idx) => (
+                  <TableRow
+                    key={item.listing.variantChannelMappingId ?? idx}
+                    className="hover:bg-muted/30 transition-colors"
+                  >
+                    <TableCell className="text-center">
+                      <Checkbox 
+                        checked={item.listing.variantChannelMappingId ? selectedMappingIds.includes(item.listing.variantChannelMappingId) : false}
+                        onCheckedChange={() => item.listing.variantChannelMappingId && handleToggleSelectRow(item.listing.variantChannelMappingId)}
+                        disabled={!item.listing.variantChannelMappingId}
+                      />
+                    </TableCell>
+                    {/* SKU & Options */}
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span className="font-mono text-xs font-semibold text-primary">
+                          {item.sku}
                         </span>
-                      )}
-                    </div>
-                  </TableCell>
+                        {item.options.length > 0 && (
+                          <span className="text-2xs text-muted-foreground">
+                            {item.options.map((o) => o.value).join(" / ")}
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
 
-                  {/* Channel & Shop Name */}
+                    {/* Channel & Shop Name */}
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <ChannelLogo
@@ -651,6 +742,7 @@ export function TabChannel({ productId }: { productId: string }) {
             </TableBody>
           </Table>
         </div>
+      </div>
       ) : (
         /* ================= CARD VIEW ================= */
         <div className="flex flex-col gap-3">
@@ -711,6 +803,30 @@ export function TabChannel({ productId }: { productId: string }) {
               Anda dapat menautkan kembali produk ini kapan saja dengan
               melakukan download/sinkron ulang.
             </li>
+          </ul>
+        </div>
+      </ConfirmDialog>
+
+      {/* Confirmation Dialog for Bulk Unlink */}
+      <ConfirmDialog
+        open={isBulkUnlinkOpen}
+        onOpenChange={setIsBulkUnlinkOpen}
+        title="Hapus Link Masal"
+        description={`Apakah Anda yakin ingin melepas ${selectedMappingIds.length} tautan yang dipilih?`}
+        confirmLabel="Hapus Link Masal"
+        cancelLabel="Batal"
+        variant="destructive"
+        loading={bulkUnlink.isPending}
+        onConfirm={handleBulkUnlink}
+      >
+        <div className="rounded-xl border border-border/80 bg-muted/40 p-3 text-xs text-muted-foreground">
+          <p className="font-medium text-foreground flex items-center gap-1.5">
+            <Link2OffIcon className="size-4 text-destructive" />
+            <span>Catatan Keamanan Data:</span>
+          </p>
+          <ul className="mt-1.5 list-disc list-inside space-y-0.5 text-2xs">
+            <li>Master produk dan varian SKU di sistem <strong>tidak akan terhapus</strong>.</li>
+            <li>Anda dapat menautkan kembali produk ini kapan saja.</li>
           </ul>
         </div>
       </ConfirmDialog>

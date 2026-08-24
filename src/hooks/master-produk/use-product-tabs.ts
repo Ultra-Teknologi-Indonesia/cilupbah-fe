@@ -135,6 +135,22 @@ export const useUnlinkVariantChannelMapping = (productId: string) => {
   });
 };
 
+export const useBulkUnlinkChannelMappings = (productId: string) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { variant_mapping_ids: string[] }) =>
+      ProductTabsService.bulkUnlinkMappings(productId, body),
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: ["master-produk", "channel-listings", productId],
+      });
+      qc.invalidateQueries({
+        queryKey: ["master-produk", "variants", productId],
+      });
+    },
+  });
+};
+
 export const useResyncChannelMapping = (productId: string) => {
   const qc = useQueryClient();
   return useMutation({

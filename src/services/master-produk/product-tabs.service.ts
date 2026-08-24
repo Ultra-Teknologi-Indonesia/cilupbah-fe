@@ -103,6 +103,9 @@ export interface ChannelTabParams {
   page?: number;
   perPage?: number;
   channel?: string;
+  shopId?: string;
+  search?: string;
+  sort?: string;
   includeUnlisted?: boolean;
 }
 
@@ -164,6 +167,9 @@ function channelQuery(params: ChannelTabParams): string {
   if (params.page) q.set("page", String(params.page));
   if (params.perPage) q.set("per_page", String(params.perPage));
   if (params.channel) q.set("filter[channel]", params.channel);
+  if (params.shopId) q.set("filter[shop_id]", params.shopId);
+  if (params.search?.trim()) q.set("search", params.search.trim());
+  if (params.sort) q.set("sort", params.sort);
   if (params.includeUnlisted) q.set("include_unlisted", "1");
   return q.toString();
 }
@@ -252,6 +258,16 @@ export const ProductTabsService = {
         method: "DELETE",
       },
     );
+  },
+
+  bulkUnlinkMappings: async (
+    productId: string,
+    body: { variant_mapping_ids: string[] },
+  ): Promise<ApiResponse<{ success: boolean; deleted: number }>> => {
+    return fetchClient(`/products/${productId}/channel-mappings/bulk-unlink`, {
+      method: "DELETE",
+      data: body,
+    });
   },
 
   resyncChannelMapping: async (
