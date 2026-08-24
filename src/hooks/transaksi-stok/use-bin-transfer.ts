@@ -60,6 +60,7 @@ export interface BinTransferReceiptItem {
   bin_transfer_item_id?: string;
   destination_bin?: { id: string; bin_final_code: string } | null;
   qty: number;
+  transfer_item?: BinTransferDetailItem | null;
 }
 
 export interface BinTransferReceiptRef {
@@ -282,6 +283,25 @@ export function useDeleteBinTransfer() {
       invalidateStockViews(qc);
     },
     onError: (err) => apiError(err, "Gagal menghapus transfer"),
+  });
+}
+
+export function useDeleteBinTransferReceipt() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await fetchClient<unknown>(`/inventory/bin-transfer-receipts/${id}`, {
+        method: "DELETE",
+      });
+      return id;
+    },
+    onSuccess: () => {
+      toast.success("Penerimaan transfer berhasil dibatalkan");
+      qc.invalidateQueries({ queryKey: ["bin-transfers"] });
+      qc.invalidateQueries({ queryKey: ["bin-transfer-receipts"] });
+      invalidateStockViews(qc);
+    },
+    onError: (err) => apiError(err, "Gagal membatalkan penerimaan"),
   });
 }
 

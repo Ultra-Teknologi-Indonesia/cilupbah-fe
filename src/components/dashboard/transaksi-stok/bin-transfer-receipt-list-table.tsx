@@ -1,10 +1,13 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
+import Link from "next/link";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { DateRange } from "react-day-picker";
-import { InboxIcon } from "lucide-react";
+import { InboxIcon, EyeIcon, RotateCcwIcon } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Combobox } from "@/components/ui/combobox";
 import { DateRangePicker } from "@/components/ui/date-picker";
 import { ResourceListView } from "@/components/dashboard/shared/resource-list-view";
@@ -12,6 +15,7 @@ import { useListState } from "@/hooks/use-list-state";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import {
   useBinTransferReceiptList,
+  useDeleteBinTransferReceipt,
   type BinTransferReceiptListItem,
 } from "@/hooks/transaksi-stok/use-bin-transfer";
 import { exportCsv } from "@/lib/export-csv";
@@ -62,6 +66,8 @@ export function BinTransferReceiptListTable() {
 
   const { data, isLoading, isFetching } = useBinTransferReceiptList(params);
   const { data: locData } = useLocations({ perPage: 100 });
+  const deleteMut = useDeleteBinTransferReceipt();
+  const [revertTarget, setRevertTarget] = useState<BinTransferReceiptListItem | null>(null);
 
   const items = useMemo(
     () => (data?.data ?? []) as BinTransferReceiptListItem[],
@@ -156,6 +162,38 @@ export function BinTransferReceiptListTable() {
           </span>
         ),
       },
+      {
+        id: "actions",
+        header: () => <div className="text-right">Aksi</div>,
+        cell: ({ row }) => {
+          const item = row.original;
+          return (
+            <div className="flex items-center justify-end gap-1">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                asChild
+                aria-label="Lihat Detail"
+                title="Lihat Detail"
+              >
+                <Link href={`/dashboard/transaksi-stok/penerimaan-transfer/${item.id}`}>
+                  <EyeIcon className="size-3.5" />
+                </Link>
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => setRevertTarget(item)}
+                aria-label="Batalkan Penerimaan"
+                title="Batalkan Penerimaan"
+                className="text-destructive hover:text-destructive"
+              >
+                <RotateCcwIcon className="size-3.5" />
+              </Button>
+            </div>
+          );
+        },
+      },
     ],
     [],
   );
@@ -188,44 +226,61 @@ export function BinTransferReceiptListTable() {
   }, [items]);
 
   return (
-    <ResourceListView
-      list={list}
-      columns={columns}
-      rows={items}
-      total={total}
-      isLoading={isLoading}
-      isFetching={isFetching}
-      searchPlaceholder="Cari no. penerimaan / transfer..."
-      onExport={handleExport}
-      emptyIcon={InboxIcon}
-      emptyTitle="Belum ada penerimaan transfer"
-      emptyDescription="Penerimaan transfer barang yang sudah diselesaikan akan tampil di sini."
-      filterControls={
-        <>
-          <Combobox
-            options={locationOptions}
-            value={list.filters.locationId}
-            onChange={(v) =>
-              list.setFilters({ ...list.filters, locationId: v ?? "" })
-            }
-            placeholder="Lokasi"
-            searchPlaceholder="Cari lokasi"
-            className="h-9 bg-background"
-          />
-          <DateRangePicker
-            value={dateRange}
-            onChange={(range) =>
-              list.setFilters({
-                ...list.filters,
-                dateFrom: toDateStr(range?.from),
-                dateTo: toDateStr(range?.to),
-              })
-            }
-            placeholder="Rentang tanggal terima"
-            className="h-9 bg-background"
-          />
-        </>
-      }
-    />
+    <>
+      <ResourceListView
+        list={list}
+        columns={columns}
+        rows={items}
+        total={total}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        searchPlaceholder="Cari no. penerimaan / transfer..."
+        onExport={handleExport}
+        emptyIcon={InboxIcon}
+        emptyTitle="Belum ada penerimaan transfer"
+        emptyDescription="Penerimaan transfer barang yang sudah diselesaikan akan tampil di sini."
+        filterControls={
+          <>
+            <Combobox
+              options={locationOptions}
+              value={list.filters.locationId}
+              onChange={(v) =>
+                list.setFilters({ ...list.filters, locationId: v ?? "" })
+              }
+              placeholder="Lokasi"
+              searchPlaceholder="Cari lokasi"
+              className="h-9 bg-background"
+            />
+            <DateRangePicker
+              value={dateRange}
+              onChange={(range) =>
+                list.setFilters({
+                  ...list.filters,
+                  dateFrom: toDateStr(range?.from),
+                  dateTo: toDateStr(range?.to),
+                })
+              }
+              placeholder="Rentang tanggal terima"
+              className="h-9 bg-background"
+            />
+          </>
+        }
+      />
+      <ConfirmDialog
+        open={!!revertTarget}
+        onOpenChange={(op) => !op && setRevertTarget(null)}
+        title="Batalkan Penerimaan?"
+        description={`Anda yakin ingin membatalkan dokumen penerimaan ${revertTarget?.receipt_number}? Barang akan dikembalikan ke status SEDANG DIJALAN, asalkan stok saat ini mencukupi.`}
+        confirmLabel="Ya, Batalkan"
+        variant="destructive"
+        loading={deleteMut.isPending}
+        onConfirm={() => {
+          if (!revertTarget) return;
+          deleteMut.mutate(revertTarget.id, {
+            onSuccess: () => setRevertTarget(null),
+          });
+        }}
+      />
+    </>
   );
 }

@@ -61,6 +61,7 @@ function DestinationBinCombobox({
       search: debouncedSearch.trim() || undefined,
       perPage: 30,
       sort: "bin_final_code",
+      filter: { is_inbound: false },
     });
 
   const labelCacheRef = useMemo(
@@ -120,7 +121,6 @@ export function PenerimaanTransferView() {
   const router = useRouter();
 
   const [transferId, setTransferId] = useState("");
-  const [receivedBy, setReceivedBy] = useState("");
   const [notes, setNotes] = useState("");
   const [lines, setLines] = useState<Record<string, ReceiveLine>>({});
   const [primedKey, setPrimedKey] = useState<string | null>(null);
@@ -210,7 +210,6 @@ export function PenerimaanTransferView() {
       {
         id: transferId,
         payload: {
-          received_by: receivedBy.trim() || undefined,
           notes: notes.trim() || undefined,
           items: validLines.map((it) => ({
             bin_transfer_item_id: it.id,
@@ -276,14 +275,8 @@ export function PenerimaanTransferView() {
           </div>
 
           <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-sm font-medium">Diterima Oleh</Label>
-              <UserSelect
-                value={receivedBy}
-                onChange={setReceivedBy}
-                defaultToSelf
-                placeholder="Pilih petugas"
-              />
+            <div className="flex flex-col gap-1.5 hidden">
+              {/* Removed as requested by user */}
             </div>
             <div className="flex flex-1 flex-col gap-1.5">
               <Label className="text-sm font-medium">Keterangan</Label>

@@ -6,7 +6,7 @@ import { InventoryTransferService } from "@/services/barang-masuk/inventory-tran
 import { apiError } from "@/lib/toast";
 
 interface ReceiveTransferPayload {
-  received_by: string;
+  received_by?: string;
   items?: {
     item_id: string;
     received_qty: number;

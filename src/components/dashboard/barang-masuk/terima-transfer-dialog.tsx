@@ -42,7 +42,6 @@ export function TerimaTransferDialog({
   onSuccess,
 }: TerimaTransferDialogProps) {
   const receive = useReceiveTransfer();
-  const [receivedBy, setReceivedBy] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const detail = useInboundDetail(open ? inbound?.id : undefined);
@@ -64,11 +63,7 @@ export function TerimaTransferDialog({
     detail.data?.status === "RECEIVED" || inbound?.status === "RECEIVED";
   const isBusy = receive.isPending || isSubmitting;
   const canSubmit =
-    !!inbound?.source_id &&
-    !!receivedBy &&
-    items.length > 0 &&
-    !isAlreadyReceived &&
-    !isBusy;
+    !!inbound?.source_id && items.length > 0 && !isAlreadyReceived && !isBusy;
 
   const handleSubmit = () => {
     if (!inbound?.source_id || isBusy || isAlreadyReceived) return;
@@ -77,7 +72,6 @@ export function TerimaTransferDialog({
       {
         id: inbound.source_id,
         data: {
-          received_by: receivedBy,
           items: items.map((i) => ({
             item_id: i.item_id,
             received_qty: qtyMap[i.item_id] ?? i.expected_qty,
@@ -88,7 +82,6 @@ export function TerimaTransferDialog({
         onSuccess: () => {
           setIsSubmitting(false);
           onOpenChange(false);
-          setReceivedBy("");
           onSuccess?.();
         },
         onError: () => {
@@ -109,18 +102,6 @@ export function TerimaTransferDialog({
         </DialogHeader>
 
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto py-2">
-          <div className="grid gap-2">
-            <Label className="text-sm font-medium text-muted-foreground">
-              Diterima Oleh
-            </Label>
-            <UserSelect
-              value={receivedBy}
-              onChange={setReceivedBy}
-              defaultToSelf
-              placeholder="Pilih penerima…"
-            />
-          </div>
-
           <div className="overflow-hidden rounded-xl border">
             <Table>
               <TableHeader>
