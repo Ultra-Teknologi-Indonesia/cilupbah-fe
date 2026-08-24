@@ -47,11 +47,15 @@ function DestinationBinCombobox({
   value,
   onChange,
   disabled,
+  allocatedBinId,
+  allocatedBinCode,
 }: {
   locationId: string;
   value: string;
   onChange: (v: string | null) => void;
   disabled?: boolean;
+  allocatedBinId?: string | null;
+  allocatedBinCode?: string | null;
 }) {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 250);
@@ -80,6 +84,7 @@ function DestinationBinCombobox({
       label: b.binFinalCode,
     }));
 
+    // Always pin the currently-selected value if not in current page
     if (
       value &&
       !list.some((o) => o.value === value) &&
@@ -91,8 +96,19 @@ function DestinationBinCombobox({
       });
     }
 
+    // Pin the allocated (home) bin at the very top with a hint label
+    if (allocatedBinId && allocatedBinCode) {
+      // Remove duplicate if already in list
+      const withoutAlloc = list.filter((o) => o.value !== allocatedBinId);
+      withoutAlloc.unshift({
+        value: allocatedBinId,
+        label: `${allocatedBinCode} ✦ Rak Alokasi`,
+      });
+      return withoutAlloc;
+    }
+
     return list;
-  }, [data, value, labelCacheRef]);
+  }, [data, value, labelCacheRef, allocatedBinId, allocatedBinCode]);
 
   return (
     <Combobox
@@ -416,6 +432,8 @@ export function PenerimaanTransferView() {
                               updateLine(it.id, { destBinId: v ?? "" })
                             }
                             disabled={!locationId}
+                            allocatedBinId={it.destination_bin?.id ?? null}
+                            allocatedBinCode={it.destination_bin?.bin_final_code ?? null}
                           />
                         </TableCell>
                         <TableCell className="px-3 py-2.5 text-right">
