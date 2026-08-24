@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Switch } from "@/components/ui/switch";
 import { useOrderActivities } from "@/hooks/pesanan/use-order-activities";
 import {
   formatRiwayatValue,
@@ -180,13 +179,12 @@ export function RiwayatPesananDialog({
   open,
   onOpenChange,
 }: RiwayatPesananDialogProps) {
-  const [cluster, setCluster] = useState(true);
   const query = useOrderActivities(orderId, open);
   const items = useMemo(
     () => query.data?.pages.flatMap((page) => page.data) ?? [],
     [query.data],
   );
-  const groups = useMemo(() => groupByDay(items, cluster), [items, cluster]);
+  const groups = useMemo(() => groupByDay(items, false), [items]);
 
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -205,13 +203,7 @@ export function RiwayatPesananDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle>Riwayat</DialogTitle>
-            <label className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Switch checked={cluster} onCheckedChange={setCluster} />
-              Ringkas
-            </label>
-          </div>
+          <DialogTitle>Riwayat</DialogTitle>
         </DialogHeader>
 
         <div className="max-h-[70vh] overflow-y-auto pr-1">
