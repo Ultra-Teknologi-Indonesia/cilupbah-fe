@@ -34,6 +34,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 
 import { ContactBuyerDialog } from "./contact-buyer-dialog";
+import { ManualCancelDialog } from "./manual-cancel-dialog";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -237,6 +238,7 @@ export function OrderActions({
   const [pengirimanOpen, setPengirimanOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
   const [requestCancelOpen, setRequestCancelOpen] = React.useState(false);
+  const [manualCancelOpen, setManualCancelOpen] = React.useState(false);
 
   const markComplete = useMarkComplete();
   const requestAwb = useRequestAwb();
@@ -247,7 +249,8 @@ export function OrderActions({
   const acceptReturn = useAcceptReturn();
   const rejectReturn = useRejectReturn();
 
-  const isMarketplace = !!order.source && order.source !== "manual";
+  const isMarketplace = !!order.source && order.source !== "manual" && order.source !== "offline";
+  const canManualCancel = !isMarketplace;
 
   const canRequestCancel = canRequestChannelCancel(order);
 
@@ -689,6 +692,12 @@ export function OrderActions({
                   Ajukan Pembatalan
                 </DropdownMenuItem>
               )}
+              {canManualCancel && (
+                <DropdownMenuItem onSelect={() => setManualCancelOpen(true)}>
+                  <BanIcon className="size-4 mr-2" />
+                  Batalkan Pesanan
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem
                 variant="destructive"
                 onSelect={() => setDeleteOpen(true)}
@@ -725,6 +734,11 @@ export function OrderActions({
         <RequestCancelDialog
           open={requestCancelOpen}
           onOpenChange={setRequestCancelOpen}
+          order={order}
+        />
+        <ManualCancelDialog
+          open={manualCancelOpen}
+          onOpenChange={setManualCancelOpen}
           order={order}
         />
       </>

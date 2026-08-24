@@ -34,6 +34,7 @@ const CATEGORY_STYLE: Record<string, string> = {
   SALES_RETURN: "bg-purple-100 text-purple-700 border-purple-200",
   PICKING: "bg-sky-100 text-sky-700 border-sky-200",
   PESANAN: "bg-emerald-100 text-emerald-700 border-emerald-200",
+  PESANAN_BATAL: "bg-red-100 text-red-700 border-red-200",
   INVOICE: "bg-rose-100 text-rose-700 border-rose-200",
   TRANSFER: "bg-slate-100 text-slate-700 border-slate-200",
   REVALUATION: "bg-orange-100 text-orange-700 border-orange-200",

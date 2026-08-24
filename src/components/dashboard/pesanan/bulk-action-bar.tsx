@@ -32,6 +32,7 @@ import {
 } from "@/hooks/pesanan/use-order-actions";
 import { DocActions } from "@/hooks/proses-pesanan/use-doc-actions";
 import { BulkRequestCancelDialog } from "./bulk-request-cancel-dialog";
+import { BulkManualCancelDialog } from "./bulk-manual-cancel-dialog";
 import { DirectCompletionDialog } from "./direct-completion-dialog";
 
 export function BulkActionBar({
@@ -60,12 +61,12 @@ export function BulkActionBar({
       <div className="flex items-center gap-2 rounded-2xl border border-border/60 bg-card px-4 py-2.5 shadow-xl shadow-black/10 dark:shadow-black/30">
         <Button
           variant="ghost"
-          size="sm"
-          className="h-8 gap-1.5 text-xs text-muted-foreground"
+          size="icon"
+          className="size-6 shrink-0 rounded-full hover:bg-muted"
           onClick={onClear}
+          aria-label="Batalkan pilihan"
         >
           <XIcon className="size-3.5" />
-          Batal
         </Button>
 
         <span className="text-sm font-medium tabular-nums">{label}</span>
@@ -104,6 +105,7 @@ function TabBulkActions({
   onDone: () => void;
 }) {
   const [bulkCancelOpen, setBulkCancelOpen] = useState(false);
+  const [bulkManualCancelOpen, setBulkManualCancelOpen] = useState(false);
   const [directCompleteOpen, setDirectCompleteOpen] = useState(false);
   const bulkContact = useBulkMarkContacted();
   const moveToReady = useMoveToReady();
@@ -345,9 +347,24 @@ function TabBulkActions({
           <BanIcon className="size-3.5" />
           Ajukan Pembatalan
         </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 gap-1.5 text-xs text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10"
+          onClick={() => setBulkManualCancelOpen(true)}
+        >
+          <BanIcon className="size-3.5" />
+          Batalkan Pesanan
+        </Button>
         <BulkRequestCancelDialog
           open={bulkCancelOpen}
           onOpenChange={setBulkCancelOpen}
+          orders={selectedOrders}
+          onDone={onDone}
+        />
+        <BulkManualCancelDialog
+          open={bulkManualCancelOpen}
+          onOpenChange={setBulkManualCancelOpen}
           orders={selectedOrders}
           onDone={onDone}
         />

@@ -45,9 +45,28 @@ function itemPlacements(item: PutawayItem): { code: string; qty: number }[] {
       qty: p.qty,
     }));
   }
-  if (item.putaway_qty > 0 && item.destination_bin) {
+  const destBin =
+    item.destination_bin ??
+    (item as unknown as { destinationBin?: { bin_final_code: string } })
+      .destinationBin;
+  if (destBin) {
     return [
-      { code: item.destination_bin.bin_final_code, qty: item.putaway_qty },
+      {
+        code: destBin.bin_final_code,
+        qty: item.putaway_qty > 0 ? item.putaway_qty : item.qty,
+      },
+    ];
+  }
+  const recBin =
+    item.recommended_bin ??
+    (item as unknown as { recommendedBin?: { bin_final_code: string } })
+      .recommendedBin;
+  if (recBin) {
+    return [
+      {
+        code: recBin.bin_final_code,
+        qty: item.qty,
+      },
     ];
   }
   return [];
@@ -414,15 +433,25 @@ function ReviewItemRow({
           </span>
         </TableCell>
 
-        <TableCell>
-          {multiBin ? (
-            <span className="text-sm text-muted-foreground">
-              {placements.length} rak
-            </span>
+        <TableCell className="max-w-[240px]">
+          {placements.length === 0 ? (
+            <span className="font-mono text-sm text-muted-foreground">—</span>
           ) : (
-            <span className="font-mono text-sm font-medium text-foreground">
-              {firstBin}
-            </span>
+            <div className="flex flex-wrap items-center gap-1.5">
+              {placements.map((p, idx) => (
+                <span
+                  key={`${p.code}-${idx}`}
+                  className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/40 px-2 py-0.5 font-mono text-xs font-medium text-foreground"
+                >
+                  <span>{p.code}</span>
+                  {placements.length > 1 && (
+                    <span className="text-2xs text-muted-foreground">
+                      ({p.qty})
+                    </span>
+                  )}
+                </span>
+              ))}
+            </div>
           )}
         </TableCell>
 

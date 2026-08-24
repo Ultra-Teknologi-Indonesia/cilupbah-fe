@@ -170,12 +170,9 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
 
   useEffect(() => {
     if (allItems.length > 0 && !didAutoExpand) {
-      const placed = allItems.filter((it) => it.putaway_qty > 0);
-      if (placed.length > 0) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setExpandedItems(new Set(placed.map((it) => it.id)));
-        setDidAutoExpand(true);
-      }
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setExpandedItems(new Set(allItems.map((it) => it.id)));
+      setDidAutoExpand(true);
     }
   }, [allItems, didAutoExpand]);
 
@@ -805,12 +802,31 @@ function PutawayItemRow({
         maxQty: item.qty,
       }));
     }
-    if (item.putaway_qty > 0 && item.destination_bin) {
+    const destBin =
+      item.destination_bin ??
+      (item as unknown as { destinationBin?: { bin_final_code: string } })
+        .destinationBin;
+    if (destBin) {
       return [
         {
           id: "auto",
           initialSavedQty: item.putaway_qty,
-          initialBinCode: item.destination_bin.bin_final_code,
+          initialBinCode: destBin.bin_final_code,
+          initialBinQty: item.putaway_qty,
+          maxQty: item.qty,
+        },
+      ];
+    }
+    const recBin =
+      item.recommended_bin ??
+      (item as unknown as { recommendedBin?: { bin_final_code: string } })
+        .recommendedBin;
+    if (recBin) {
+      return [
+        {
+          id: "rec",
+          initialSavedQty: item.putaway_qty,
+          initialBinCode: recBin.bin_final_code,
           initialBinQty: item.putaway_qty,
           maxQty: item.qty,
         },
@@ -822,6 +838,7 @@ function PutawayItemRow({
     item.placements,
     item.putaway_qty,
     item.destination_bin,
+    item.recommended_bin,
     item.qty,
   ]);
 
@@ -879,13 +896,34 @@ function PutawayItemRow({
               <p className="truncate font-mono text-xs text-muted-foreground">
                 {displaySku}
               </p>
-              {item.recommended_bin_locked && item.recommended_bin && (
-                <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                  Rak:{" "}
-                  <span className="font-mono font-medium text-foreground">
-                    {item.recommended_bin.bin_final_code}
-                  </span>
-                </p>
+              {(item.recommended_bin ||
+                item.destination_bin ||
+                effectivePlacements.length > 0) && (
+                <div className="mt-1 flex flex-wrap items-center gap-1">
+                  {effectivePlacements.length > 0 ? (
+                    effectivePlacements.map((p, idx) => (
+                      <span
+                        key={`${p.id}-${idx}`}
+                        className="inline-flex items-center gap-1 rounded bg-muted/60 px-1.5 py-0.5 font-mono text-2xs font-medium text-foreground"
+                      >
+                        <span>Rak: {p.initialBinCode || "—"}</span>
+                        {p.initialSavedQty > 0 && (
+                          <span className="text-muted-foreground">
+                            ({p.initialSavedQty})
+                          </span>
+                        )}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="inline-flex items-center gap-1 rounded bg-muted/60 px-1.5 py-0.5 font-mono text-2xs font-medium text-foreground">
+                      Rak:{" "}
+                      {
+                        (item.recommended_bin ?? item.destination_bin)
+                          ?.bin_final_code
+                      }
+                    </span>
+                  )}
+                </div>
               )}
             </div>
           </div>

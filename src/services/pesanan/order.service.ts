@@ -180,6 +180,20 @@ export const OrderService = {
     });
   },
 
+  cancelManualOrder: (orderId: string, reason?: string) => {
+    return fetchClient<ApiResponse<Order>>(`/sales/orders/${orderId}/cancel-manual`, {
+      method: "POST",
+      data: reason ? { reason } : undefined,
+    });
+  },
+
+  bulkCancelManualOrder: (orderIds: string[], reason?: string) => {
+    return fetchClient<ApiResponse>("/sales/orders/bulk-cancel-manual", {
+      method: "POST",
+      data: { order_ids: orderIds, reason },
+    });
+  },
+
   getOrderCancelReasons: (orderId: string) => {
     return fetchClient<ApiResponse<CancelReason[]>>(
       `/sales/orders/${orderId}/cancel-reasons`,

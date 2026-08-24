@@ -89,6 +89,7 @@ import { CourierPickupDialog } from "./courier-pickup-dialog";
 import { EditOrderItemDialog } from "./edit-order-item-dialog";
 import { RiwayatPesananDialog } from "./riwayat-pesanan-dialog";
 import { RequestCancelDialog } from "./request-cancel-dialog";
+import { ManualCancelDialog } from "./manual-cancel-dialog";
 import { canRequestChannelCancel } from "@/lib/pesanan/cancel-eligibility";
 import {
   formatCurrency,
@@ -652,6 +653,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
   const [pickupOpen, setPickupOpen] = React.useState(false);
   const [riwayatOpen, setRiwayatOpen] = React.useState(false);
   const [requestCancelOpen, setRequestCancelOpen] = React.useState(false);
+  const [manualCancelOpen, setManualCancelOpen] = React.useState(false);
   const [editingItem, setEditingItem] = React.useState<OrderItem | null>(null);
   const [deletingItemId, setDeletingItemId] = React.useState<string | null>(
     null,
@@ -659,9 +661,10 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
 
   const order = data?.data;
 
-  const isMarketplace = !!order?.source && order.source !== "manual";
+  const isMarketplace = !!order?.source && order.source !== "manual" && order.source !== "offline";
 
   const canRequestCancel = !!order && canRequestChannelCancel(order);
+  const canManualCancel = !!order && !isMarketplace;
 
   const handlePrintInvoice = () => {
     window.open(
@@ -799,6 +802,12 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                   <DropdownMenuItem onClick={() => setRequestCancelOpen(true)}>
                     <BanIcon className="size-4" />
                     Ajukan Pembatalan
+                  </DropdownMenuItem>
+                )}
+                {canManualCancel && (
+                  <DropdownMenuItem onClick={() => setManualCancelOpen(true)}>
+                    <BanIcon className="size-4" />
+                    Batalkan Pesanan
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
@@ -1316,11 +1325,22 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
         orderId={order.id}
       />
 
-      <RequestCancelDialog
-        open={requestCancelOpen}
-        onOpenChange={setRequestCancelOpen}
-        order={order}
-      />
+      {order && (
+        <RequestCancelDialog
+          open={requestCancelOpen}
+          onOpenChange={setRequestCancelOpen}
+          order={order}
+          onDone={refetch}
+        />
+      )}
+      {order && (
+        <ManualCancelDialog
+          open={manualCancelOpen}
+          onOpenChange={setManualCancelOpen}
+          order={order}
+          onDone={refetch}
+        />
+      )}
 
       {editingItem && (
         <EditOrderItemDialog

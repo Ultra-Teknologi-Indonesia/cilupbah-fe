@@ -176,6 +176,22 @@ export const useBulkAcceptCancelRequest = createMutationHook({
   invalidates: forBulk,
 });
 
+export const useCancelManualOrder = createMutationHook({
+  mutationFn: (data: { orderId: string; reason?: string }) =>
+    OrderService.cancelManualOrder(data.orderId, data.reason),
+  successMessage: "Pesanan manual berhasil dibatalkan",
+  errorMessage: "Gagal membatalkan pesanan manual",
+  invalidates: ({ orderId }) => forOrder(orderId),
+});
+
+export const useBulkCancelManualOrder = createMutationHook({
+  mutationFn: (data: { orderIds: string[]; reason?: string }) =>
+    OrderService.bulkCancelManualOrder(data.orderIds, data.reason),
+  successMessage: "Pesanan manual berhasil dibatalkan secara massal",
+  errorMessage: "Gagal membatalkan pesanan manual secara massal",
+  invalidates: forBulk,
+});
+
 export const useBulkRejectCancelRequest = createMutationHook({
   mutationFn: (orderIds: string[]) =>
     settleBulk(orderIds.map((id) => OrderService.rejectCancelRequest(id))),
