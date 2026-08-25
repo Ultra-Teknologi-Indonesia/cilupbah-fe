@@ -180,9 +180,9 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
   "sales-order": {
     pending: { label: "Menunggu", variant: "orange" },
     unpaid: { label: "Belum Bayar", variant: "orange" },
-    reserved: { label: "Pengambilan - Belum Dimulai", variant: "info" },
+    reserved: { label: "Siap Proses", variant: "info" },
     "ready-to-process": {
-      label: "Pengambilan - Belum Dimulai",
+      label: "Siap Proses",
       variant: "info",
     },
     "ready-to-pick": { label: "Pengambilan - Siap Diambil", variant: "indigo" },

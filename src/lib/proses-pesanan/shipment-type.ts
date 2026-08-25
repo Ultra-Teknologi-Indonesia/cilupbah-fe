@@ -15,7 +15,8 @@ export function guessShipmentTypeFromCourierName(name: string): ShipmentType {
   ) {
     return "INSTANT";
   }
-  if (lower.includes("next day") || lower.includes("nextday")) {
+  const normalized = lower.replace(/[\s_-]+/g, " ");
+  if (normalized.includes("next day") || normalized.includes("nextday")) {
     return "EXPRESS";
   }
   if (
@@ -45,18 +46,38 @@ function formatDateDMY(iso: string | null | undefined): string {
   return `${dd}-${mm}-${d.getFullYear()}`;
 }
 
+function formatShipmentNoDate(
+  shipmentNo: string | null | undefined,
+  fallbackDate: string | null | undefined,
+): string {
+  const embeddedDate = shipmentNo?.match(/\b\d{2}-\d{2}-\d{4}\b/)?.[0];
+  return embeddedDate ?? formatDateDMY(fallbackDate);
+}
+
 export function formatShipmentLabel(
   s: Pick<
     Shipment,
-    "shipmentType" | "shipmentDate" | "shipmentNo" | "hasInstant"
+    | "shipmentType"
+    | "shipmentDate"
+    | "shipmentNo"
+    | "hasInstant"
+    | "courierCode"
+    | "courierName"
   >,
 ): string {
   const type = (s.shipmentType ?? "REGULAR") as ShipmentType;
   const isInstantOrSameDay =
     s.hasInstant || type === "INSTANT" || type === "SAME_DAY";
+  const courierCode = s.courierCode?.trim().toLowerCase();
   const base = isInstantOrSameDay
     ? "INSTAN & SAMEDAY"
-    : (SHIPMENT_TYPE_UPPER_LABEL[type] ?? "REGULER");
-  const date = formatDateDMY(s.shipmentDate);
-  return date ? `${base} (${date})` : base;
+    : courierCode === "lex"
+      ? "LAZADA"
+      : s.courierName?.trim() || SHIPMENT_TYPE_UPPER_LABEL[type] || "REGULER";
+  const date = formatShipmentNoDate(s.shipmentNo, s.shipmentDate);
+
+  if (!date) return base;
+  return isInstantOrSameDay || courierCode === "lex"
+    ? `${base} (${date})`
+    : `${base} ${date}`;
 }

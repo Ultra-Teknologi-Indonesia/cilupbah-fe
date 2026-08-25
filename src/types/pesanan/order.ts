@@ -300,12 +300,12 @@ export const STATUS_LABELS: Record<
       "text-orange-700 bg-orange-50 border-orange-300 dark:text-orange-300 dark:bg-orange-500/10 dark:border-orange-500/20",
   },
   reserved: {
-    label: "Pengambilan - Belum Dimulai",
+    label: "Siap Proses",
     className:
       "text-blue-700 bg-blue-50 border-blue-300 dark:text-blue-300 dark:bg-blue-500/10 dark:border-blue-500/20",
   },
   "ready-to-process": {
-    label: "Pengambilan - Belum Dimulai",
+    label: "Siap Proses",
     className:
       "text-blue-700 bg-blue-50 border-blue-300 dark:text-blue-300 dark:bg-blue-500/10 dark:border-blue-500/20",
   },
