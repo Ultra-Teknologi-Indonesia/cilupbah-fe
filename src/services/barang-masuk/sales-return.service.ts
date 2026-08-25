@@ -5,6 +5,7 @@ import type {
   SalesReturnAppeal,
   SalesReturnListParams,
   SalesReturnFormData,
+  SalesReturnFilterOptions,
 } from "@/types/barang-masuk/sales-return";
 
 export const SalesReturnService = {
@@ -30,6 +31,10 @@ export const SalesReturnService = {
     if (params.per_page) sp.set("per_page", String(params.per_page));
     if (params["filter[location_id]"])
       sp.set("filter[location_id]", params["filter[location_id]"]);
+    if (params["filter[channel_shop_id]"])
+      sp.set("filter[channel_shop_id]", params["filter[channel_shop_id]"]);
+    if (params["filter[reason]"])
+      sp.set("filter[reason]", params["filter[reason]"]);
     if (params["filter[date_from]"])
       sp.set("filter[date_from]", params["filter[date_from]"]);
     if (params["filter[date_to]"])
@@ -53,6 +58,10 @@ export const SalesReturnService = {
       sp.set("filter[source]", params["filter[source]"]);
     if (params["filter[location_id]"])
       sp.set("filter[location_id]", params["filter[location_id]"]);
+    if (params["filter[channel_shop_id]"])
+      sp.set("filter[channel_shop_id]", params["filter[channel_shop_id]"]);
+    if (params["filter[reason]"])
+      sp.set("filter[reason]", params["filter[reason]"]);
     if (params["filter[date_from]"])
       sp.set("filter[date_from]", params["filter[date_from]"]);
     if (params["filter[date_to]"])
@@ -63,6 +72,13 @@ export const SalesReturnService = {
       `/sales/returns?${sp}`,
     );
     return { items: res.data ?? [], meta: res.meta };
+  },
+
+  filterOptions: async () => {
+    const res = await fetchClient<ApiResponse<SalesReturnFilterOptions>>(
+      "/sales/returns/filter-options",
+    );
+    return res.data ?? { reasons: [], shops: [] };
   },
 
   accept: async (

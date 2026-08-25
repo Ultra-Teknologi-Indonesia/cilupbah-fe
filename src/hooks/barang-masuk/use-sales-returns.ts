@@ -23,6 +23,14 @@ export function useSalesReturns(params: SalesReturnListParams = {}) {
   });
 }
 
+export function useSalesReturnFilterOptions() {
+  return useQuery({
+    queryKey: ["sales-return", "filter-options"],
+    queryFn: () => SalesReturnService.filterOptions(),
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
 export function useSalesReturn(id: string, enabled = true) {
   return useQuery({
     queryKey: ["sales-return", "detail", id],

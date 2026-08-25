@@ -33,6 +33,7 @@ import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import {
   useSalesReturnsUnprocessed,
   useSalesReturns,
+  useSalesReturnFilterOptions,
 } from "@/hooks/barang-masuk/use-sales-returns";
 import {
   useAcceptSalesReturn,
@@ -50,7 +51,7 @@ import { DateRangePicker } from "@/components/ui/date-picker";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import type { DateRange } from "react-day-picker";
-import { formatDate, formatDateTime } from "@/lib/format";
+import { formatDateTime } from "@/lib/format";
 import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo";
 import type { ChannelCode } from "@/types/channel";
 
@@ -72,9 +73,15 @@ const SUBTAB_TO_STATUS: Record<ReturSubTab, string> = {
 
 interface FilterState {
   location_id: string;
+  channel_shop_id: string;
+  reason: string;
 }
 
-const EMPTY_FILTERS: FilterState = { location_id: "" };
+const EMPTY_FILTERS: FilterState = {
+  location_id: "",
+  channel_shop_id: "",
+  reason: "",
+};
 
 const RAW_STATUS_LABELS: Record<string, string> = {
   RETURN_OR_REFUND_REQUEST_PENDING: "Menunggu peninjauan channel",
@@ -197,6 +204,8 @@ export function ReturChannelTab() {
         : undefined,
       "filter[status]": statusFilter || undefined,
       "filter[location_id]": list.filters.location_id || undefined,
+      "filter[channel_shop_id]": list.filters.channel_shop_id || undefined,
+      "filter[reason]": list.filters.reason || undefined,
     }),
     [
       list.debouncedSearch,
@@ -216,6 +225,7 @@ export function ReturChannelTab() {
   const activeQuery = isUnprocessed ? unprocessedQuery : listQuery;
   const { data, isLoading, isFetching } = activeQuery;
   const { data: locData } = useLocations({ perPage: 100 });
+  const { data: filterOptions } = useSalesReturnFilterOptions();
 
   const columns = useMemo<ColumnDef<SalesReturn>[]>(() => {
     const cols: ColumnDef<SalesReturn>[] = [
@@ -514,6 +524,30 @@ export function ReturChannelTab() {
     [locData],
   );
 
+  const reasonOptions = useMemo(
+    () => [
+      { value: "", label: "Semua Alasan" },
+      ...(filterOptions?.reasons ?? []).map((reason) => ({
+        value: reason.value,
+        label: reason.label,
+      })),
+    ],
+    [filterOptions?.reasons],
+  );
+
+  const shopOptions = useMemo(
+    () => [
+      { value: "", label: "Semua Toko" },
+      ...(filterOptions?.shops ?? []).map((shop) => ({
+        value: shop.value,
+        label: shop.channel_name
+          ? `${shop.channel_name} · ${shop.label}`
+          : shop.label,
+      })),
+    ],
+    [filterOptions?.shops],
+  );
+
   return (
     <div className="flex flex-col gap-3">
       <LiquidGlass
@@ -562,7 +596,7 @@ export function ReturChannelTab() {
         <FilterToolbar
           search={list.search}
           onSearchChange={list.setSearch}
-          searchPlaceholder="Cari no. resi, no. pesanan, no. retur, pelanggan..."
+          searchPlaceholder="Cari no. retur, no. resi, kurir, pesanan, pelanggan..."
           align="end"
           onReset={
             list.hasActiveFilter || !!list.search ? list.resetAll : undefined
@@ -579,6 +613,29 @@ export function ReturChannelTab() {
             }
             placeholder="Lokasi"
             searchPlaceholder="Cari lokasi"
+            className="h-9 bg-background"
+          />
+          <Combobox
+            options={shopOptions}
+            value={list.filters.channel_shop_id}
+            onChange={(v) =>
+              list.setFilters({
+                ...list.filters,
+                channel_shop_id: v ?? "",
+              })
+            }
+            placeholder="Toko channel"
+            searchPlaceholder="Cari toko"
+            className="h-9 bg-background"
+          />
+          <Combobox
+            options={reasonOptions}
+            value={list.filters.reason}
+            onChange={(v) =>
+              list.setFilters({ ...list.filters, reason: v ?? "" })
+            }
+            placeholder="Alasan retur"
+            searchPlaceholder="Cari alasan"
             className="h-9 bg-background"
           />
           <DateRangePicker

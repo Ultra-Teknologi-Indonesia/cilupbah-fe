@@ -114,7 +114,21 @@ export interface SalesReturnListParams {
   "filter[status]"?: string;
   "filter[source]"?: string;
   "filter[location_id]"?: string;
+  "filter[channel_shop_id]"?: string;
+  "filter[reason]"?: string;
   "filter[date_from]"?: string;
   "filter[date_to]"?: string;
   sort?: string;
+}
+
+export interface SalesReturnFilterOption {
+  value: string;
+  label: string;
+  channel?: string;
+  channel_name?: string;
+}
+
+export interface SalesReturnFilterOptions {
+  reasons: SalesReturnFilterOption[];
+  shops: SalesReturnFilterOption[];
 }
