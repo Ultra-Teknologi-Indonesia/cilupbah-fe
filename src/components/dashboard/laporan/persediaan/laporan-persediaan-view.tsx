@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ClipboardListIcon, QrCodeIcon } from "lucide-react";
+import { ClipboardListIcon, FileSpreadsheetIcon, QrCodeIcon, WarehouseIcon } from "lucide-react";
 
 import {
   Card,
@@ -13,15 +13,33 @@ import {
 import { Button } from "@/components/ui/button";
 import { BarcodeReportDialog } from "./barcode-report-dialog";
 import { PenyesuaianReportDialog } from "./penyesuaian-report-dialog";
+import {
+  InventoryRackReportDialog,
+  InventoryStockReportDialog,
+} from "./inventory-stock-report-dialog";
 
-type ActiveDialog = "barcode" | "penyesuaian" | null;
+type ActiveDialog = "barcode" | "penyesuaian" | "stock" | "rack" | null;
 
 export function LaporanPersediaanView() {
   const [active, setActive] = React.useState<ActiveDialog>(null);
 
   return (
     <>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <ReportCard
+          icon={<FileSpreadsheetIcon className="size-5" />}
+          title="Persediaan Barang"
+          description="Export stok per lokasi atau posisi stok sampai tanggal tertentu ke Excel."
+          actionLabel="Export Persediaan"
+          onClick={() => setActive("stock")}
+        />
+        <ReportCard
+          icon={<WarehouseIcon className="size-5" />}
+          title="Persediaan Per Rak"
+          description="Export stok per rak untuk satu gudang, lengkap dengan kode lokasi rak."
+          actionLabel="Export Per Rak"
+          onClick={() => setActive("rack")}
+        />
         <ReportCard
           icon={<QrCodeIcon className="size-5" />}
           title="Barcode Barang"
@@ -45,6 +63,14 @@ export function LaporanPersediaanView() {
       <PenyesuaianReportDialog
         open={active === "penyesuaian"}
         onOpenChange={(o) => setActive(o ? "penyesuaian" : null)}
+      />
+      <InventoryStockReportDialog
+        open={active === "stock"}
+        onOpenChange={(o) => setActive(o ? "stock" : null)}
+      />
+      <InventoryRackReportDialog
+        open={active === "rack"}
+        onOpenChange={(o) => setActive(o ? "rack" : null)}
       />
     </>
   );

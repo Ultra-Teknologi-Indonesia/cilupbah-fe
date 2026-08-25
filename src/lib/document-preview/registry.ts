@@ -40,6 +40,21 @@ function base64ToBlob(base64: string, contentType = "application/pdf"): Blob {
   return new Blob([byteArray], { type: contentType });
 }
 
+function decodePathSegment(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+export function parseBulkDocumentIds(value: string): string[] {
+  return decodePathSegment(value)
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 export interface DocumentMeta {
   [key: string]: unknown;
 }
@@ -432,14 +447,11 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
   "transfer-out-bulk": {
     title: "Transfer Keluar (Bulk)",
     subtitle: (id) => {
-      const count = id.split(",").filter(Boolean).length;
+      const count = parseBulkDocumentIds(id).length;
       return `${count} dokumen`;
     },
     fetchPdf: async (id) => {
-      const ids = id
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
+      const ids = parseBulkDocumentIds(id);
       const blob = await OutboundTransferService.bulkPdf(ids);
       return { blob, meta: { count: ids.length } };
     },

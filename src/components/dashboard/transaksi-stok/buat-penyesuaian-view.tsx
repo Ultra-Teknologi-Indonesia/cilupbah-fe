@@ -713,8 +713,12 @@ export function PenyesuaianFormPage({
             <div>
               <p className="text-sm font-semibold">Daftar Item Penyesuaian</p>
               <p className="text-xs text-muted-foreground">
-                {lines.length} item dipilih • Masukkan selisih (+ / -) untuk
+                {lines.length} SKU dipilih • Masukkan selisih (+ / -) untuk
                 setiap rak
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Pilih beberapa SKU sekaligus. Setiap baris dapat menggunakan
+                rak yang berbeda.
               </p>
             </div>
 
@@ -772,7 +776,7 @@ export function PenyesuaianFormPage({
               <TableRow>
                 <TableHead className="w-12 text-center">#</TableHead>
                 <TableHead className="min-w-[220px]">Produk / SKU</TableHead>
-                <TableHead className="min-w-[180px]">Rak (Bin)</TableHead>
+                <TableHead className="min-w-[180px]">Rak Penyesuaian</TableHead>
                 <TableHead className="w-32 text-right">
                   Selisih (+ / -)
                 </TableHead>

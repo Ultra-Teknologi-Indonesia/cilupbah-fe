@@ -15,6 +15,26 @@ interface StockListResponse extends ApiResponse<StockItem[]> {
 }
 
 export const InventoryStockService = {
+  exportReport: async (params: {
+    report_type: "by_location" | "as_of_date" | "by_rack";
+    item_ids?: string[];
+    location_ids?: string[];
+    location_id?: string;
+    as_of_date?: string;
+    stock_filter?: "all" | "positive" | "zero";
+    only_not_restocked?: boolean;
+    only_with_stock?: boolean;
+  }): Promise<string> => {
+    const res = await fetchClient<
+      ApiResponse<{ export_id: string; status: string }>
+    >(`/reports/inventory/stock/export/async`, {
+      method: "POST",
+      data: params,
+    });
+
+    return res.data.export_id;
+  },
+
   list: (params: StockListParams) => {
     const sp = new URLSearchParams();
     if (params.search) sp.set("search", params.search);

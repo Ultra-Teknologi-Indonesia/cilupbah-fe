@@ -368,7 +368,7 @@ export function TransferKeluarTab() {
 
   const openBulkTransferPdf = useCallback((ids: string[]) => {
     window.open(
-      `/dashboard/document-preview/transfer-out-bulk/${ids.join(",")}`,
+      `/dashboard/document-preview/transfer-out-bulk/${encodeURIComponent(ids.join(","))}`,
       "_blank",
       "noopener,noreferrer",
     );
