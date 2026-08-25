@@ -693,7 +693,7 @@ export function OrderActions({
                 </DropdownMenuItem>
               )}
               {canManualCancel && (
-                <DropdownMenuItem onSelect={() => setManualCancelOpen(true)}>
+                <DropdownMenuItem variant="destructive" onSelect={() => setManualCancelOpen(true)}>
                   <BanIcon className="size-4 mr-2" />
                   Batalkan Pesanan
                 </DropdownMenuItem>

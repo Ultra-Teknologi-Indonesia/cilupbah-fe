@@ -814,7 +814,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                   </DropdownMenuItem>
                 )}
                 {canManualCancel && (
-                  <DropdownMenuItem onClick={() => setManualCancelOpen(true)}>
+                  <DropdownMenuItem variant="destructive" onClick={() => setManualCancelOpen(true)}>
                     <BanIcon className="size-4" />
                     Batalkan Pesanan
                   </DropdownMenuItem>

@@ -348,9 +348,9 @@ function TabBulkActions({
           Ajukan Pembatalan
         </Button>
         <Button
-          variant="ghost"
+          variant="destructive"
           size="sm"
-          className="h-8 gap-1.5 text-xs text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10"
+          className="h-8 gap-1.5 text-xs"
           onClick={() => setBulkManualCancelOpen(true)}
         >
           <BanIcon className="size-3.5" />
