@@ -188,14 +188,21 @@ function resolveTransactionHref(source: string, trxNo: string): string | null {
     case "PURCHASE":
     case "BILL":
     case "CONSIGNMENT":
-      return `/dashboard/barang-masuk/penerimaan?search=${enc}`;
+      // namespace="penerimaan" → search key = penerimaan_search
+      return `/dashboard/barang-masuk/penerimaan?penerimaan_search=${enc}`;
     case "ADJUSTMENT":
     case "STOCK_OPNAME":
-      return `/dashboard/transaksi-stok/penyesuaian?search=${enc}`;
+      // namespace="adj" → search key = adj_search
+      return `/dashboard/transaksi-stok/penyesuaian?adj_search=${enc}`;
+    case "REVALUATION":
+      // namespace="rev" → search key = rev_search
+      return `/dashboard/transaksi-stok/revaluasi?rev_search=${enc}`;
     case "PURCHASE_RETURN":
-      return `/dashboard/barang-keluar/retur-pembelian?search=${enc}`;
+      // tidak ada halaman retur-pembelian tersendiri, arahkan ke barang-keluar
+      return `/dashboard/barang-keluar`;
     case "SALES_RETURN":
-      return `/dashboard/barang-masuk/retur-channel?search=${enc}`;
+      // route yang benar: /dashboard/barang-masuk/retur
+      return `/dashboard/barang-masuk/retur`;
     case "INVOICE":
     case "ORDER_SHIP":
     case "ORDER_PICK":
@@ -204,21 +211,28 @@ function resolveTransactionHref(source: string, trxNo: string): string | null {
     case "ORDER_RESERVE":
     case "ORDER_RELEASE":
     case "ORDER_CANCELLED":
+      // pesanan tidak pakai namespace → search key = search
       return `/dashboard/pesanan?search=${enc}`;
     case "TRANSFER_IN":
     case "TRANSIT_IN":
     case "TRANSIT_OUT":
-      return `/dashboard/barang-masuk/penerimaan?tab=transfer&search=${enc}`;
+    case "TRANSFER_REJECT_RETURN":
+      // namespace="penerimaan", tab param = tab (no namespace prefix)
+      return `/dashboard/barang-masuk/penerimaan?tab=transfer&penerimaan_search=${enc}`;
     case "TRANSFER_OUT":
-      return `/dashboard/barang-keluar/transfer-keluar?search=${enc}`;
+    case "TRANSFER_REVERT":
+      // route yang benar: /dashboard/barang-keluar, namespace="transfer_out"
+      return `/dashboard/barang-keluar?transfer_out_search=${enc}`;
     case "BIN_TRANSFER_IN":
     case "BIN_TRANSFER_OUT":
-      return `/dashboard/transaksi-stok/transfer?search=${enc}`;
+    case "BIN_TRANSFER_REVERSAL":
+    case "BIN_TRANSFER_REVERT_OUT":
+      // route yang benar: /dashboard/transaksi-stok/pindah-bin, namespace="pbin_draft"
+      return `/dashboard/transaksi-stok/pindah-bin?pbin_draft_search=${enc}`;
     case "PUTAWAY_IN":
     case "PUTAWAY_OUT":
+    case "PUTAWAY_REVERSAL":
       return `/dashboard/barang-masuk/penempatan?search=${enc}`;
-    case "REVALUATION":
-      return `/dashboard/transaksi-stok/revaluasi?search=${enc}`;
     default:
       return null;
   }
