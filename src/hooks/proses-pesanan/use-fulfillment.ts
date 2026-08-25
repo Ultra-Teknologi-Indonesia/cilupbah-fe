@@ -12,6 +12,7 @@ import { createMutationHook } from "@/hooks/create-crud-hooks";
 import { toast } from "sonner";
 import { apiError } from "@/lib/toast";
 import { invalidateStockViews } from "@/lib/stock-cache";
+import { notifyOrderActivityChanged } from "@/lib/pesanan/order-activity-event";
 
 import {
   OutboundService,
@@ -726,7 +727,10 @@ export function useCreateShipment() {
       payload: CreateShipmentPayload;
       orderIds: string[];
     }) => OutboundService.createShipmentWithOrders(payload, orderIds),
-    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.board }),
+    onSuccess: (_shipment, variables) => {
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
+      notifyOrderActivityChanged(variables.orderIds);
+    },
   });
 }
 
@@ -735,7 +739,15 @@ export function useHandOverShipment() {
   return useMutation({
     mutationFn: (shipmentId: string) =>
       OutboundService.handOverShipment(shipmentId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: fulfillmentKeys.board }),
+    onSuccess: (_shipment, shipmentId) => {
+      qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
+      const detail = qc.getQueryData<{ orders?: Array<{ orderId: string }> }>(
+        fulfillmentKeys.shipmentDetail(shipmentId),
+      );
+      notifyOrderActivityChanged(
+        detail?.orders?.map((order) => order.orderId) ?? [],
+      );
+    },
   });
 }
 
@@ -783,6 +795,9 @@ export function useScanOrderToShipment() {
         queryKey: fulfillmentKeys.shipmentDetail(v.shipmentId),
       });
       qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
+      notifyOrderActivityChanged(
+        _d.orders.map((order) => order.orderId),
+      );
     },
   });
 }
@@ -802,6 +817,7 @@ export function useRemoveOrderFromShipment() {
         queryKey: fulfillmentKeys.shipmentDetail(v.shipmentId),
       });
       qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
+      notifyOrderActivityChanged(v.orderIds);
     },
   });
 }

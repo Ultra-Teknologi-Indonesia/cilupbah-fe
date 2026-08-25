@@ -33,6 +33,7 @@ import type {
   BulkLabelBatchItem,
 } from "@/types/proses-pesanan/bulk-label";
 import { apiError } from "@/lib/toast";
+import { notifyShippingLabelPrinted } from "@/lib/pesanan/shipping-label-audit-event";
 import { cn } from "@/lib/utils";
 
 const CHANNEL_LABEL: Record<string, string> = {
@@ -129,11 +130,46 @@ function ItemRow({ item }: { item: BulkLabelBatchItem }) {
 export function BulkLabelPreviewView({ batchId }: { batchId: string }) {
   const router = useRouter();
   const [retrying, setRetrying] = React.useState(false);
+  const [pdfUrl, setPdfUrl] = React.useState<string | null>(null);
+  const [pdfError, setPdfError] = React.useState<unknown>(null);
 
   const { data, error, isLoading, refetch } = useQuery<BulkLabelBatch>({
     queryKey: ["bulk-label-batch", batchId],
     queryFn: () => OutboundService.getBulkShippingLabelBatch(batchId),
   });
+
+  const isReady = data?.status === "ready";
+
+  React.useEffect(() => {
+    if (!isReady) return;
+
+    let cancelled = false;
+    let objectUrl: string | null = null;
+
+    OutboundService.downloadBulkShippingLabelPdf(batchId)
+      .then((blob) => {
+        if (cancelled) return;
+        objectUrl = URL.createObjectURL(blob);
+        setPdfUrl(objectUrl);
+        setPdfError(null);
+        notifyShippingLabelPrinted(
+          (data?.items ?? [])
+            .filter((item) => item.status === "done")
+            .map((item) => item.order_id),
+        );
+      })
+      .catch((downloadError: unknown) => {
+        if (!cancelled) {
+          setPdfError(downloadError);
+          apiError(downloadError, "Gagal memuat PDF label.");
+        }
+      });
+
+    return () => {
+      cancelled = true;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [batchId, data?.items, isReady]);
 
   const handleRetry = async (hasRetryable: boolean) => {
     setRetrying(true);
@@ -156,10 +192,17 @@ export function BulkLabelPreviewView({ batchId }: { batchId: string }) {
   };
 
   const handlePrint = () => {
+    if (!data || !pdfUrl) return;
+
     const iframe = document.getElementById(
       "bulk-label-frame",
     ) as HTMLIFrameElement | null;
     iframe?.contentWindow?.print();
+    notifyShippingLabelPrinted(
+      data.items
+        .filter((item) => item.status === "done")
+        .map((item) => item.order_id),
+    );
   };
 
   if (isLoading) {
@@ -180,7 +223,6 @@ export function BulkLabelPreviewView({ batchId }: { batchId: string }) {
     );
   }
 
-  const isReady = data.status === "ready";
   const isFailed = data.status === "failed";
   const isProcessing = data.status === "processing";
   const skipped = data.skipped ?? 0;
@@ -190,7 +232,7 @@ export function BulkLabelPreviewView({ batchId }: { batchId: string }) {
   const retryableCount =
     data.retryable_count ??
     data.items.filter((i) => i.status === "failed" && i.is_retryable).length;
-  const canPrint = isReady && !!data.pdf_url;
+  const canPrint = isReady && !!pdfUrl && !pdfError;
   const anyDone = data.done > 0;
 
   return (
@@ -207,7 +249,9 @@ export function BulkLabelPreviewView({ batchId }: { batchId: string }) {
           <div>
             <p className="text-sm font-semibold">
               {isProcessing && "Mengambil No. Resi…"}
-              {isReady && "Resi siap dicetak"}
+              {isReady && !pdfUrl && !pdfError && "Menyiapkan PDF resi…"}
+              {isReady && pdfUrl && "Resi siap dicetak"}
+              {isReady && Boolean(pdfError) && "PDF resi gagal dimuat"}
               {isFailed && !anyDone && "Semua item gagal"}
               {isFailed && anyDone && "Sebagian selesai"}
             </p>
@@ -286,9 +330,16 @@ export function BulkLabelPreviewView({ batchId }: { batchId: string }) {
         <div className="flex-1 bg-muted/40">
           <iframe
             id="bulk-label-frame"
-            src={data.pdf_url!}
+            src={pdfUrl}
             className="h-[calc(100vh-4rem)] w-full border-0"
             title="Label pengiriman"
+            onLoad={() =>
+              notifyShippingLabelPrinted(
+                data.items
+                  .filter((item) => item.status === "done")
+                  .map((item) => item.order_id),
+              )
+            }
           />
         </div>
       ) : (

@@ -18,7 +18,6 @@ import {
 
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
@@ -52,6 +51,8 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import type { DateRange } from "react-day-picker";
 import { formatDate, formatDateTime } from "@/lib/format";
+import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo";
+import type { ChannelCode } from "@/types/channel";
 
 type ReturSubTab = "unprocessed" | "rejected" | "accepted" | "completed";
 
@@ -69,21 +70,59 @@ const SUBTAB_TO_STATUS: Record<ReturSubTab, string> = {
   completed: "COMPLETED",
 };
 
-const REASON_CATEGORY_OPTIONS = [
-  { value: "", label: "Semua Kategori" },
-  { value: "FAILED_DELIVERY", label: "Gagal Kirim" },
-  { value: "COMPLAINT", label: "Komplain Pembeli" },
-  { value: "CANCEL_SHIPPED", label: "Cancel Telanjur Kirim" },
-  { value: "REMORSE", label: "Berubah Pikiran" },
-  { value: "OTHER", label: "Lainnya" },
-];
-
 interface FilterState {
   location_id: string;
-  reason_category: string;
 }
 
-const EMPTY_FILTERS: FilterState = { location_id: "", reason_category: "" };
+const EMPTY_FILTERS: FilterState = { location_id: "" };
+
+const RAW_STATUS_LABELS: Record<string, string> = {
+  RETURN_OR_REFUND_REQUEST_PENDING: "Menunggu peninjauan channel",
+  AWAITING_BUYER_SHIP: "Menunggu barang dikirim pembeli",
+  BUYER_SHIPPED_ITEM: "Barang dikirim pembeli",
+  REQUEST_SUCCESS: "Permintaan disetujui channel",
+  REQUEST_REJECTED: "Permintaan ditolak channel",
+  RETURN_OR_REFUND_REQUEST_COMPLETE: "Retur/refund selesai di channel",
+  RETURN_OR_REFUND_CANCEL: "Retur/refund dibatalkan di channel",
+  REQUESTED: "Menunggu keputusan channel",
+  ACCEPTED: "Disetujui channel",
+  PROCESSING: "Sedang diproses channel",
+  CLOSED: "Ditutup channel",
+  CANCELLED: "Dibatalkan channel",
+  REFUNDED: "Dana dikembalikan channel",
+  COMPLETED: "Selesai di channel",
+};
+
+const REASON_LABELS: Record<string, string> = {
+  "wrong product sent": "Produk yang dikirim tidak sesuai",
+  "change of mind": "Pembeli berubah pikiran",
+  "product doesn't match description": "Produk tidak sesuai deskripsi",
+  "product does not match description": "Produk tidak sesuai deskripsi",
+  WRONG_PRODUCT: "Produk yang dikirim tidak sesuai",
+  NO_NEED: "Pembeli berubah pikiran",
+  NO_NEED_NON_MALL: "Pembeli berubah pikiran",
+  NOT_MATCH_DESCRIPTION: "Produk tidak sesuai deskripsi",
+};
+
+function humanize(value: string): string {
+  return value.replace(/[_-]+/g, " ").toLowerCase().replace(/^./, (c) => c.toUpperCase());
+}
+
+function getReasonLabel(item: SalesReturn): string {
+  const candidates = [item.reason_display, item.channel_reason_text, item.channel_reason_code, item.reason];
+  for (const value of candidates) {
+    if (!value) continue;
+    const label = REASON_LABELS[value] ?? REASON_LABELS[value.toLowerCase()];
+    return label ?? humanize(value);
+  }
+  return "—";
+}
+
+function getChannelCode(item: SalesReturn): ChannelCode {
+  if (item.channel) return item.channel as ChannelCode;
+  const prefix = item.channel_return_id?.split(":", 1)[0];
+  return (prefix || (item.source === "marketplace" ? "marketplace" : "manual")) as ChannelCode;
+}
 
 export function ReturChannelTab() {
   const [subTab, setSubTab] = useUrlTab<ReturSubTab>("tab", "unprocessed", {
@@ -153,11 +192,20 @@ export function ReturChannelTab() {
       search: list.debouncedSearch || undefined,
       page: list.page,
       per_page: list.perPage,
+      sort: list.sorting[0]
+        ? `${list.sorting[0].desc ? "-" : ""}${list.sorting[0].id}`
+        : undefined,
       "filter[status]": statusFilter || undefined,
       "filter[location_id]": list.filters.location_id || undefined,
-      "filter[reason_category]": list.filters.reason_category || undefined,
     }),
-    [list.debouncedSearch, list.page, list.perPage, statusFilter, list.filters],
+    [
+      list.debouncedSearch,
+      list.page,
+      list.perPage,
+      list.sorting,
+      statusFilter,
+      list.filters,
+    ],
   );
 
   const unprocessedQuery = useSalesReturnsUnprocessed(
@@ -189,11 +237,22 @@ export function ReturChannelTab() {
       {
         accessorKey: "source",
         header: "Sumber",
-        cell: ({ row }) => (
-          <Badge variant="secondary">
-            {row.original.source === "marketplace" ? "Marketplace" : "Manual"}
-          </Badge>
-        ),
+        cell: ({ row }) => {
+          const item = row.original;
+          const code = getChannelCode(item);
+          const channelName = item.channel_name ?? (code === "manual" ? "Manual" : humanize(code));
+          return (
+            <div className="flex min-w-[150px] items-center gap-2">
+              <ChannelLogo code={code} name={channelName} className="size-7 rounded-lg" />
+              <div className="min-w-0">
+                <div className="truncate font-medium text-foreground">{channelName}</div>
+                <div className="truncate text-xs text-muted-foreground">
+                  {item.channel_shop_name ?? (item.source === "marketplace" ? "Toko channel" : "Input manual")}
+                </div>
+              </div>
+            </div>
+          );
+        },
       },
       {
         accessorKey: "return_tracking_number",
@@ -237,7 +296,10 @@ export function ReturChannelTab() {
       },
       {
         accessorKey: "marketplace_decision",
-        header: "Keputusan MP",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Keputusan MP" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => {
           const item = row.original;
           if (item.source !== "marketplace") {
@@ -246,12 +308,20 @@ export function ReturChannelTab() {
           const isSyncing =
             syncDetailMutation.isPending &&
             syncDetailMutation.variables === item.id;
+          const rawStatus = item.marketplace_raw_status?.toUpperCase();
           return (
             <div className="flex items-center gap-1.5">
-              <StatusBadge
-                domain="sales-return-marketplace-decision"
-                status={item.marketplace_decision}
-              />
+              <div className="min-w-[170px]">
+                <StatusBadge
+                  domain="sales-return-marketplace-decision"
+                  status={item.marketplace_decision}
+                />
+                {rawStatus && (
+                  <div className="mt-1 text-xs text-muted-foreground" title={rawStatus}>
+                    Channel: {item.marketplace_raw_status_label ?? RAW_STATUS_LABELS[rawStatus] ?? humanize(rawStatus)}
+                  </div>
+                )}
+              </div>
               <button
                 type="button"
                 title="Sinkron keputusan marketplace"
@@ -269,7 +339,10 @@ export function ReturChannelTab() {
       },
       {
         accessorKey: "refund_amount",
-        header: () => <span className="block text-right">Refund</span>,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Refund" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => {
           const amount = row.original.refund_amount;
           return (
@@ -288,30 +361,29 @@ export function ReturChannelTab() {
       },
       {
         accessorKey: "customer_name",
-        header: "Pelanggan",
-        cell: ({ row }) => (
-          <span className="text-foreground">
-            {row.original.customer_name ?? "—"}
-          </span>
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Pelanggan" />
         ),
-      },
-      {
-        accessorKey: "reason",
-        header: "Alasan",
+        enableSorting: true,
         cell: ({ row }) => (
-          <div className="max-w-[160px] truncate text-muted-foreground">
-            {row.original.reason ?? "—"}
+          <div className="max-w-[180px]" title="Nama ditampilkan persis seperti yang diterima dari channel">
+            <span className="text-foreground">{row.original.customer_name ?? "—"}</span>
+            {row.original.customer_name && row.original.source === "marketplace" && (
+              <div className="text-[11px] text-muted-foreground">Nama dari channel</div>
+            )}
           </div>
         ),
       },
       {
-        accessorKey: "reason_category",
-        header: "Kategori Alasan",
+        accessorKey: "reason",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Alasan" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => (
-          <StatusBadge
-            domain="sales-return-reason-category"
-            status={row.original.reason_category}
-          />
+          <div className="max-w-[160px] truncate text-muted-foreground">
+            {getReasonLabel(row.original)}
+          </div>
         ),
       },
       {
@@ -350,7 +422,10 @@ export function ReturChannelTab() {
       },
       {
         accessorKey: "status",
-        header: "Status",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Status" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => (
           <StatusBadge domain="sales-return" status={row.original.status} />
         ),
@@ -494,7 +569,7 @@ export function ReturChannelTab() {
           }
           hasFilter={list.hasActiveFilter || !!list.search}
           activeCount={list.activeFilterCount}
-          gridCols={3}
+          gridCols={2}
         >
           <Combobox
             options={locationOptions}
@@ -504,16 +579,6 @@ export function ReturChannelTab() {
             }
             placeholder="Lokasi"
             searchPlaceholder="Cari lokasi"
-            className="h-9 bg-background"
-          />
-          <Combobox
-            options={REASON_CATEGORY_OPTIONS}
-            value={list.filters.reason_category}
-            onChange={(v) =>
-              list.setFilters({ ...list.filters, reason_category: v ?? "" })
-            }
-            placeholder="Kategori Alasan"
-            searchPlaceholder="Cari kategori"
             className="h-9 bg-background"
           />
           <DateRangePicker
@@ -532,6 +597,9 @@ export function ReturChannelTab() {
             isFetching={isFetching}
             hideToolbar
             manualPagination
+            manualSorting
+            sorting={list.sorting}
+            onSortingChange={list.setSorting}
             pagination={list.pagination}
             rowCount={meta.total}
             onPaginationChange={list.onPaginationChange}

@@ -132,6 +132,12 @@ export function FulfillmentCardList({
       shipment_type: list.filters.shipment_type || undefined,
       status: list.filters.status || undefined,
       channel_status: list.filters.channel_status || undefined,
+      sort_by: list.sorting[0]?.id || undefined,
+      sort_dir: list.sorting[0]
+        ? list.sorting[0].desc
+          ? "desc"
+          : "asc"
+        : undefined,
       exclude_transit: excludeTransit ? ("1" as const) : undefined,
       ...baseParams,
     }),
@@ -140,6 +146,7 @@ export function FulfillmentCardList({
       list.page,
       list.perPage,
       list.filters,
+      list.sorting,
       excludeTransit,
       baseParams,
     ],
@@ -309,6 +316,8 @@ export function FulfillmentCardList({
               someSelected={someSelected}
               onToggleAll={toggleAll}
               getRowSelectable={shippingLabelSelectability}
+              sorting={list.sorting}
+              onSortingChange={list.setSorting}
             />
           </div>
         )}

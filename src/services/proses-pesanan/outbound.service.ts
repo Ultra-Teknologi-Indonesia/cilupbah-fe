@@ -93,7 +93,7 @@ function buildQuery(
     const prefix = params.sort_dir === "desc" ? "-" : "";
     q.set("sort", prefix + params.sort_by);
   }
-  q.set("limit", String(params.per_page ?? 20));
+  q.set("per_page", String(params.per_page ?? 20));
   q.set("page", String(params.page ?? 1));
   if (extra) for (const [k, v] of Object.entries(extra)) q.set(k, v);
   return q.toString();
@@ -655,7 +655,7 @@ export const OutboundService = {
       const prefix = params.sort_dir === "desc" ? "-" : "";
       q.set("sort", prefix + params.sort_by);
     }
-    q.set("limit", String(params.per_page ?? 1000));
+    q.set("per_page", String(params.per_page ?? 1000));
     q.set("page", String(params.page ?? 1));
 
     const res = await fetchClient<ApiPaginated<RawPicklistItem>>(
@@ -1293,6 +1293,13 @@ export const OutboundService = {
     return res.data;
   },
 
+  downloadBulkShippingLabelPdf: async (batchId: string): Promise<Blob> => {
+    return fetchBlobRaw(
+      `/sales/shipping-labels/bulk/${encodeURIComponent(batchId)}/pdf`,
+      "application/pdf",
+    );
+  },
+
   retryFailedBulkShippingLabels: async (
     batchId: string,
   ): Promise<{ batch_id: string }> => {
@@ -1426,7 +1433,7 @@ export const OutboundService = {
     if (params.q) q.set("search", params.q);
     if (params.source) q.set("filter[source]", params.source);
     if (params.location_id) q.set("filter[location_id]", params.location_id);
-    q.set("limit", String(params.per_page ?? 20));
+    q.set("per_page", String(params.per_page ?? 20));
     q.set("page", String(params.page ?? 1));
     const res = await fetchClient<{
       success?: boolean;

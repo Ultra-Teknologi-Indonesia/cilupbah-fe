@@ -47,6 +47,10 @@ export interface SalesReturn {
   order_id: string | null;
   location_id: string;
   source: "manual" | "marketplace";
+  channel_return_id?: string | null;
+  channel?: string | null;
+  channel_name?: string | null;
+  channel_shop_name?: string | null;
   customer_name: string | null;
   customer_contact: string | null;
   status: SalesReturnStatus;
@@ -62,6 +66,9 @@ export interface SalesReturn {
   marketplace_raw_status?: string | null;
   channel_reason_code?: string | null;
   channel_reason_text?: string | null;
+  reason_display?: string | null;
+  marketplace_decision_label?: string | null;
+  marketplace_raw_status_label?: string | null;
   refund_amount?: number | null;
   refund_currency?: string | null;
   shipping_fee_original?: number | null;
@@ -107,7 +114,6 @@ export interface SalesReturnListParams {
   "filter[status]"?: string;
   "filter[source]"?: string;
   "filter[location_id]"?: string;
-  "filter[reason_category]"?: string;
   "filter[date_from]"?: string;
   "filter[date_to]"?: string;
   sort?: string;

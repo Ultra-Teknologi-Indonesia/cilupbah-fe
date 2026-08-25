@@ -32,6 +32,8 @@ import {
 } from "@/components/ui/table";
 import { UserSelect } from "@/components/dashboard/shared/user-select";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
+import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo";
+import type { ChannelCode } from "@/types/channel";
 import { EmptyState } from "@/components/ui/empty-state";
 import {
   useSalesReturn,
@@ -68,6 +70,10 @@ const APPEAL_OPERATOR_LABELS: Record<string, string> = {
 };
 
 const LIST_HREF = "/dashboard/barang-masuk/retur";
+
+function channelCode(ret: { channel?: string | null; source: string }): ChannelCode {
+  return (ret.channel ?? (ret.source === "marketplace" ? "marketplace" : "manual")) as ChannelCode;
+}
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -236,7 +242,21 @@ export function SalesReturnDetailView({ id }: { id: string }) {
           />
           <InfoRow
             label="Sumber"
-            value={ret.source === "marketplace" ? "Marketplace" : "Manual"}
+            value={
+              <div className="flex items-center gap-2">
+                <ChannelLogo
+                  code={channelCode(ret)}
+                  name={ret.channel_name ?? ret.channel ?? "Manual"}
+                  className="size-7 rounded-lg"
+                />
+                <div>
+                  <div>{ret.channel_name ?? ret.channel ?? "Manual"}</div>
+                  <div className="text-xs font-normal text-muted-foreground">
+                    {ret.channel_shop_name ?? (ret.source === "marketplace" ? "Toko channel" : "Input manual")}
+                  </div>
+                </div>
+              </div>
+            }
           />
           <InfoRow label="Pesanan" value={ret.order?.salesorder_no ?? "—"} />
           <InfoRow
@@ -253,19 +273,12 @@ export function SalesReturnDetailView({ id }: { id: string }) {
           />
           <InfoRow label="Tgl. Dibuat" value={formatDate(ret.created_at)} />
           <InfoRow label="Diproses oleh" value={ret.processed_by ?? "—"} />
-          {ret.reason_category && (
+          {(ret.reason_display || ret.reason || ret.channel_reason_text) && (
             <InfoRow
-              label="Kategori Alasan"
-              value={
-                <StatusBadge
-                  domain="sales-return-reason-category"
-                  status={ret.reason_category}
-                  className="text-2xs"
-                />
-              }
+              label="Alasan"
+              value={ret.reason_display ?? ret.channel_reason_text ?? ret.reason}
             />
           )}
-          {ret.reason && <InfoRow label="Alasan" value={ret.reason} />}
           {ret.notes && <InfoRow label="Catatan" value={ret.notes} />}
         </div>
       </LiquidGlass>
@@ -317,8 +330,16 @@ export function SalesReturnDetailView({ id }: { id: string }) {
               }
             />
             <InfoRow
+              label="Status di Channel"
+              value={
+                ret.marketplace_raw_status_label ??
+                ret.marketplace_raw_status ??
+                "—"
+              }
+            />
+            <InfoRow
               label="Alasan Channel"
-              value={ret.channel_reason_text ?? ret.channel_reason_code ?? "—"}
+              value={ret.reason_display ?? ret.channel_reason_text ?? ret.channel_reason_code ?? "—"}
             />
             <InfoRow
               label="Nominal Refund"

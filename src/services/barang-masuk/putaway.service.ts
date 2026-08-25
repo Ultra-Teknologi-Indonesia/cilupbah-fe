@@ -36,7 +36,7 @@ export const PutawayService = {
     const sp = new URLSearchParams();
     if (params.search) sp.set("search", params.search);
     if (params.page) sp.set("page", String(params.page));
-    if (params.per_page) sp.set("limit", String(params.per_page));
+    if (params.per_page) sp.set("per_page", String(params.per_page));
     if (params["filter[location_id]"])
       sp.set("filter[location_id]", params["filter[location_id]"]);
     if (params["filter[date_from]"])

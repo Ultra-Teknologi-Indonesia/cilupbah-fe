@@ -266,8 +266,10 @@ export function ImportPenyesuaianDialog({
                     atau <span className="font-mono">final_qty</span> per baris.
                   </p>
                   <p className="mb-2 text-xs text-muted-foreground">
-                    Untuk mempermudah pengisian data, gunakan template yang
-                    telah kami sediakan:
+                    Gunakan delta untuk menambah atau mengurangi dari stok saat
+                    ini, atau final untuk menetapkan stok akhir. Aturan import
+                    sama dengan penyesuaian manual; hasil minus akan menjadi
+                    warning jika policy stok minus mengizinkannya. Template:
                   </p>
                   <button
                     type="button"

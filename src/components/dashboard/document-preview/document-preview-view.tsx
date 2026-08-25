@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { apiError } from "@/lib/toast";
+import { notifyShippingLabelPrinted } from "@/lib/pesanan/shipping-label-audit-event";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -126,6 +127,9 @@ function KnownDocumentPreview({
         if (cancelled) return;
         createdUrl = URL.createObjectURL(blob);
         setState({ kind: "ready", blob, objectUrl: createdUrl, meta });
+        if (type === "shipping-label") {
+          notifyShippingLabelPrinted([id]);
+        }
       })
       .catch((err: unknown) => {
         if (cancelled) return;
@@ -138,7 +142,7 @@ function KnownDocumentPreview({
       cancelled = true;
       if (createdUrl) URL.revokeObjectURL(createdUrl);
     };
-  }, [config, id, queryString]);
+  }, [config, id, queryString, type]);
 
   React.useEffect(() => {
     if (state.kind !== "ready") return;

@@ -27,11 +27,9 @@ export const SalesReturnService = {
     const sp = new URLSearchParams();
     if (params.search) sp.set("search", params.search);
     if (params.page) sp.set("page", String(params.page));
-    if (params.per_page) sp.set("limit", String(params.per_page));
+    if (params.per_page) sp.set("per_page", String(params.per_page));
     if (params["filter[location_id]"])
       sp.set("filter[location_id]", params["filter[location_id]"]);
-    if (params["filter[reason_category]"])
-      sp.set("filter[reason_category]", params["filter[reason_category]"]);
     if (params["filter[date_from]"])
       sp.set("filter[date_from]", params["filter[date_from]"]);
     if (params["filter[date_to]"])
@@ -48,15 +46,13 @@ export const SalesReturnService = {
     const sp = new URLSearchParams();
     if (params.search) sp.set("search", params.search);
     if (params.page) sp.set("page", String(params.page));
-    if (params.per_page) sp.set("limit", String(params.per_page));
+    if (params.per_page) sp.set("per_page", String(params.per_page));
     if (params["filter[status]"])
       sp.set("filter[status]", params["filter[status]"]);
     if (params["filter[source]"])
       sp.set("filter[source]", params["filter[source]"]);
     if (params["filter[location_id]"])
       sp.set("filter[location_id]", params["filter[location_id]"]);
-    if (params["filter[reason_category]"])
-      sp.set("filter[reason_category]", params["filter[reason_category]"]);
     if (params["filter[date_from]"])
       sp.set("filter[date_from]", params["filter[date_from]"]);
     if (params["filter[date_to]"])

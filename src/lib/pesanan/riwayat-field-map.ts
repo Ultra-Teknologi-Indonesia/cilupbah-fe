@@ -65,6 +65,9 @@ export const RIWAYAT_ACTION_LABELS: Record<string, string> = {
   CANCELLED: "Dibatalkan",
   ZONE_ASSIGNED: "Zona Ditetapkan",
   ITEM_CREATED: "Item Dibuat",
+  ADDED_TO_SHIPMENT: "Masuk ke Pengiriman",
+  REMOVED_FROM_SHIPMENT: "Dikeluarkan dari Pengiriman",
+  SHIPMENT_HANDED_OVER: "Handover Pengiriman",
   FIELD_CHANGED: "Perubahan Data",
 };
 
