@@ -38,6 +38,7 @@ import type {
 } from "@/types/proses-pesanan/bulk-label";
 import { apiError } from "@/lib/toast";
 import { cn } from "@/lib/utils";
+import { notifyShippingLabelPrinted } from "@/lib/pesanan/shipping-label-audit-event";
 
 const CHANNEL_LABEL: Record<string, string> = {
   shopee: "Shopee",
@@ -152,6 +153,7 @@ export function AmbilNoResiDialog({
   );
   const [isInitializing, setIsInitializing] = React.useState(false);
   const [retrying, setRetrying] = React.useState(false);
+  const [printing, setPrinting] = React.useState(false);
 
   // When dialog opens, create batch if not already present
   React.useEffect(() => {
@@ -229,9 +231,41 @@ export function AmbilNoResiDialog({
     }
   };
 
-  const handlePrintLabel = () => {
-    if (!data?.pdf_url) return;
-    window.open(data.pdf_url, "_blank", "noopener,noreferrer");
+  const handlePrintLabel = async () => {
+    if (!activeBatchId || !data || data.status !== "ready") return;
+
+    // Open synchronously from the click handler so popup blockers do not
+    // reject the tab while the authenticated blob request is in flight.
+    const printWindow = window.open("about:blank", "_blank");
+    if (!printWindow) {
+      toast.error("Popup diblokir browser. Izinkan popup untuk mencetak label.");
+      return;
+    }
+
+    printWindow.opener = null;
+    setPrinting(true);
+
+    try {
+      const blob = await OutboundService.downloadBulkShippingLabelPdf(
+        activeBatchId,
+      );
+      const objectUrl = URL.createObjectURL(blob);
+      printWindow.location.replace(objectUrl);
+
+      // Keep the object URL alive long enough for the new tab/PDF viewer to
+      // load it, then release it to avoid accumulating browser memory.
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
+      notifyShippingLabelPrinted(
+        data.items
+          .filter((item) => item.status === "done")
+          .map((item) => item.order_id),
+      );
+    } catch (err) {
+      printWindow.close();
+      apiError(err, "Gagal membuka label resi.");
+    } finally {
+      setPrinting(false);
+    }
   };
 
   const isReady = data?.status === "ready";
@@ -247,7 +281,7 @@ export function AmbilNoResiDialog({
     data?.items?.filter((i) => i.status === "failed" && i.is_retryable)
       .length ??
     0;
-  const canPrint = isReady && !!data?.pdf_url;
+  const canPrint = isReady && !!data?.pdf_url && !printing;
   const anyDone = (data?.done ?? 0) > 0;
 
   return (
@@ -412,8 +446,12 @@ export function AmbilNoResiDialog({
               disabled={!canPrint}
               className="rounded-full gap-1.5"
             >
-              <PrinterIcon className="size-4" />
-              <span>Cetak Label Pengiriman</span>
+              {printing ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <PrinterIcon className="size-4" />
+              )}
+              <span>{printing ? "Menyiapkan label…" : "Cetak Label Pengiriman"}</span>
             </Button>
           </div>
         </DialogFooter>

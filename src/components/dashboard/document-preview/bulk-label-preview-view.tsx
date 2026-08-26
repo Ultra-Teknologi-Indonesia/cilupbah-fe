@@ -301,7 +301,7 @@ export function BulkLabelPreviewView({ batchId }: { batchId: string }) {
                 Cetak
               </Button>
               <Button asChild size="sm" className="rounded-full">
-                <a href={data.pdf_url!} download>
+                <a href={pdfUrl!} download={`labels-${batchId}.pdf`}>
                   <DownloadIcon className="size-4" />
                   Unduh PDF
                 </a>
@@ -313,7 +313,7 @@ export function BulkLabelPreviewView({ batchId }: { batchId: string }) {
                 className="rounded-full"
               >
                 <a
-                  href={data.pdf_url!}
+                  href={pdfUrl!}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
