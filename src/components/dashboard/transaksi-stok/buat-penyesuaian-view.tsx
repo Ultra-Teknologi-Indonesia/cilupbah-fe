@@ -58,6 +58,7 @@ interface LineBin {
 }
 
 interface LineDraft {
+  lineId: string;
   itemId: string;
   sku: string;
   name: string;
@@ -71,6 +72,13 @@ interface LineDraft {
   unitCost: string;
   notes: string;
   availableBins: LineBin[];
+}
+
+let lineIdSequence = 0;
+
+function makeLineId(itemId: string): string {
+  lineIdSequence += 1;
+  return `${itemId}-${Date.now()}-${lineIdSequence}`;
 }
 
 function todayStr(): string {
@@ -275,6 +283,7 @@ export function PenyesuaianFormPage({
       const unitCost = item.unit_cost != null ? String(item.unit_cost) : "";
 
       return {
+        lineId: makeLineId(item.item_id),
         itemId: item.item_id,
         sku,
         name,
@@ -314,7 +323,7 @@ export function PenyesuaianFormPage({
           if (res?.data?.available_bins) {
             setLines((prev) =>
               prev.map((line) =>
-                line.itemId === l.itemId
+                line.lineId === l.lineId
                   ? {
                       ...line,
                       availableBins: res.data.available_bins.map((b) => ({
@@ -364,7 +373,7 @@ export function PenyesuaianFormPage({
       );
 
       setLines((prev) => {
-        const existing = new Set(prev.map((l) => l.itemId));
+        const existing = new Set(prev.map((l) => `${l.itemId}|${l.binId}`));
         const fresh: LineDraft[] = [];
 
         results.forEach((res, i) => {
@@ -375,8 +384,13 @@ export function PenyesuaianFormPage({
             variant.available_bins.find((b) => b.id === entry.binId) ??
             variant.primary_bin ??
             null;
+          const pairKey = `${variant.id}|${bin?.id ?? ""}`;
+
+          if (!bin || existing.has(pairKey)) return;
+          existing.add(pairKey);
 
           fresh.push({
+            lineId: makeLineId(variant.id),
             itemId: variant.id,
             sku: variant.sku,
             name: variant.product_name ?? variant.sku,
@@ -405,17 +419,16 @@ export function PenyesuaianFormPage({
 
   const addLinesFromPicker = async (picked: StockedPickedProduct[]) => {
     for (const p of picked) {
-      if (lines.some((l) => l.itemId === p.itemId)) continue;
       try {
         const res = await InventoryStockService.bySku(p.sku, locationId);
         const variant = res.data;
         const primary = variant.primary_bin ?? variant.available_bins?.[0];
 
         setLines((prev) => {
-          if (prev.some((l) => l.itemId === p.itemId)) return prev;
           return [
             ...prev,
             {
+              lineId: makeLineId(variant.id),
               itemId: variant.id,
               sku: variant.sku,
               name: variant.product_name ?? variant.sku,
@@ -442,10 +455,10 @@ export function PenyesuaianFormPage({
         });
       } catch {
         setLines((prev) => {
-          if (prev.some((l) => l.itemId === p.itemId)) return prev;
           return [
             ...prev,
             {
+              lineId: makeLineId(p.itemId),
               itemId: p.itemId,
               sku: p.sku,
               name: p.name,
@@ -466,14 +479,14 @@ export function PenyesuaianFormPage({
     }
   };
 
-  const updateLine = (itemId: string, patch: Partial<LineDraft>) => {
+  const updateLine = (lineId: string, patch: Partial<LineDraft>) => {
     setLines((prev) =>
-      prev.map((l) => (l.itemId === itemId ? { ...l, ...patch } : l)),
+      prev.map((l) => (l.lineId === lineId ? { ...l, ...patch } : l)),
     );
   };
 
-  const removeLine = (itemId: string) => {
-    setLines((prev) => prev.filter((l) => l.itemId !== itemId));
+  const removeLine = (lineId: string) => {
+    setLines((prev) => prev.filter((l) => l.lineId !== lineId));
   };
 
   const flash = (type: "ok" | "err") => {
@@ -492,13 +505,10 @@ export function PenyesuaianFormPage({
       const res = await InventoryStockService.bySku(q, locationId);
       const variant = res.data;
 
-      if (lines.some((l) => l.itemId === variant.id)) {
-        flash("err");
-        return;
-      }
       setLines((prev) => [
         ...prev,
         {
+          lineId: makeLineId(variant.id),
           itemId: variant.id,
           sku: variant.sku,
           name: variant.product_name ?? variant.sku,
@@ -538,11 +548,16 @@ export function PenyesuaianFormPage({
     return l.delta !== "" && !Number.isNaN(d) && d !== 0 && !!l.binId;
   });
 
+  const hasDuplicateItemBin =
+    new Set(validLines.map((l) => `${l.itemId}|${l.binId}`)).size !==
+    validLines.length;
+
   const canSubmit =
     !!locationId &&
     !!transactionDate &&
     lines.length > 0 &&
-    validLines.length === lines.length;
+    validLines.length === lines.length &&
+    !hasDuplicateItemBin;
 
   const isSaving = createMut.isPending || updateMut.isPending;
 
@@ -713,7 +728,7 @@ export function PenyesuaianFormPage({
             <div>
               <p className="text-sm font-semibold">Daftar Item Penyesuaian</p>
               <p className="text-xs text-muted-foreground">
-                {lines.length} SKU dipilih • Masukkan selisih (+ / -) untuk
+                {lines.length} baris dipilih • Masukkan selisih (+ / -) untuk
                 setiap rak
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
@@ -812,7 +827,7 @@ export function PenyesuaianFormPage({
                     l.delta === "" || Number.isNaN(d) ? "—" : l.binOnHand + d;
 
                   return (
-                    <TableRow key={l.itemId}>
+                    <TableRow key={l.lineId}>
                       <TableCell className="text-center font-mono text-xs text-muted-foreground align-top pt-3.5">
                         {index + 1}
                       </TableCell>
@@ -851,7 +866,7 @@ export function PenyesuaianFormPage({
                           onChange={(binId, binCode, onHand, avgCost) => {
                             const effectiveAvgCost =
                               avgCost ?? l.binAvgCost ?? 0;
-                            updateLine(l.itemId, {
+                            updateLine(l.lineId, {
                               binId,
                               binCode,
                               binOnHand: onHand,
@@ -870,7 +885,7 @@ export function PenyesuaianFormPage({
                           type="number"
                           value={l.delta}
                           onChange={(e) =>
-                            updateLine(l.itemId, { delta: e.target.value })
+                            updateLine(l.lineId, { delta: e.target.value })
                           }
                           placeholder="+/-"
                           className={cn(
@@ -893,7 +908,7 @@ export function PenyesuaianFormPage({
                         <Input
                           value={l.notes}
                           onChange={(e) =>
-                            updateLine(l.itemId, { notes: e.target.value })
+                            updateLine(l.lineId, { notes: e.target.value })
                           }
                           placeholder="Alasan selisih…"
                           className="h-9 text-xs"
@@ -904,7 +919,7 @@ export function PenyesuaianFormPage({
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => removeLine(l.itemId)}
+                          onClick={() => removeLine(l.lineId)}
                           className="size-8 text-muted-foreground hover:text-destructive"
                         >
                           <Trash2Icon className="size-4" />
@@ -916,6 +931,13 @@ export function PenyesuaianFormPage({
               )}
             </TableBody>
           </Table>
+
+          {hasDuplicateItemBin && (
+            <p className="text-xs text-destructive">
+              SKU yang sama boleh memakai rak berbeda, tetapi tidak boleh
+              dicantumkan dua kali pada rak yang sama.
+            </p>
+          )}
 
           {lines.length > 0 && (
             <div className="flex items-center justify-between pt-2">
@@ -952,7 +974,6 @@ export function PenyesuaianFormPage({
         onPick={addLinesFromPicker}
         locationId={locationId}
         includeZero={true}
-        excludeIds={lines.map((l) => l.itemId)}
         initialSearch={pickerSearch}
       />
     </div>

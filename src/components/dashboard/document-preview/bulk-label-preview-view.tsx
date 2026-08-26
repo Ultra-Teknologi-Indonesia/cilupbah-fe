@@ -32,6 +32,7 @@ import type {
   BulkLabelBatch,
   BulkLabelBatchItem,
 } from "@/types/proses-pesanan/bulk-label";
+import { bulkLabelRefetchInterval } from "@/lib/proses-pesanan/bulk-label-polling";
 import { apiError } from "@/lib/toast";
 import { notifyShippingLabelPrinted } from "@/lib/pesanan/shipping-label-audit-event";
 import { cn } from "@/lib/utils";
@@ -136,6 +137,11 @@ export function BulkLabelPreviewView({ batchId }: { batchId: string }) {
   const { data, error, isLoading, refetch } = useQuery<BulkLabelBatch>({
     queryKey: ["bulk-label-batch", batchId],
     queryFn: () => OutboundService.getBulkShippingLabelBatch(batchId),
+    refetchInterval: (query) =>
+      bulkLabelRefetchInterval(query.state.data?.status),
+    refetchIntervalInBackground: true,
+    refetchOnWindowFocus: true,
+    retry: 2,
   });
 
   const isReady = data?.status === "ready";
@@ -265,7 +271,8 @@ export function BulkLabelPreviewView({ batchId }: { batchId: string }) {
             </p>
             {isProcessing && (
               <p className="text-xs text-muted-foreground">
-                Tekan Coba Lagi untuk memperbarui sampai semua No. Resi muncul.
+                Status dipantau otomatis. Klik Coba Lagi jika ingin menjalankan
+                ulang proses secara manual.
               </p>
             )}
           </div>

@@ -494,7 +494,7 @@ export function PenempatanBarangTab() {
         <FilterToolbar
           search={list.search}
           onSearchChange={list.setSearch}
-          searchPlaceholder="Cari no. penempatan..."
+          searchPlaceholder="Cari nomor atau nama pembuat/pelaksana..."
           align="end"
           onReset={
             list.hasActiveFilter || !!list.search ? list.resetAll : undefined
