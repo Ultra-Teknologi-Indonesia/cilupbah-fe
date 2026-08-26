@@ -473,9 +473,21 @@ export function DownloadSatuanDialog({
                                 Terhubung ke Master
                               </span>
                             )}
+                            {!item.alreadyDownloaded && item.masterProductId && (
+                              <span className="shrink-0 rounded bg-amber-500/10 px-1.5 py-0.5 text-3xs font-medium text-amber-700 dark:text-amber-400">
+                                Mapping perlu disinkronkan
+                              </span>
+                            )}
                           </div>
-                          <p className="truncate font-mono text-xs text-muted-foreground">
-                            SKU: {item.sellerSku ?? "—"} ·{" "}
+                          <p
+                            className="truncate font-mono text-xs text-muted-foreground"
+                            title={item.sellerSkus.join(", ")}
+                          >
+                            SKU: {item.sellerSku ?? "—"}
+                            {item.sellerSkus.length > 1 && (
+                              <span className="font-sans"> · {item.sellerSkus.length} varian</span>
+                            )}
+                            {" "}·{" "}
                             {item.shopName ??
                               item.channelName ??
                               item.channelCode}

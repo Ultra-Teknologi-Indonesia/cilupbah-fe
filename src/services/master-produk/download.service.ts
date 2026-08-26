@@ -146,12 +146,14 @@ export interface ChannelSearchItem {
   externalProductId: string;
   name: string;
   sellerSku: string | null;
+  sellerSkus: string[];
   image: string | null;
   shopId: string;
   shopName: string | null;
   channelCode: string;
   channelName?: string | null;
   alreadyDownloaded: boolean;
+  mappingStatus?: string | null;
   masterProductId?: string | null;
   masterProductName?: string | null;
   masterProductSku?: string | null;
@@ -161,15 +163,24 @@ interface RawChannelSearchItem {
   external_product_id: string;
   name: string;
   seller_sku: string | null;
+  seller_skus?: string[];
   image: string | null;
   shop_id: string;
   shop_name: string | null;
   channel_code: string;
   channel_name?: string | null;
   already_downloaded?: boolean;
+  mapping_status?: string | null;
   master_product_id?: string | null;
   master_product_name?: string | null;
   master_product_sku?: string | null;
+}
+
+interface RawFailedChannelStore {
+  shop_id: string;
+  shop_name: string | null;
+  channel: string;
+  error: string;
 }
 
 function mapSearchItem(raw: RawChannelSearchItem): ChannelSearchItem {
@@ -177,12 +188,14 @@ function mapSearchItem(raw: RawChannelSearchItem): ChannelSearchItem {
     externalProductId: raw.external_product_id,
     name: raw.name,
     sellerSku: raw.seller_sku,
+    sellerSkus: raw.seller_skus ?? (raw.seller_sku ? [raw.seller_sku] : []),
     image: raw.image,
     shopId: raw.shop_id,
     shopName: raw.shop_name,
     channelCode: raw.channel_code,
     channelName: raw.channel_name,
     alreadyDownloaded: raw.already_downloaded ?? false,
+    mappingStatus: raw.mapping_status,
     masterProductId: raw.master_product_id,
     masterProductName: raw.master_product_name,
     masterProductSku: raw.master_product_sku,
@@ -356,7 +369,7 @@ export const DownloadService = {
       totalStores: number;
       failedStores: {
         shopId: string;
-        shopName: string;
+        shopName: string | null;
         channel: string;
         error: string;
       }[];
@@ -379,7 +392,7 @@ export const DownloadService = {
           meta?: {
             total_found?: number;
             total_stores?: number;
-            failed_stores?: any[];
+            failed_stores?: RawFailedChannelStore[];
           };
         }
       ).meta ?? {};
@@ -389,7 +402,7 @@ export const DownloadService = {
       meta: {
         totalFound: rawMeta.total_found ?? (res.data ?? []).length,
         totalStores: rawMeta.total_stores ?? params.shopIds?.length ?? 0,
-        failedStores: (rawMeta.failed_stores ?? []).map((f: any) => ({
+        failedStores: (rawMeta.failed_stores ?? []).map((f) => ({
           shopId: f.shop_id,
           shopName: f.shop_name,
           channel: f.channel,
