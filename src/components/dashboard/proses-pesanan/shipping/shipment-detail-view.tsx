@@ -45,6 +45,7 @@ import {
   useRecordDriverCall,
   useUpdateDriverCall,
 } from "@/hooks/proses-pesanan/use-fulfillment";
+import type { ShipmentOrderItem } from "@/types/proses-pesanan/fulfillment";
 import {
   useRefreshShipmentTracking,
   useShipmentTrackingEvents,
@@ -527,6 +528,8 @@ function TrackingTimelineSection({ shipmentId }: { shipmentId: string }) {
 export function ShipmentDetailView({ id }: { id: string }) {
   const [barcode, setBarcode] = React.useState("");
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [latestScannedOrder, setLatestScannedOrder] =
+    React.useState<ShipmentOrderItem | null>(null);
   const [removeTarget, setRemoveTarget] = React.useState<{
     orderId: string;
     orderNo: string | null;
@@ -597,9 +600,16 @@ export function ShipmentDetailView({ id }: { id: string }) {
     isScanningRef.current = true;
 
     try {
-      await scanOrder.mutateAsync({ shipmentId: id, barcode: code });
+      const result = await scanOrder.mutateAsync({ shipmentId: id, barcode: code });
+      setLatestScannedOrder(result.shipmentOrder);
+      setSearchQuery("");
+      setPage(1);
       playScanFeedback("ok");
-      toast.success(`Pesanan ${code} ditambahkan.`);
+      toast.success(
+        result.status === "already_added"
+          ? `Resi ${result.shipmentOrder.trackingNumber ?? code} sudah ada di daftar pesanan.`
+          : `Resi ${result.shipmentOrder.trackingNumber ?? code} ditambahkan ke daftar pesanan.`,
+      );
       setBarcode("");
     } catch (err) {
       const code = (err as { errors?: { code?: string } })?.errors?.code;
@@ -656,7 +666,13 @@ export function ShipmentDetailView({ id }: { id: string }) {
     );
   }
 
-  const filteredOrders = ordersData?.items ?? [];
+  const orders = ordersData?.items ?? [];
+  const filteredOrders = latestScannedOrder
+    ? [
+        latestScannedOrder,
+        ...orders.filter((order) => order.id !== latestScannedOrder.id),
+      ]
+    : orders;
   const meta = ordersData?.meta;
 
   const isScheduled = detail.status === "SCHEDULED";
@@ -853,7 +869,14 @@ export function ShipmentDetailView({ id }: { id: string }) {
                     </TableRow>
                   ) : (
                     filteredOrders.map((o, idx) => (
-                      <TableRow key={o.id}>
+                      <TableRow
+                        key={o.id}
+                        className={
+                          o.id === latestScannedOrder?.id
+                            ? "bg-emerald-500/5"
+                            : undefined
+                        }
+                      >
                         <TableCell className="text-center text-xs text-muted-foreground tabular-nums">
                           {idx + 1}
                         </TableCell>
@@ -879,6 +902,11 @@ export function ShipmentDetailView({ id }: { id: string }) {
                           >
                             {o.trackingNumber ?? "Belum ada"}
                           </span>
+                          {o.id === latestScannedOrder?.id && (
+                            <span className="ml-2 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-emerald-400">
+                              Baru dipindai
+                            </span>
+                          )}
                         </TableCell>
                         <TableCell className="text-center">
                           <PickupBadge

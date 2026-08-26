@@ -33,6 +33,7 @@ import {
 } from "@/lib/scan-feedback";
 import { apiError } from "@/lib/toast";
 import { ChannelBadge } from "../channel-badge";
+import type { ShipmentOrderItem } from "@/types/proses-pesanan/fulfillment";
 
 export function MasukkanKePengirimanView() {
   const router = useRouter();
@@ -42,6 +43,8 @@ export function MasukkanKePengirimanView() {
 
   const [shipmentId, setShipmentId] = React.useState(initialShipmentId);
   const [barcode, setBarcode] = React.useState("");
+  const [latestScannedOrder, setLatestScannedOrder] =
+    React.useState<ShipmentOrderItem | null>(null);
   const scanRef = React.useRef<HTMLInputElement>(null);
   const isScanningRef = React.useRef(false);
 
@@ -49,10 +52,12 @@ export function MasukkanKePengirimanView() {
     status: "SCHEDULED",
     per_page: 50,
   });
+  const selectedShipmentId =
+    shipmentId || shipmentsList.data?.items?.[0]?.id || "";
   const orders = useShipmentOrdersPaginated(
-    shipmentId,
+    selectedShipmentId,
     { page: 1, per_page: 100 },
-    !!shipmentId,
+    !!selectedShipmentId,
   );
   const scanOrder = useScanOrderToShipment();
   const removeOrder = useRemoveOrderFromShipment();
@@ -67,23 +72,17 @@ export function MasukkanKePengirimanView() {
   );
 
   React.useEffect(() => {
-    if (!shipmentId && shipmentsList.data?.items?.length) {
-      setShipmentId(shipmentsList.data.items[0].id);
-    }
-  }, [shipmentId, shipmentsList.data?.items]);
-
-  React.useEffect(() => {
-    if (shipmentId) {
+    if (selectedShipmentId) {
       const timer = setTimeout(() => {
         scanRef.current?.focus();
       }, 50);
       return () => clearTimeout(timer);
     }
-  }, [shipmentId]);
+  }, [selectedShipmentId]);
 
   React.useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      if (!shipmentId) return;
+      if (!selectedShipmentId) return;
       const activeEl = document.activeElement;
       const isInputOrTextarea =
         activeEl instanceof HTMLInputElement ||
@@ -103,19 +102,27 @@ export function MasukkanKePengirimanView() {
 
     window.addEventListener("keydown", handleGlobalKeyDown);
     return () => window.removeEventListener("keydown", handleGlobalKeyDown);
-  }, [shipmentId]);
+  }, [selectedShipmentId]);
 
   const handleScan = async (e: React.FormEvent) => {
     e.preventDefault();
     primeScanAudio();
     const value = barcode.trim();
-    if (!value || !shipmentId || isScanningRef.current) return;
+    if (!value || !selectedShipmentId || isScanningRef.current) return;
     isScanningRef.current = true;
 
     try {
-      await scanOrder.mutateAsync({ shipmentId, barcode: value });
+      const result = await scanOrder.mutateAsync({
+        shipmentId: selectedShipmentId,
+        barcode: value,
+      });
+      setLatestScannedOrder(result.shipmentOrder);
       playScanFeedback("ok");
-      toast.success(`Resi ${value} ditambahkan ke pengiriman.`);
+      toast.success(
+        result.status === "already_added"
+          ? `Resi ${result.shipmentOrder.trackingNumber ?? value} sudah ada di daftar pesanan.`
+          : `Resi ${result.shipmentOrder.trackingNumber ?? value} ditambahkan ke daftar pesanan.`,
+      );
       setBarcode("");
     } catch (err) {
       const code = (err as { errors?: { code?: string } })?.errors?.code;
@@ -131,9 +138,12 @@ export function MasukkanKePengirimanView() {
   };
 
   const handleRemove = async (orderId: string) => {
-    if (!shipmentId) return;
+    if (!selectedShipmentId) return;
     try {
-      await removeOrder.mutateAsync({ shipmentId, orderIds: [orderId] });
+      await removeOrder.mutateAsync({
+        shipmentId: selectedShipmentId,
+        orderIds: [orderId],
+      });
       toast.success("Pesanan dihapus dari pengiriman.");
     } catch (err) {
       apiError(err, "Gagal menghapus pesanan dari pengiriman.");
@@ -150,7 +160,15 @@ export function MasukkanKePengirimanView() {
     router.push(backHref);
   };
 
-  const items = orders.data?.items ?? [];
+  const items = React.useMemo(() => {
+    const shipmentOrders = orders.data?.items ?? [];
+    if (!latestScannedOrder) return shipmentOrders;
+
+    return [
+      latestScannedOrder,
+      ...shipmentOrders.filter((order) => order.id !== latestScannedOrder.id),
+    ];
+  }, [latestScannedOrder, orders.data?.items]);
 
   return (
     <div className="space-y-5 pb-8">
@@ -164,9 +182,10 @@ export function MasukkanKePengirimanView() {
           <Combobox
             id="mkp-shipment"
             options={shipmentOptions}
-            value={shipmentId || null}
+            value={selectedShipmentId || null}
             onChange={(v) => {
               setShipmentId(v ?? "");
+              setLatestScannedOrder(null);
               setTimeout(() => scanRef.current?.focus(), 50);
             }}
             placeholder="Pilih no. pengiriman…"
@@ -195,19 +214,21 @@ export function MasukkanKePengirimanView() {
             value={barcode}
             onChange={(e) => setBarcode(e.target.value)}
             placeholder="Masukkan No. Pesanan/No. Resi"
-            disabled={!shipmentId}
+            disabled={!selectedShipmentId}
             autoFocus
           />
           <Button
             type="submit"
             variant="primary"
-            disabled={!shipmentId || !barcode.trim() || scanOrder.isPending}
+            disabled={
+              !selectedShipmentId || !barcode.trim() || scanOrder.isPending
+            }
           >
             {scanOrder.isPending && <Loader2Icon className="animate-spin" />}
             Tambah
           </Button>
         </div>
-        {!shipmentId && (
+        {!selectedShipmentId && (
           <p className="mt-2 text-xs text-muted-foreground">
             Pilih No. Pengiriman terlebih dahulu untuk mulai scan.
           </p>
@@ -224,12 +245,12 @@ export function MasukkanKePengirimanView() {
         {items.length === 0 ? (
           <EmptyState
             title={
-              shipmentId
+              selectedShipmentId
                 ? "Belum ada pesanan"
                 : "Pilih pengiriman untuk melihat isi"
             }
             description={
-              shipmentId
+              selectedShipmentId
                 ? "Scan No. Pesanan / No. Resi di atas untuk menambahkan."
                 : undefined
             }
@@ -248,9 +269,21 @@ export function MasukkanKePengirimanView() {
               </TableHeader>
               <TableBody>
                 {items.map((it) => (
-                  <TableRow key={it.id}>
+                  <TableRow
+                    key={it.id}
+                    className={
+                      it.id === latestScannedOrder?.id
+                        ? "bg-emerald-500/5"
+                        : undefined
+                    }
+                  >
                     <TableCell className="font-medium">
                       {it.trackingNumber ?? "—"}
+                      {it.id === latestScannedOrder?.id && (
+                        <span className="ml-2 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-emerald-400">
+                          Baru dipindai
+                        </span>
+                      )}
                     </TableCell>
                     <TableCell>{it.orderNo ?? "—"}</TableCell>
                     <TableCell>

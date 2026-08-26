@@ -703,6 +703,7 @@ export interface RawShipmentOrder {
   qty_given?: number | null;
   pickup_status?: string | null;
   pickup_message?: string | null;
+  scanned_at?: string | null;
   order?: {
     id: string;
     salesorder_no?: string | null;
@@ -726,6 +727,11 @@ export interface RawShipmentDetail extends RawShipment {
   orders?: RawShipmentOrder[];
   notes?: string | null;
   created_by?: string | null;
+  scan_result?: {
+    status: "added" | "already_added";
+    barcode: string;
+    shipment_order: RawShipmentOrder;
+  } | null;
 }
 
 export interface ShipmentOrderItem {
@@ -743,6 +749,13 @@ export interface ShipmentOrderItem {
   packlistNo: string | null;
   pickupStatus: string | null;
   pickupMessage: string | null;
+  scannedAt: string | null;
+}
+
+export interface ShipmentScanResult {
+  status: "added" | "already_added";
+  barcode: string;
+  shipmentOrder: ShipmentOrderItem;
 }
 
 export interface ShipmentDetail extends Shipment {

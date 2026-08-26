@@ -576,7 +576,8 @@ export function PenyesuaianFormPage({
       items: lines.map((l) => ({
         item_id: l.itemId,
         bin_id: l.binId || undefined,
-        actual_qty: l.binOnHand + Number(l.delta),
+        mode: "DELTA" as const,
+        input_value: Number(l.delta),
         unit_cost: l.unitCost ? Number(l.unitCost) : undefined,
         notes: l.notes.trim() || undefined,
       })),
@@ -732,8 +733,8 @@ export function PenyesuaianFormPage({
                 setiap rak
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Pilih beberapa SKU sekaligus. Setiap baris dapat menggunakan
-                rak yang berbeda.
+                Isi jumlah perubahan stok, bukan stok akhir. Pilih beberapa
+                SKU sekaligus; setiap baris dapat menggunakan rak berbeda.
               </p>
             </div>
 

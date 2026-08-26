@@ -30,6 +30,7 @@ import type {
   Shipment,
   ShipmentDetail,
   ShipmentOrderItem,
+  ShipmentScanResult,
   ReconcileSummary,
   OutboundMonitoring,
   RawOutboundMonitoring,
@@ -288,6 +289,7 @@ function mapShipmentOrderItem(raw: RawShipmentOrder): ShipmentOrderItem {
     pickupStatus: raw.pickup_status ?? null,
     pickupMessage: raw.pickup_message ?? null,
     channelStatus: raw.order?.channel_status ?? null,
+    scannedAt: raw.scanned_at ?? null,
   };
 }
 
@@ -1387,12 +1389,21 @@ export const OutboundService = {
   scanOrderToShipment: async (
     shipmentId: string,
     barcode: string,
-  ): Promise<ShipmentDetail> => {
+  ): Promise<ShipmentScanResult> => {
     const res = await fetchClient<{ data: RawShipmentDetail }>(
       `/outbound/shipments/${encodeURIComponent(shipmentId)}/scan-order`,
       { method: "POST", data: { barcode } },
     );
-    return mapShipmentDetail(res.data);
+    const scan = res.data.scan_result;
+    if (!scan?.shipment_order) {
+      throw new Error("Respons scan tidak memuat pesanan yang dipindai.");
+    }
+
+    return {
+      status: scan.status,
+      barcode: scan.barcode,
+      shipmentOrder: mapShipmentOrderItem(scan.shipment_order),
+    };
   },
 
   removeOrderFromShipment: async (

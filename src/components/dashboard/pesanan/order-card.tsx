@@ -98,6 +98,7 @@ import {
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { useCopyToClipboard } from "@/hooks/shared/use-copy-to-clipboard";
 import { formatCurrency, formatDateTime } from "@/lib/format";
+import { getOrderStatusBadgeStatus } from "@/lib/pesanan/status";
 
 export const ChannelIcon = React.memo(function ChannelIcon({
   source,
@@ -1288,7 +1289,7 @@ export function OrderCard({
             </p>
             <StatusBadge
               domain="sales-order"
-              status={order.wms_status || order.status}
+              status={getOrderStatusBadgeStatus(order)}
               label={order.status_label}
               className="text-xs font-semibold whitespace-nowrap"
             />

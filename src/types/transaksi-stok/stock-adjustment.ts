@@ -55,7 +55,12 @@ export interface StockAdjustmentListParams {
 export interface StockAdjustmentItemInput {
   item_id: string;
   bin_id?: string;
-  actual_qty: number;
+  /** Final quantity for legacy/final-mode consumers. */
+  actual_qty?: number;
+  /** DELTA or FINAL. New adjustment forms use DELTA. */
+  mode?: "DELTA" | "FINAL";
+  /** Input value interpreted according to mode. */
+  input_value?: number;
   unit_cost?: number;
   notes?: string;
 }

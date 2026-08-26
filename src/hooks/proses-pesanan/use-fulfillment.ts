@@ -790,14 +790,17 @@ export function useScanOrderToShipment() {
       shipmentId: string;
       barcode: string;
     }) => OutboundService.scanOrderToShipment(shipmentId, barcode),
-    onSuccess: (_d, v) => {
+    onSuccess: (result, v) => {
       qc.invalidateQueries({
         queryKey: fulfillmentKeys.shipmentDetail(v.shipmentId),
       });
+      qc.invalidateQueries({
+        queryKey: [...fulfillmentKeys.all, "shipment-orders", v.shipmentId],
+      });
       qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
-      notifyOrderActivityChanged(
-        _d.orders.map((order) => order.orderId),
-      );
+      if (result.status === "added") {
+        notifyOrderActivityChanged([result.shipmentOrder.orderId]);
+      }
     },
   });
 }

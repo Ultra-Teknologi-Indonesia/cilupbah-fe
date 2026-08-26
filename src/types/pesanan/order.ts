@@ -149,6 +149,7 @@ export interface Order {
   received_date: string | null;
   ship_by_date: string | null;
   has_unmapped_items?: boolean;
+  has_stock_shortfall?: boolean;
   is_instant?: boolean;
   priority_fulfillment?: boolean;
   is_cod?: boolean;
