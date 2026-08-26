@@ -8,6 +8,13 @@ import type { DateRange } from "react-day-picker";
 import { Combobox } from "@/components/ui/combobox";
 import { DateRangePicker } from "@/components/ui/date-picker";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { FilterToolbar } from "@/components/dashboard/master-produk/filter-toolbar";
 import { cn } from "@/lib/utils";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
@@ -45,11 +52,6 @@ const LABEL_PRINTED_OPTIONS = [
   { value: "no", label: "Belum cetak" },
 ];
 
-const SHADOW_OPTIONS = [
-  { value: "only", label: "Hanya shadow" },
-  { value: "all", label: "Semua" },
-];
-
 const CONTACT_STATUS_OPTIONS = [
   { value: "not_contacted", label: "Belum dihubungi" },
   { value: "contacted", label: "Sudah dihubungi" },
@@ -74,7 +76,6 @@ export interface FilterState {
   contact_status: string;
   decision: string;
   status: string[];
-  shadow: string;
 }
 
 const EMPTY: FilterState = {
@@ -90,7 +91,6 @@ const EMPTY: FilterState = {
   contact_status: "",
   decision: "",
   status: [],
-  shadow: "",
 };
 
 function toDate(s: string): Date | undefined {
@@ -190,8 +190,17 @@ export function OrderFilters({
   }));
 
   const stores = (storeData ?? [])
-    .filter((s) => !filters.channel || s.channel?.code === filters.channel)
-    .map((s) => ({ value: s.shop_id, label: s.shop_name }));
+    .filter((s) => {
+      if (!filters.channel) return true;
+      if (filters.channel === "tokopedia") {
+        return s.channel?.code === "tokopedia" || s.channel?.code === "tiktok";
+      }
+      return s.channel?.code === filters.channel;
+    })
+    .map((s) => ({
+      value: s.shop_id,
+      label: `${s.channel?.name ?? "Channel tidak diketahui"} · ${s.shop_name}`,
+    }));
 
   const courierOptions = useMemo(() => {
     const list = (dynamicProvidersData?.data ?? []).map((p) => ({
@@ -229,7 +238,6 @@ export function OrderFilters({
       filters.label_printed,
       filters.contact_status,
       filters.decision,
-      filters.shadow,
     ].filter(Boolean).length +
     (filters.status.length > 0 ? 1 : 0) +
     (filters.shipping_provider.length > 0 ? 1 : 0);
@@ -261,6 +269,7 @@ export function OrderFilters({
       trailing={trailing}
       onRefresh={onRefresh}
       isRefreshing={isRefreshing}
+      gridCols={4}
       sortControl={
         sortDir && onSortDirChange ? (
           <OrderSortControl
@@ -284,14 +293,29 @@ export function OrderFilters({
         />
       )}
 
-      <Combobox
-        options={[{ value: "", label: "Semua Lokasi" }, ...locations]}
-        value={filters.location_id}
-        onChange={(v) => onChange({ ...filters, location_id: v ?? "" })}
-        placeholder="Lokasi"
-        searchPlaceholder="Cari lokasi"
-        className="h-9 bg-background"
-      />
+      <div className="flex flex-col gap-1.5">
+        <label className="text-xs font-medium text-muted-foreground">
+          Lokasi
+        </label>
+        <Select
+          value={filters.location_id || "all"}
+          onValueChange={(v) =>
+            onChange({ ...filters, location_id: v === "all" ? "" : v })
+          }
+        >
+          <SelectTrigger className="h-9 w-full bg-background">
+            <SelectValue placeholder="Semua Lokasi" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Semua Lokasi</SelectItem>
+            {locations.map((location) => (
+              <SelectItem key={location.value} value={location.value}>
+                {location.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
       <Combobox
         options={CHANNEL_OPTIONS}
@@ -341,7 +365,7 @@ export function OrderFilters({
         className="h-9 bg-background"
       />
 
-      <div className="flex flex-col gap-1 sm:col-span-2">
+      <div className="flex flex-col gap-1.5 sm:col-span-2">
         <label className="text-xs font-medium text-muted-foreground">
           Pembayaran
         </label>
@@ -353,7 +377,7 @@ export function OrderFilters({
         />
       </div>
 
-      <div className="flex flex-col gap-1 sm:col-span-2">
+      <div className="flex flex-col gap-1.5 sm:col-span-2">
         <label className="text-xs font-medium text-muted-foreground">
           Cetak Label
         </label>
@@ -362,18 +386,6 @@ export function OrderFilters({
           value={filters.label_printed}
           onValueChange={(v) => onChange({ ...filters, label_printed: v })}
           options={LABEL_PRINTED_OPTIONS}
-        />
-      </div>
-
-      <div className="flex flex-col gap-1 sm:col-span-2">
-        <label className="text-xs font-medium text-muted-foreground">
-          Order Shadow
-        </label>
-        <FilterRadioGroup
-          name="shadow"
-          value={filters.shadow}
-          onValueChange={(v) => onChange({ ...filters, shadow: v })}
-          options={SHADOW_OPTIONS}
         />
       </div>
 
@@ -405,19 +417,24 @@ export function OrderFilters({
         </>
       )}
 
-      <div className="sm:col-span-2">
-        <DateRangePicker
-          value={dateRange}
-          onChange={(range) =>
-            onChange({
-              ...filters,
-              date_from: toStr(range?.from),
-              date_to: toStr(range?.to),
-            })
-          }
-          placeholder="Pilih rentang tanggal"
-          className="h-9 bg-background"
-        />
+      <div className="sm:col-span-2 lg:col-span-4">
+        <div className="rounded-2xl border border-border/60 bg-background/60 p-3">
+          <div className="mb-2 text-xs font-medium text-muted-foreground">
+            Rentang tanggal transaksi
+          </div>
+          <DateRangePicker
+            value={dateRange}
+            onChange={(range) =>
+              onChange({
+                ...filters,
+                date_from: toStr(range?.from),
+                date_to: toStr(range?.to),
+              })
+            }
+            placeholder="Pilih tanggal mulai dan selesai"
+            className="h-9 w-full bg-background sm:max-w-md"
+          />
+        </div>
       </div>
     </FilterToolbar>
   );

@@ -62,7 +62,6 @@ export interface OrderListParams {
   decision?: CustomerDecision;
   status?: string[];
   item_id?: string;
-  shadow?: "only" | "all";
 }
 
 export const STATUS_FILTER_OPTIONS: { value: string; label: string }[] = [

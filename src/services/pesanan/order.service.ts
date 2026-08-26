@@ -28,7 +28,11 @@ export const OrderService = {
     if (params.tab && params.tab !== "all") sp.set("tab", params.tab);
     if (params.sub) sp.set("sub", params.sub);
     if (params.q) sp.set("q", params.q);
-    if (params.channel) sp.set("filter[channel]", params.channel);
+    if (params.channel?.toLowerCase() === "tokopedia") {
+      sp.set("filter[commerce_platform]", "TOKOPEDIA");
+    } else if (params.channel) {
+      sp.set("filter[channel]", params.channel);
+    }
     if (params.store_id) sp.set("filter[store_id]", params.store_id);
     if (params.location_id) sp.set("filter[location_id]", params.location_id);
     if (params.content_type)
@@ -50,7 +54,6 @@ export const OrderService = {
       sp.set("filter[contact_status]", params.contact_status);
     if (params.decision) sp.set("filter[decision]", params.decision);
     if (params.item_id) sp.set("filter[item_id]", params.item_id);
-    if (params.shadow) sp.set("filter[shadow]", params.shadow);
     for (const s of params.status ?? []) sp.append("filter[status][]", s);
     if (params.page) sp.set("page", String(params.page));
     if (params.per_page) sp.set("per_page", String(params.per_page));
@@ -80,7 +83,11 @@ export const OrderService = {
     const sp = new URLSearchParams();
     if (params?.tab && params.tab !== "all") sp.set("tab", params.tab);
     if (params?.sub) sp.set("sub", params.sub);
-    if (params?.channel) sp.set("filter[channel]", params.channel);
+    if (params?.channel?.toLowerCase() === "tokopedia") {
+      sp.set("filter[commerce_platform]", "TOKOPEDIA");
+    } else if (params?.channel) {
+      sp.set("filter[channel]", params.channel);
+    }
     if (params?.store_id) sp.set("filter[store_id]", params.store_id);
     if (params?.location_id) sp.set("filter[location_id]", params.location_id);
     if (params?.date_from) sp.set("filter[date_from]", params.date_from);

@@ -126,7 +126,6 @@ export function PesananView() {
         undefined,
       decision: (filters.decision as OrderListParams["decision"]) || undefined,
       status: filters.status.length > 0 ? filters.status : undefined,
-      shadow: (filters.shadow as OrderListParams["shadow"]) || undefined,
       sort: `${sortDir === "asc" ? "" : "-"}${sortBy || "transaction_date"}`,
       page: listSearch.page,
       per_page: listSearch.perPage,
@@ -218,12 +217,25 @@ export function PesananView() {
               </div>
             )}
           </div>
-          <Can permission="export-pesanan">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
+            <Can permission="import-pesanan">
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="h-9 gap-1.5 rounded-full"
+              >
+                <Link href="/dashboard/pesanan/import">
+                  <ImportIcon className="size-4" />
+                  Import
+                </Link>
+              </Button>
+            </Can>
+            <Can permission="export-pesanan">
               {tab === "cancellation" && <ExportCancelDialog />}
               <ExportOrdersDialog tab={tab} />
-            </div>
-          </Can>
+            </Can>
+          </div>
         </div>
 
         <OrderFilters
@@ -241,19 +253,6 @@ export function PesananView() {
           onSortByChange={setSortBy}
           trailing={
             <div className="flex items-center gap-2">
-              <Can permission="import-pesanan">
-                <Button
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  className="h-9 rounded-full gap-1.5"
-                >
-                  <Link href="/dashboard/pesanan/import">
-                    <ImportIcon className="size-4" />
-                    Import
-                  </Link>
-                </Button>
-              </Can>
               <Can permission="create-pesanan">
                 <Button
                   asChild
