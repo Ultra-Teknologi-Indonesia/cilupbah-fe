@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/tooltip";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { useCopyToClipboard } from "@/hooks/shared/use-copy-to-clipboard";
-import { formatCurrency, formatDate } from "@/lib/format";
+import { formatCurrency, formatDateTime } from "@/lib/format";
 import type { Order, OrderTab } from "@/types/pesanan/order";
 import {
   ChannelIcon,
@@ -323,7 +323,9 @@ function OrderRow({
 
       <TableCell>
         <span className="whitespace-nowrap text-sm text-muted-foreground">
-          {order.transaction_date ? formatDate(order.transaction_date) : "—"}
+          {order.transaction_date
+            ? formatDateTime(order.transaction_date)
+            : "—"}
         </span>
       </TableCell>
 
@@ -421,7 +423,7 @@ export function OrderTable({
           <TableHead>Kurir</TableHead>
           <SortableTableHead
             id="transaction_date"
-            title="Tanggal"
+            title="Tanggal & Jam"
             sorting={sorting}
             onSortingChange={onSortingChange}
           />

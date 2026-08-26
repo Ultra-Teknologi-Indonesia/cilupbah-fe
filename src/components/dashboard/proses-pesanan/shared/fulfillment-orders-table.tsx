@@ -61,7 +61,7 @@ import { OrderStatusBadge } from "../channel-badge";
 import { BuatPicklistDialog } from "../picking/buat-picklist-dialog";
 import { BuatPengirimanDialog } from "../shipping/buat-pengiriman-dialog";
 import { DocActions } from "../picking/doc-actions";
-import { formatCurrency, formatDate } from "@/lib/format";
+import { formatCurrency, formatDateTime } from "@/lib/format";
 import {
   FulfillmentFilterBar,
   type FulfillmentFilterField,
@@ -553,7 +553,7 @@ function OrderCard({
               </span>
               <span className="hidden items-center gap-1.5 sm:inline-flex">
                 <CalendarIcon className="size-3.5" />
-                {formatDate(order.transactionDate)}
+                {formatDateTime(order.transactionDate)}
               </span>
             </>
           )}

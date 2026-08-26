@@ -35,7 +35,7 @@ import type {
   StockAdjustment,
   StockAdjustmentListParams,
 } from "@/types/transaksi-stok/stock-adjustment";
-import { formatDate, formatDateTime } from "@/lib/format";
+import { formatDateTime } from "@/lib/format";
 import { toast } from "sonner";
 import { apiError } from "@/lib/toast";
 
@@ -285,7 +285,7 @@ export function PenyesuaianTab() {
         total={total}
         isLoading={isLoading}
         isFetching={isFetching}
-        searchPlaceholder="Cari no. koreksi stok..."
+        searchPlaceholder="Cari no. koreksi atau keterangan..."
         onExport={can("export-penyesuaian-stok") ? handleExport : undefined}
         enableRowSelection
         getRowId={(row) => row.id}
