@@ -545,7 +545,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                       {incompleteItems.length} item masih ada selisih (fisik
                       kurang dari data). Kalau fisiknya memang tidak ada,
                       koreksi qty diterima lewat ikon pensil di kolom Qty —
-                      selisihnya otomatis dicatat sebagai Penyesuaian Stok.
+                      koreksinya tetap tercatat di kronologi penerimaan.
                     </p>
                   </div>
                 )}
@@ -661,7 +661,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
         description={
           incompleteItems.length > 0
             ? `Masih ada ${incompleteItems.length} item yang belum penuh. Sisa kuota akan dirilis dan tersedia untuk penempatan baru. Setelah selesai, admin masih bisa mengoreksi qty penempatan.`
-            : "Setelah selesai, admin masih bisa mengoreksi qty penempatan. Selisih koreksi otomatis tercatat sebagai Penyesuaian Stok."
+            : "Setelah selesai, admin masih bisa mengoreksi qty penempatan. Koreksi tetap tercatat di kronologi penerimaan."
         }
         confirmLabel="Selesaikan"
         loading={completeMutation.isPending}
