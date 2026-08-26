@@ -85,6 +85,28 @@ function todayStr(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+function isAdjustableBinCode(code: string | null | undefined): boolean {
+  return Boolean(code && code.trim().toUpperCase() !== "DEFAULT");
+}
+
+function toAdjustableLineBins(
+  bins: Array<{
+    id: string;
+    code: string;
+    on_hand: number;
+    avg_cost?: number;
+  }>,
+): LineBin[] {
+  return bins
+    .filter((bin) => isAdjustableBinCode(bin.code))
+    .map((bin) => ({
+      id: bin.id,
+      code: bin.code,
+      onHand: bin.on_hand,
+      avgCost: bin.avg_cost,
+    }));
+}
+
 function AdjustmentBinCombobox({
   locationId,
   availableBins,
@@ -111,25 +133,21 @@ function AdjustmentBinCombobox({
       search: debouncedSearch.trim() || undefined,
       perPage: 30,
       sort: "bin_final_code",
+      filter: { is_inbound: false },
     });
 
-  const binMapRef = useMemo(
-    () => ({
-      current: new Map<
-        string,
-        { code: string; onHand: number; avgCost?: number }
-      >(),
-    }),
-    [],
-  );
-
-  const options: ComboboxOption[] = useMemo(() => {
+  const { options, binMap } = useMemo(() => {
     const opts: ComboboxOption[] = [];
     const addedIds = new Set<string>();
+    const nextBinMap = new Map<
+      string,
+      { code: string; onHand: number; avgCost?: number }
+    >();
 
     const term = debouncedSearch.trim().toLowerCase();
     for (const b of availableBins) {
-      binMapRef.current.set(b.id, {
+      if (!isAdjustableBinCode(b.code)) continue;
+      nextBinMap.set(b.id, {
         code: b.code,
         onHand: b.onHand,
         avgCost: b.avgCost,
@@ -145,8 +163,9 @@ function AdjustmentBinCombobox({
 
     const rawItems = data?.pages.flatMap((p) => p.items) ?? [];
     for (const lb of rawItems) {
-      if (!binMapRef.current.has(lb.id)) {
-        binMapRef.current.set(lb.id, { code: lb.binFinalCode, onHand: 0 });
+      if (lb.isInbound || !isAdjustableBinCode(lb.binFinalCode)) continue;
+      if (!nextBinMap.has(lb.id)) {
+        nextBinMap.set(lb.id, { code: lb.binFinalCode, onHand: 0 });
       }
       if (!addedIds.has(lb.id)) {
         opts.push({
@@ -160,17 +179,17 @@ function AdjustmentBinCombobox({
     if (
       value &&
       !opts.some((o) => o.value === value) &&
-      binMapRef.current.has(value)
+      nextBinMap.has(value)
     ) {
-      const info = binMapRef.current.get(value)!;
+      const info = nextBinMap.get(value)!;
       opts.unshift({
         value,
         label: `${info.code} · ${info.onHand} stok`,
       });
     }
 
-    return opts;
-  }, [availableBins, data, debouncedSearch, value, binMapRef]);
+    return { options: opts, binMap: nextBinMap };
+  }, [availableBins, data, debouncedSearch, value]);
 
   return (
     <Combobox
@@ -181,7 +200,7 @@ function AdjustmentBinCombobox({
           onChange("", "", 0);
           return;
         }
-        const info = binMapRef.current.get(v);
+        const info = binMap.get(v);
         onChange(v, info?.code ?? "", info?.onHand ?? 0, info?.avgCost);
       }}
       onQueryChange={setSearch}
@@ -259,6 +278,7 @@ export function PenyesuaianFormPage({
     if (!editDetail || !editItemsData) return;
 
     editPopulatedRef.current = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Initialises the editable draft once after both API resources are available.
     setLocationId(editDetail.location_id ?? editDetail.location?.id ?? "");
     setTransactionDate(
       editDetail.transaction_date
@@ -275,8 +295,10 @@ export function PenyesuaianFormPage({
       const name = prod?.product?.name ?? sku ?? "—";
       const imageUrl =
         prod?.media?.[0]?.url || prod?.product?.media?.[0]?.url || null;
-      const binId = item.bin_id ?? item.bin?.id ?? "";
       const binCode = item.bin?.bin_final_code ?? "";
+      const binId = isAdjustableBinCode(binCode)
+        ? (item.bin_id ?? item.bin?.id ?? "")
+        : "";
       const systemQty = item.system_qty ?? 0;
       const actualQty = item.actual_qty ?? 0;
       const delta = String(actualQty - systemQty);
@@ -326,12 +348,9 @@ export function PenyesuaianFormPage({
                 line.lineId === l.lineId
                   ? {
                       ...line,
-                      availableBins: res.data.available_bins.map((b) => ({
-                        id: b.id,
-                        code: b.code,
-                        onHand: b.on_hand,
-                        avgCost: b.avg_cost,
-                      })),
+                      availableBins: toAdjustableLineBins(
+                        res.data.available_bins,
+                      ),
                     }
                   : line,
               ),
@@ -380,10 +399,8 @@ export function PenyesuaianFormPage({
           const variant = res?.data;
           if (!variant || existing.has(variant.id)) return;
           const entry = entries[i];
-          const bin =
-            variant.available_bins.find((b) => b.id === entry.binId) ??
-            variant.primary_bin ??
-            null;
+          const bins = toAdjustableLineBins(variant.available_bins);
+          const bin = bins.find((b) => b.id === entry.binId) ?? null;
           const pairKey = `${variant.id}|${bin?.id ?? ""}`;
 
           if (!bin || existing.has(pairKey)) return;
@@ -398,17 +415,12 @@ export function PenyesuaianFormPage({
             thumbnail: variant.thumbnail_url,
             binId: bin?.id ?? "",
             binCode: bin?.code ?? "",
-            binOnHand: bin?.on_hand ?? 0,
-            binAvgCost: bin?.avg_cost ?? variant.avg_cost ?? 0,
+            binOnHand: bin?.onHand ?? 0,
+            binAvgCost: bin?.avgCost ?? variant.avg_cost ?? 0,
             delta: String(-entry.qty),
-            unitCost: bin?.avg_cost != null ? String(bin.avg_cost) : "",
+            unitCost: bin?.avgCost != null ? String(bin.avgCost) : "",
             notes: "Selisih penempatan (stok fiktif)",
-            availableBins: variant.available_bins.map((b) => ({
-              id: b.id,
-              code: b.code,
-              onHand: b.on_hand,
-              avgCost: b.avg_cost,
-            })),
+            availableBins: bins,
           });
         });
 
@@ -422,7 +434,9 @@ export function PenyesuaianFormPage({
       try {
         const res = await InventoryStockService.bySku(p.sku, locationId);
         const variant = res.data;
-        const primary = variant.primary_bin ?? variant.available_bins?.[0];
+        const bins = toAdjustableLineBins(variant.available_bins ?? []);
+        const primary =
+          bins.find((bin) => bin.id === variant.primary_bin?.id) ?? bins[0];
 
         setLines((prev) => {
           return [
@@ -436,20 +450,15 @@ export function PenyesuaianFormPage({
               thumbnail: variant.thumbnail_url ?? p.thumbnail ?? null,
               binId: primary?.id ?? "",
               binCode: primary?.code ?? "",
-              binOnHand: primary?.on_hand ?? 0,
-              binAvgCost: primary?.avg_cost ?? variant.avg_cost ?? 0,
+              binOnHand: primary?.onHand ?? 0,
+              binAvgCost: primary?.avgCost ?? variant.avg_cost ?? 0,
               delta: "",
               unitCost:
-                (primary?.avg_cost ?? variant.avg_cost) != null
-                  ? String(primary?.avg_cost ?? variant.avg_cost)
+                (primary?.avgCost ?? variant.avg_cost) != null
+                  ? String(primary?.avgCost ?? variant.avg_cost)
                   : "",
               notes: "",
-              availableBins: (variant.available_bins ?? []).map((b) => ({
-                id: b.id,
-                code: b.code,
-                onHand: b.on_hand,
-                avgCost: b.avg_cost,
-              })),
+              availableBins: bins,
             },
           ];
         });
@@ -504,6 +513,9 @@ export function PenyesuaianFormPage({
     try {
       const res = await InventoryStockService.bySku(q, locationId);
       const variant = res.data;
+      const bins = toAdjustableLineBins(variant.available_bins ?? []);
+      const primary =
+        bins.find((bin) => bin.id === variant.primary_bin?.id) ?? bins[0];
 
       setLines((prev) => [
         ...prev,
@@ -514,24 +526,19 @@ export function PenyesuaianFormPage({
           name: variant.product_name ?? variant.sku,
           variantLabel: variant.variant_label,
           thumbnail: variant.thumbnail_url,
-          binId: variant.primary_bin?.id ?? "",
-          binCode: variant.primary_bin?.code ?? "",
-          binOnHand: variant.primary_bin?.on_hand ?? 0,
-          binAvgCost: variant.primary_bin?.avg_cost ?? variant.avg_cost ?? 0,
+          binId: primary?.id ?? "",
+          binCode: primary?.code ?? "",
+          binOnHand: primary?.onHand ?? 0,
+          binAvgCost: primary?.avgCost ?? variant.avg_cost ?? 0,
           delta: "",
           unitCost:
-            variant.primary_bin?.avg_cost != null
-              ? String(variant.primary_bin.avg_cost)
+            primary?.avgCost != null
+              ? String(primary.avgCost)
               : variant.avg_cost != null
                 ? String(variant.avg_cost)
                 : "",
           notes: "",
-          availableBins: (variant.available_bins ?? []).map((b) => ({
-            id: b.id,
-            code: b.code,
-            onHand: b.on_hand,
-            avgCost: b.avg_cost,
-          })),
+          availableBins: bins,
         },
       ]);
       flash("ok");
