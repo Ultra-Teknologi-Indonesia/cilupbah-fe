@@ -66,6 +66,7 @@ import {
   type OrderTab,
   type SubFilter,
   CHANNEL_MAP,
+  orderChannelKey,
 } from "@/types/pesanan/order";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import {
@@ -100,14 +101,17 @@ import { formatCurrency, formatDateTime } from "@/lib/format";
 
 export const ChannelIcon = React.memo(function ChannelIcon({
   source,
+  commercePlatform,
 }: {
   source: string | null;
+  commercePlatform?: string | null;
 }) {
-  if (!source) return null;
-  const ch = CHANNEL_MAP[source];
+  const channel = orderChannelKey(source, commercePlatform);
+  if (!channel) return null;
+  const ch = CHANNEL_MAP[channel];
   if (!ch) return null;
 
-  const mask = `url(/channels/${source}.svg) center / contain no-repeat`;
+  const mask = `url(${ch.icon}) center / contain no-repeat`;
 
   return (
     <Tooltip>
@@ -1226,7 +1230,10 @@ export function OrderCard({
         )}
 
         <span className="text-border select-none">|</span>
-        <ChannelIcon source={order.source} />
+        <ChannelIcon
+          source={order.source}
+          commercePlatform={order.commerce_platform}
+        />
         {order.shop_name && (
           <span className="truncate text-xs text-foreground max-w-[160px]">
             {order.shop_name}

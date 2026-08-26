@@ -110,6 +110,7 @@ function mapOrder(raw: RawFulfillmentOrder): FulfillmentOrder {
         ? raw.shipping_full_name
         : raw.customer_name) ?? null,
     source: raw.source ?? null,
+    commercePlatform: raw.commerce_platform ?? null,
     status: raw.status ?? null,
     isPaid: Boolean(raw.is_paid),
     transactionDate: raw.transaction_date ?? null,

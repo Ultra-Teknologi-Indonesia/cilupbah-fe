@@ -27,7 +27,7 @@ export const STAGE_CONFIG: readonly StageConfigItem[] = [
     key: "packing",
     label: "Packing",
     subs: [
-      { key: "belum", label: "Belum" },
+      { key: "belum", label: "Belum Mulai" },
       { key: "diproses", label: "Diproses" },
       { key: "selesai", label: "Selesai" },
     ],
@@ -156,6 +156,7 @@ export interface RawFulfillmentOrder {
   customer_name?: string | null;
   shipping_full_name?: string | null;
   source?: string | null;
+  commerce_platform?: string | null;
   status?: string | null;
   is_paid?: boolean;
   transaction_date?: string | null;
@@ -217,6 +218,7 @@ export interface FulfillmentOrder {
   channelBuyerId: string | null;
   customerName: string | null;
   source: string | null;
+  commercePlatform?: string | null;
   status: string | null;
   isPaid: boolean;
   transactionDate: string | null;

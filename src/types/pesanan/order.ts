@@ -96,6 +96,7 @@ export interface Order {
   salesorder_no: string;
   channel_order_no: string | null;
   source: string | null;
+  commerce_platform?: string | null;
   channel_shop_id: string | null;
   shop_name: string | null;
   customer_name: string;
@@ -398,10 +399,41 @@ export const TABS_WITH_ACTIONS: Set<OrderTab> = new Set([
   "returned",
 ]);
 
-export const CHANNEL_MAP: Record<string, { label: string; color: string }> = {
-  tiktok: { label: "TikTok", color: "#000000" },
-  shopee: { label: "Shopee", color: "#EE4D2D" },
-  tokopedia: { label: "Tokopedia", color: "#42B549" },
-  lazada: { label: "Lazada", color: "#0F146D" },
-  woocommerce: { label: "WooCommerce", color: "#7f54b3" },
+export const CHANNEL_MAP: Record<
+  string,
+  { label: string; color: string; icon: string }
+> = {
+  tiktok: {
+    label: "TikTok",
+    color: "#000000",
+    icon: "/channels/tiktok.svg",
+  },
+  shopee: {
+    label: "Shopee",
+    color: "#EE4D2D",
+    icon: "/channels/shopee.svg",
+  },
+  tokopedia: {
+    label: "Tokopedia",
+    color: "#42B549",
+    icon: "/channels/tokopedia.svg",
+  },
+  lazada: {
+    label: "Lazada",
+    color: "#0F146D",
+    icon: "/channels/lazada.svg",
+  },
+  woocommerce: {
+    label: "WooCommerce",
+    color: "#7f54b3",
+    icon: "/channels/woocommerce.svg",
+  },
 };
+
+export function orderChannelKey(
+  source: string | null,
+  commercePlatform?: string | null,
+): string | null {
+  if (commercePlatform?.toUpperCase() === "TOKOPEDIA") return "tokopedia";
+  return source?.toLowerCase() ?? null;
+}

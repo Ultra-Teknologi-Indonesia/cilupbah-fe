@@ -51,7 +51,7 @@ import {
 } from "@/hooks/proses-pesanan/use-fulfillment";
 import type { FulfillmentOrder } from "@/types/proses-pesanan/fulfillment";
 import { useCopyToClipboard } from "@/hooks/shared/use-copy-to-clipboard";
-import { CHANNEL_MAP } from "@/types/pesanan/order";
+import { CHANNEL_MAP, orderChannelKey } from "@/types/pesanan/order";
 import {
   SimplePagination,
   TABLE_PAGE_SIZES,
@@ -81,11 +81,18 @@ export interface OrderTableActions {
   selesaikanPesanan?: boolean;
 }
 
-function ChannelIcon({ source }: { source: string | null }) {
-  if (!source) return null;
-  const ch = CHANNEL_MAP[source];
+function ChannelIcon({
+  source,
+  commercePlatform,
+}: {
+  source: string | null;
+  commercePlatform?: string | null;
+}) {
+  const channel = orderChannelKey(source, commercePlatform);
+  if (!channel) return null;
+  const ch = CHANNEL_MAP[channel];
   if (!ch) return null;
-  const mask = `url(/channels/${source}.svg) center / contain no-repeat`;
+  const mask = `url(${ch.icon}) center / contain no-repeat`;
   return (
     <span
       className="inline-flex h-6 items-center gap-1.5 shrink-0 rounded-xl px-1.5"
@@ -505,7 +512,10 @@ function OrderCard({
         )}
 
         <span className="text-border select-none">|</span>
-        <ChannelIcon source={order.source} />
+        <ChannelIcon
+          source={order.source}
+          commercePlatform={order.commercePlatform}
+        />
 
         {order.isInstant && (
           <Badge

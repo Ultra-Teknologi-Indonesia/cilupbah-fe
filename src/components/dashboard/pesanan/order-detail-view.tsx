@@ -70,6 +70,7 @@ import {
   CHANNEL_MAP,
   CONTACT_CHANNEL_LABELS,
   CUSTOMER_DECISION_LABELS,
+  orderChannelKey,
   type Order,
   type OrderItem,
   type StatusHistoryEntry,
@@ -463,9 +464,16 @@ function StatusStepper({
   );
 }
 
-function ChannelBadge({ source }: { source: string | null }) {
-  if (!source) return null;
-  const ch = CHANNEL_MAP[source];
+function ChannelBadge({
+  source,
+  commercePlatform,
+}: {
+  source: string | null;
+  commercePlatform?: string | null;
+}) {
+  const channel = orderChannelKey(source, commercePlatform);
+  if (!channel) return null;
+  const ch = CHANNEL_MAP[channel];
   if (!ch) {
     return (
       <Badge variant="outline" className="text-xs capitalize">
@@ -473,7 +481,7 @@ function ChannelBadge({ source }: { source: string | null }) {
       </Badge>
     );
   }
-  const mask = `url(/channels/${source}.svg) center / contain no-repeat`;
+  const mask = `url(${ch.icon}) center / contain no-repeat`;
   return (
     <span
       className="inline-flex h-7 items-center gap-1.5 rounded-xl px-2"
@@ -965,7 +973,10 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
               </InfoRow>
 
               <InfoRow icon={TruckIcon} label="Sumber">
-                <ChannelBadge source={order.source} />
+                <ChannelBadge
+                  source={order.source}
+                  commercePlatform={order.commerce_platform}
+                />
                 {order.shop_name && (
                   <span className="ml-2 text-xs text-muted-foreground">
                     {order.shop_name}
