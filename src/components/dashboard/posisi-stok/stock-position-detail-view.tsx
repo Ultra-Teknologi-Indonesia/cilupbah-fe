@@ -297,6 +297,134 @@ function QtyCell({ qty }: { qty: number }) {
   );
 }
 
+type WebhookNoteEntry = {
+  channel: string;
+  status: string;
+  receivedAt: string;
+};
+
+function parseWebhookNote(note: string): WebhookNoteEntry[] {
+  return note
+    .split(/(?=Webhook channel=)/i)
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .flatMap((part) => {
+      const channel = part.match(/Webhook channel=([^|]+)/i)?.[1]?.trim();
+      const status = part.match(/\|\s*status=([^|]+)/i)?.[1]?.trim();
+      const receivedAt = part
+        .match(/\|\s*diterima=(.*?)(?=\s*\|\s*Webhook event_key=|$)/i)?.[1]
+        ?.trim();
+
+      if (!channel || !status || !receivedAt) return [];
+
+      return [
+        {
+          channel: channel.toUpperCase(),
+          status,
+          receivedAt,
+        },
+      ];
+    });
+}
+
+function formatChannelName(channel: string): string {
+  return channel.charAt(0).toUpperCase() + channel.slice(1).toLowerCase();
+}
+
+function formatWebhookMessage(entry: WebhookNoteEntry): string {
+  const normalized = entry.status.trim().toUpperCase();
+  const channel = formatChannelName(entry.channel);
+
+  const messages: Record<string, string> = {
+    UNPAID: `Pesanan ${channel} belum dibayar.`,
+    READY_TO_SHIP: `Pesanan ${channel} siap dikirim.`,
+    PROCESSED: `Pesanan ${channel} sudah diproses.`,
+    LOGISTICS_NOT_START: `Pengiriman pesanan ${channel} belum dimulai.`,
+    LOGISTICS_READY: `Pengiriman pesanan ${channel} sudah siap.`,
+    LOGISTICS_REQUEST_CREATED: `Permintaan pengiriman ${channel} berhasil dibuat.`,
+  };
+
+  if (normalized === "-") return `Status pesanan ${channel} diperbarui.`;
+  if (messages[normalized]) return messages[normalized];
+
+  const readableStatus = normalized
+    .toLowerCase()
+    .split("_")
+    .filter(Boolean)
+    .join(" ");
+
+  return `Status pesanan ${channel} berubah menjadi ${readableStatus}.`;
+}
+
+function formatWebhookReceivedAt(value: string): string {
+  const match = value.match(
+    /^(\d{2})-(\d{2})-(\d{4})\s+(\d{2}):(\d{2})(?::\d{2})?\s*(\w+)?$/,
+  );
+  if (!match) return value;
+
+  const [, day, month, year, hour, minute, timezone] = match;
+  const monthLabel = [
+    "jan",
+    "feb",
+    "mar",
+    "apr",
+    "mei",
+    "jun",
+    "jul",
+    "agu",
+    "sep",
+    "okt",
+    "nov",
+    "des",
+  ][Number(month) - 1];
+
+  if (!monthLabel) return value;
+  return `${day} ${monthLabel} ${year}, ${hour}.${minute}${timezone ? ` ${timezone}` : ""}`;
+}
+
+function MovementNote({ note }: { note: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const webhookEntries = useMemo(() => parseWebhookNote(note), [note]);
+
+  if (webhookEntries.length === 0) {
+    const canExpand = note.length > 180;
+    return (
+      <div className="max-w-[24rem]">
+        <p
+          className={cn(
+            "whitespace-pre-wrap break-words leading-relaxed",
+            canExpand && !expanded && "line-clamp-3",
+          )}
+        >
+          {note}
+        </p>
+        {canExpand && (
+          <button
+            type="button"
+            className="mt-1 font-medium text-primary hover:underline"
+            onClick={() => setExpanded((value) => !value)}
+          >
+            {expanded ? "Tampilkan ringkas" : "Lihat selengkapnya"}
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  const latestEntry = webhookEntries.at(-1)!;
+
+  return (
+    <div className="max-w-[24rem] rounded-lg border border-border/60 bg-muted/30 px-2.5 py-2">
+      <p className="font-medium leading-relaxed text-foreground">
+        {formatWebhookMessage(latestEntry)}
+      </p>
+      <p className="mt-1 leading-relaxed text-muted-foreground">
+        Diperbarui {formatWebhookReceivedAt(latestEntry.receivedAt)}.
+      </p>
+    </div>
+  );
+}
+
 function StockSummaryCards({
   onHand,
   actual,
@@ -678,7 +806,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
             <TableHead className="px-3 py-2.5 text-right text-xs uppercase tracking-wider text-muted-foreground">
               Sisa Stok
             </TableHead>
-            <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">
+            <TableHead className="w-[24rem] min-w-[18rem] px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">
               Keterangan
             </TableHead>
           </TableRow>
@@ -779,9 +907,9 @@ function MovementsSection({ itemId }: { itemId: string }) {
                   <TableCell className="px-3 py-2.5 text-right font-mono text-sm font-semibold tabular-nums">
                     {m.placed_balance ?? m.balance}
                   </TableCell>
-                  <TableCell className="px-3 py-2.5 text-xs text-muted-foreground">
+                  <TableCell className="w-[24rem] min-w-[18rem] px-3 py-2.5 align-top text-xs text-muted-foreground">
                     {m.note ? (
-                      m.note
+                      <MovementNote note={m.note} />
                     ) : (
                       <span className="text-muted-foreground">—</span>
                     )}
