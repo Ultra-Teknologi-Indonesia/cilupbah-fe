@@ -333,7 +333,7 @@ export function PenerimaanBarangTab() {
         header: "Progress Penempatan",
         cell: ({ row }) => {
           const item = row.original;
-          const totalRecv =
+          const fallbackTotalRecv =
             item.items?.reduce(
               (s, i) =>
                 s +
@@ -342,9 +342,25 @@ export function PenerimaanBarangTab() {
                   : i.received_qty || 0),
               0,
             ) ?? 0;
-          const totalPutaway =
+          const fallbackTotalPutaway =
             item.items?.reduce((s, i) => s + (i.putaway_qty || 0), 0) ?? 0;
-          return <ProgressBar value={totalPutaway} total={totalRecv} />;
+          const totalRecv =
+            item.placement_summary?.received_qty ?? fallbackTotalRecv;
+          const totalPutaway =
+            item.placement_summary?.putaway_qty ?? fallbackTotalPutaway;
+          const placementLabel = {
+            NOT_STARTED: "Belum ditempatkan",
+            PARTIAL: "Sebagian ditempatkan",
+            COMPLETED: "Selesai ditempatkan",
+            CANCELLED: "Dibatalkan",
+          }[item.placement_status ?? "NOT_STARTED"];
+
+          return (
+            <div className="min-w-36 space-y-1">
+              <ProgressBar value={totalPutaway} total={totalRecv} />
+              <p className="text-2xs text-muted-foreground">{placementLabel}</p>
+            </div>
+          );
         },
       },
 

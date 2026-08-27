@@ -3,12 +3,18 @@ export interface LocationStock {
   location_id: string;
   location_name: string;
   on_hand: number;
+  pending_placement?: number;
+  legacy_unassigned?: number;
+  physical_total?: number;
   on_order: number;
   available: number;
 }
 
 export interface TotalStocks {
   on_hand: number;
+  pending_placement?: number;
+  legacy_unassigned?: number;
+  physical_total?: number;
   on_order: number;
   available: number;
 
@@ -62,6 +68,12 @@ export interface StockMovement {
   direction: "in" | "out" | "none";
   qty: number;
   balance: number;
+  placed_balance?: number;
+  pending_placement_balance?: number;
+  legacy_unassigned_balance?: number;
+  physical_total_balance?: number;
+  on_order_balance?: number;
+  available_balance?: number;
   transaction_date: string;
   created_by: string;
   created_at: string;

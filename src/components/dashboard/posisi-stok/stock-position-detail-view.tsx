@@ -170,7 +170,7 @@ const VIEW_TABS: {
     value: "clean",
     label: "Kronologi Bersih",
     description:
-      "Hanya pergerakan fisik yang benar-benar terjadi: pick per-scan, pembatalan, retur, penempatan, transfer. Pesanan yang belum diproses tidak muncul.",
+      "Hanya penempatan stok yang berhasil masuk ke rak final. Mutasi pesanan, DEFAULT, dan data lama tanpa rak tidak ditampilkan.",
   },
   {
     value: "attention",
@@ -676,7 +676,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
               Qty
             </TableHead>
             <TableHead className="px-3 py-2.5 text-right text-xs uppercase tracking-wider text-muted-foreground">
-              Sisa
+              Sisa Stok
             </TableHead>
             <TableHead className="px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">
               Keterangan
@@ -776,8 +776,28 @@ function MovementsSection({ itemId }: { itemId: string }) {
                   <TableCell className="px-3 py-2.5 text-right">
                     <QtyCell qty={m.qty} />
                   </TableCell>
-                  <TableCell className="px-3 py-2.5 text-right font-mono text-sm tabular-nums">
-                    {m.balance}
+                  <TableCell
+                    className="px-3 py-2.5 text-right font-mono text-sm tabular-nums"
+                    title={[
+                      `stok rak: ${m.placed_balance ?? m.balance}`,
+                      `menunggu penempatan: ${m.pending_placement_balance ?? 0}`,
+                      `fisik teridentifikasi: ${m.physical_total_balance ?? m.balance}`,
+                      `on order: ${m.on_order_balance ?? 0}`,
+                      `available: ${m.available_balance ?? m.balance}`,
+                      ...(m.legacy_unassigned_balance
+                        ? [`data lama tanpa rak: ${m.legacy_unassigned_balance}`]
+                        : []),
+                    ].join(" · ")}
+                  >
+                    <div className="font-semibold">
+                      {m.placed_balance ?? m.balance}
+                    </div>
+                    {view === "all" && (
+                      <div className="mt-0.5 whitespace-nowrap text-2xs font-sans text-muted-foreground">
+                        avail {m.available_balance ?? m.balance}
+                        {" · "}tunggu {m.pending_placement_balance ?? 0}
+                      </div>
+                    )}
                   </TableCell>
                   <TableCell className="px-3 py-2.5 text-xs text-muted-foreground">
                     {m.note ? (

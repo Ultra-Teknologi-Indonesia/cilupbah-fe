@@ -9,6 +9,21 @@ export type InboundStatus =
   | "COMPLETED"
   | "CANCELLED";
 
+export type InboundPlacementStatus =
+  | "NOT_STARTED"
+  | "PARTIAL"
+  | "COMPLETED"
+  | "CANCELLED";
+
+export interface InboundPlacementSummary {
+  received_qty: number;
+  putaway_qty: number;
+  pending_qty: number;
+  reserved_qty: number;
+  progress_percent: number;
+  is_consistent: boolean;
+}
+
 export interface InboundReceipt {
   id: string;
   inbound_item_id: string;
@@ -107,6 +122,11 @@ export interface Inbound {
   source_type: string | null;
   source_id: string | null;
   status: InboundStatus;
+  /** Alias eksplisit untuk status dokumen penerimaan. */
+  receiving_status?: InboundStatus;
+  /** Progres penempatan yang dihitung dari qty, terpisah dari status penerimaan. */
+  placement_status?: InboundPlacementStatus;
+  placement_summary?: InboundPlacementSummary;
   notes: string | null;
   expected_date: string | null;
   created_by: string;
