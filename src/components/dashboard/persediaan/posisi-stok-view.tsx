@@ -798,8 +798,8 @@ export function PosisiStokView() {
                               <InfoIcon className="size-3 opacity-60" />
                             </TooltipTrigger>
                             <TooltipContent side="top">
-                              Metode valuasi: Moving Average (rata-rata
-                              tertimbang).
+                              Rata-rata tertimbang dari penerimaan pembelian.
+                              Saldo rak negatif tidak mengurangi harga pokok.
                             </TooltipContent>
                           </Tooltip>
                         </span>

@@ -11,7 +11,7 @@ Modul **Laporan** menyediakan tujuh jenis laporan operasional yang menjadi sumbe
 
 ### Jenis laporan
 
-- **HPP** (\`/dashboard/laporan/hpp\`) — Harga Pokok Penjualan per SKU/kategori berdasarkan metode moving average.
+- **HPP** (\`/dashboard/laporan/hpp\`) — Harga Pokok Penjualan dari persediaan awal + pembelian bersih - persediaan akhir, dengan biaya rata-rata tertimbang penerimaan pembelian.
 - **Persediaan** (\`/dashboard/laporan/persediaan\`) — snapshot \`on_hand\`, \`available\`, \`reserved\`, dan nilai stok per lokasi.
 - **Retur** (\`/dashboard/laporan/retur\`) — rekap retur channel, alasan, dan status \`dispute_outcome\`.
 - **Stok Minus** (\`/dashboard/laporan/stok-minus\`) — sub-menu wajib review harian untuk SKU dengan \`on_hand < 0\`.

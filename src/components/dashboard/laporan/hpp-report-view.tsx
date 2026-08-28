@@ -328,10 +328,10 @@ export function HppReportView() {
                   </div>
                 )}
                 <p className="mt-2 text-2xs leading-relaxed text-muted-foreground">
-                  HPP dihitung dari saldo persediaan + pembelian bersih -
-                  persediaan akhir. Snapshot COGS adalah total `total_cogs` dari
-                  sales invoice items terbit di periode (cross-check; perbedaan
-                  dapat terjadi karena timing posting).
+                  HPP dihitung dari persediaan awal + pembelian bersih -
+                  persediaan akhir. Nilai barang memakai rata-rata tertimbang
+                  penerimaan pembelian; saldo rak negatif tidak menjadi biaya
+                  negatif. Snapshot COGS dipakai sebagai pemeriksaan silang.
                 </p>
               </div>
             </div>

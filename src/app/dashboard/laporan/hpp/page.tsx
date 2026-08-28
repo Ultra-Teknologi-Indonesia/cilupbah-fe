@@ -9,7 +9,7 @@ export default function LaporanHppPage() {
     <div className="flex flex-col gap-6">
       <PageTitle
         title="Laporan HPP"
-        description="Laporan Harga Pokok Penjualan berdasarkan metode Moving Average."
+        description="Laporan HPP berdasarkan persediaan dan pembelian bersih."
         breadcrumb={[
           { label: "Dashboard", href: "/dashboard" },
           { label: "Laporan" },
