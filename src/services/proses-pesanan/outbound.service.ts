@@ -346,6 +346,7 @@ const PICKLIST_ITEM_STATUS_VALUES = new Set<PicklistItem["itemStatus"]>([
   "COMPLETED",
   "SHORT",
   "REJECTED",
+  "PROCESSED_EXTERNALLY",
 ]);
 
 const PICKLIST_FAIL_REASON_VALUES = new Set<PicklistItem["failReasonCode"]>([

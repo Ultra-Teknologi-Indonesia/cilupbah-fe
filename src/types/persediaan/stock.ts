@@ -78,6 +78,9 @@ export interface StockMovement {
   physical_total_balance?: number;
   on_order_balance?: number;
   available_balance?: number;
+  /** Current placed stock snapshot, independent of the selected history view. */
+  current_balance?: number;
+  current_available_balance?: number;
   transaction_date: string;
   created_by: string;
   created_at: string;

@@ -115,6 +115,7 @@ function getItemStatus(
   s: string | null | undefined,
 ) {
   if (s === "SHORT" || s === "REJECTED") return s;
+  if (s === "PROCESSED_EXTERNALLY") return s;
   if (picked >= ordered && ordered > 0) return "COMPLETED";
   if (picked > 0) return "PARTIAL";
   if (s === "PICKED") return "COMPLETED";
@@ -277,12 +278,17 @@ export function PickingProsesView({ id }: { id: string }) {
   const totalPicked = items.reduce((s, i) => s + i.qtyPicked, 0);
   const failedCount = items.filter((i) => isFailedStatus(i.itemStatus)).length;
   const completedCount = items.filter(
-    (i) => i.qtyPicked >= i.qtyOrdered && !isFailedStatus(i.itemStatus),
+    (i) =>
+      (i.qtyPicked >= i.qtyOrdered && !isFailedStatus(i.itemStatus)) ||
+      i.itemStatus === "PROCESSED_EXTERNALLY",
   ).length;
   const allResolved =
     items.length > 0 &&
     items.every(
-      (i) => i.qtyPicked >= i.qtyOrdered || isFailedStatus(i.itemStatus),
+      (i) =>
+        i.qtyPicked >= i.qtyOrdered ||
+        isFailedStatus(i.itemStatus) ||
+        i.itemStatus === "PROCESSED_EXTERNALLY",
     );
   const isTerminal = pl
     ? ["COMPLETED", "FAILED", "CANCELLED"].includes(pl.status)

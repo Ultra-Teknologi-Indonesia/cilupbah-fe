@@ -363,7 +363,12 @@ export interface RawPicklistMedia {
 }
 
 export type PicklistItemStatus =
-  "PENDING" | "PARTIAL" | "COMPLETED" | "SHORT" | "REJECTED";
+  | "PENDING"
+  | "PARTIAL"
+  | "COMPLETED"
+  | "SHORT"
+  | "REJECTED"
+  | "PROCESSED_EXTERNALLY";
 
 export type PicklistFailReasonCode =
   "STOCK_EMPTY" | "DAMAGED" | "REJECTED" | "MISSING" | "OTHER";
@@ -460,6 +465,10 @@ export const PICKLIST_ITEM_STATUS_LABEL: Record<
   REJECTED: {
     label: "Ditolak",
     className: "bg-destructive/10 text-destructive",
+  },
+  PROCESSED_EXTERNALLY: {
+    label: "Diproses channel",
+    className: "bg-sky-500/10 text-sky-700",
   },
 };
 

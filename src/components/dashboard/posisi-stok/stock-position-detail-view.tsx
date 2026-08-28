@@ -170,7 +170,7 @@ const VIEW_TABS: {
     value: "clean",
     label: "Kronologi Bersih",
     description:
-      "Hanya penempatan stok yang berhasil masuk ke rak final. Mutasi pesanan, DEFAULT, dan data lama tanpa rak tidak ditampilkan.",
+      "Menampilkan aktivitas fisik: penempatan, picking, retur, transfer, dan picking historis. Pesanan dan DEFAULT tidak ditampilkan.",
   },
   {
     value: "attention",
@@ -638,6 +638,12 @@ function MovementsSection({ itemId }: { itemId: string }) {
     Boolean,
   ).length;
   const hasActiveFilter = activeCount > 0;
+  const currentSnapshot = movements.length > 0
+    ? {
+        balance: movements[0].current_balance ?? 0,
+        available: movements[0].current_available_balance ?? 0,
+      }
+    : null;
 
   const viewBar = (
     <div className="flex flex-wrap items-center gap-2">
@@ -776,6 +782,24 @@ function MovementsSection({ itemId }: { itemId: string }) {
     <div className="flex flex-col gap-3">
       {viewBar}
       {filterBar}
+      {currentSnapshot && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/15 bg-primary/[0.04] px-4 py-3">
+          <div>
+            <p className="text-xs font-semibold text-foreground">Stok saat ini</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Angka terkini dari persediaan rak, tidak terpengaruh oleh baris yang disembunyikan.
+            </p>
+          </div>
+          <div className="flex items-baseline gap-4 font-mono tabular-nums">
+            <span className="text-lg font-bold text-foreground">
+              {currentSnapshot.balance}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              tersedia {currentSnapshot.available}
+            </span>
+          </div>
+        </div>
+      )}
       <Table>
         <TableHeader>
           <TableRow className="border-b border-border/60 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -804,7 +828,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
               Qty
             </TableHead>
             <TableHead className="px-3 py-2.5 text-right text-xs uppercase tracking-wider text-muted-foreground">
-              Sisa Stok
+              Saldo setelah aktivitas
             </TableHead>
             <TableHead className="w-[24rem] min-w-[18rem] px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">
               Keterangan
