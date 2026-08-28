@@ -62,6 +62,11 @@ interface RawRow {
   sell_price: number;
 }
 
+function normalizeProductName(value: string | null | undefined): string | null {
+  const normalized = value?.trim();
+  return normalized ? normalized : null;
+}
+
 import { Skeleton } from "@/components/ui/skeleton";
 
 function StockedProductPickerSkeleton() {
@@ -155,15 +160,20 @@ export function StockedProductPickerDialog({
     for (const r of rows) {
       const key = r.product_id ?? r.item_id;
       const existing = map.get(key);
+      const productName = normalizeProductName(r.product_name);
       if (existing) {
         existing.variants.push(r);
+        if (!existing.productName && productName) {
+          existing.productName = productName;
+        }
         if (!existing.thumbnail && r.thumbnail_url) {
           existing.thumbnail = r.thumbnail_url;
         }
       } else {
         map.set(key, {
           productId: key,
-          productName: r.product_name ?? r.sku,
+          // SKU remains visible in the variant row; it must not become the group title.
+          productName: productName ?? "Nama produk belum tersedia",
           thumbnail: r.thumbnail_url,
           variants: [r],
         });
