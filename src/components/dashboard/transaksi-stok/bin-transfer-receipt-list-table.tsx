@@ -19,7 +19,7 @@ import {
   type BinTransferReceiptListItem,
 } from "@/hooks/transaksi-stok/use-bin-transfer";
 import { exportCsv } from "@/lib/export-csv";
-import { formatDate } from "@/lib/format";
+import { formatDateTimeWib } from "@/lib/format";
 
 interface FilterState {
   locationId: string;
@@ -119,7 +119,7 @@ export function BinTransferReceiptListTable() {
         cell: ({ row }) => (
           <span className="text-foreground">
             {row.original.bin_transfer?.transfer_date
-              ? formatDate(row.original.bin_transfer.transfer_date)
+              ? formatDateTimeWib(row.original.bin_transfer.transfer_date)
               : "—"}
           </span>
         ),
@@ -130,7 +130,7 @@ export function BinTransferReceiptListTable() {
         cell: ({ row }) => (
           <span className="text-foreground">
             {row.original.received_at
-              ? formatDate(row.original.received_at)
+              ? formatDateTimeWib(row.original.received_at)
               : "—"}
           </span>
         ),
@@ -215,9 +215,9 @@ export function BinTransferReceiptListTable() {
         it.receipt_number,
         it.bin_transfer?.transfer_number ?? "",
         it.bin_transfer?.transfer_date
-          ? formatDate(it.bin_transfer.transfer_date)
+          ? formatDateTimeWib(it.bin_transfer.transfer_date)
           : "",
-        it.received_at ? formatDate(it.received_at) : "",
+        it.received_at ? formatDateTimeWib(it.received_at) : "",
         it.location?.location_name ?? "",
         it.notes ?? "",
         it.received_by ?? "",

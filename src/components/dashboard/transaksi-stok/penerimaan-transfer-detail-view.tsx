@@ -17,7 +17,7 @@ import { SectionTitle } from "@/components/dashboard/shared/section-title";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useBinTransferReceiptDetail } from "@/hooks/transaksi-stok/use-bin-transfer";
-import { formatDateTimeFull, formatDate } from "@/lib/format";
+import { formatDateTimeFull, formatDateTimeWib } from "@/lib/format";
 
 const LIST_HREF = "/dashboard/transaksi-stok?tab=selesai";
 
@@ -81,7 +81,7 @@ export function PenerimaanTransferDetailView({ id }: { id: string }) {
             <InfoRow label="No. Transfer Asal" value={detail.bin_transfer?.transfer_number || "—"} />
             <InfoRow
               label="Tgl Transfer"
-              value={detail.bin_transfer?.transfer_date ? formatDate(detail.bin_transfer.transfer_date) : "—"}
+              value={detail.bin_transfer?.transfer_date ? formatDateTimeWib(detail.bin_transfer.transfer_date) : "—"}
             />
             <InfoRow label="Lokasi" value={detail.location?.location_name || "—"} />
             <InfoRow

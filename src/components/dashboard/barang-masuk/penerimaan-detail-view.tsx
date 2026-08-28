@@ -2,7 +2,7 @@
 import Image from "next/image";
 
 import * as React from "react";
-import { formatDate, formatDateTime } from "@/lib/format";
+import { formatDateTimeWib, formatDateTime } from "@/lib/format";
 import {
   ArrowLeftIcon,
   CheckCircle2Icon,
@@ -305,7 +305,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
                     label="Tgl. Diharapkan"
                     value={
                       inbound.expected_date
-                        ? formatDate(inbound.expected_date)
+                        ? formatDateTimeWib(inbound.expected_date)
                         : undefined
                     }
                   />

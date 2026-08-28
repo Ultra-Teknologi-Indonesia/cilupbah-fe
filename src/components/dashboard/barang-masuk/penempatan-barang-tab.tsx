@@ -41,7 +41,7 @@ import { exportCsv } from "@/lib/export-csv";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { getStatusMeta } from "@/lib/status";
 import type { Putaway } from "@/types/barang-masuk/putaway";
-import { formatDate } from "@/lib/format";
+import { formatDateTimeWib } from "@/lib/format";
 
 const BULK_PDF_MAX = 50;
 
@@ -82,7 +82,7 @@ function handleExportPutaway(items: Putaway[]) {
     const placedQty = item.items?.reduce((s, i) => s + i.putaway_qty, 0) ?? 0;
     return [
       item.putaway_no,
-      item.started_at ?? item.created_at,
+      formatDateTimeWib(item.started_at ?? item.created_at),
       item.location?.location_name ?? "",
       item.created_by,
       item.assignee?.name ?? "",
@@ -292,7 +292,7 @@ export function PenempatanBarangTab() {
                 : r.created_at;
           return (
             <span className="text-foreground">
-              {date ? formatDate(date) : "—"}
+              {date ? formatDateTimeWib(date) : "—"}
             </span>
           );
         },

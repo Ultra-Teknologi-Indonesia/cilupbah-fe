@@ -59,7 +59,7 @@ import { CHANNEL_MAP, STATUS_LABELS } from "@/types/pesanan/order";
 import type { Order } from "@/types/pesanan/order";
 import {
   formatCurrency,
-  formatDate,
+  formatDateTimeWib,
   formatTime,
   formatDateTime,
 } from "@/lib/format";
@@ -502,7 +502,7 @@ function groupMovementsByDay(movements: StockMovement[]): MovementDayGroup[] {
   const groups: MovementDayGroup[] = [];
   let current: MovementDayGroup | null = null;
   for (const m of movements) {
-    const label = formatDate(m.transaction_date);
+    const label = formatDateTimeWib(m.transaction_date);
     if (!current || current.label !== label) {
       current = { key: m.id, label, items: [], netQty: 0 };
       groups.push(current);
@@ -1413,7 +1413,7 @@ function PesananSection({ itemId }: { itemId: string }) {
                   )}
                 </TableCell>
                 <TableCell className="px-3 py-2.5 text-muted-foreground">
-                  {o.transaction_date ? formatDate(o.transaction_date) : "—"}
+                  {o.transaction_date ? formatDateTimeWib(o.transaction_date) : "—"}
                 </TableCell>
                 <TableCell className="px-3 py-2.5 text-right font-mono text-sm font-semibold tabular-nums">
                   {itemQty(o)}

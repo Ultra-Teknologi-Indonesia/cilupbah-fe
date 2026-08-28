@@ -3,7 +3,7 @@
 import * as React from "react";
 import { PackageOpenIcon } from "lucide-react";
 
-import { formatDate } from "@/lib/format";
+import { formatDateTimeWib } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -113,7 +113,7 @@ export function MonitorAnalyticsTable({
         cell: ({ row }) => (
           <div className="text-right text-muted-foreground">
             {row.original.last_sold ? (
-              formatDate(row.original.last_sold)
+              formatDateTimeWib(row.original.last_sold)
             ) : (
               <span className="text-warning">Belum pernah</span>
             )}
@@ -172,7 +172,7 @@ export function MonitorAnalyticsTable({
         header: () => <div className="text-right">Perkiraan Habis</div>,
         cell: ({ row }) => (
           <div className="text-right text-muted-foreground">
-            {formatDate(row.original.estimated_date)}
+            {formatDateTimeWib(row.original.estimated_date)}
           </div>
         ),
       });

@@ -1,4 +1,4 @@
-import { formatDate, formatDateTime } from "@/lib/format";
+import { formatDateTimeWib, formatDateTime } from "@/lib/format";
 import type { Inbound } from "@/types/barang-masuk/inbound";
 
 /**
@@ -12,5 +12,5 @@ export function formatInboundExpectedDate(
 
   return inbound.type === "TRANSIT_IN"
     ? formatDateTime(inbound.expected_date)
-    : formatDate(inbound.expected_date);
+    : formatDateTimeWib(inbound.expected_date);
 }

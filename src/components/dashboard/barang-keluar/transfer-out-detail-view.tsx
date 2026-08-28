@@ -33,7 +33,7 @@ import {
 } from "@/hooks/barang-keluar/use-outbound-transfers";
 import { useMe } from "@/hooks/auth/use-auth";
 import { useState, useCallback } from "react";
-import { formatDate, formatDateTime } from "@/lib/format";
+import { formatDateTime } from "@/lib/format";
 
 const LIST_HREF = "/dashboard/barang-keluar?tab=transfer";
 

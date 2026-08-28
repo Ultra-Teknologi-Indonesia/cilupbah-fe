@@ -41,7 +41,7 @@ import {
 } from "@/hooks/transaksi-stok/use-stock-opname";
 import { usePermissions } from "@/hooks/auth/use-permissions";
 import { exportCsv } from "@/lib/export-csv";
-import { formatDate } from "@/lib/format";
+import { formatDateTimeWib } from "@/lib/format";
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -429,7 +429,7 @@ export function OpnameDetail({ id }: { id: string }) {
           <InfoRow label="Difinalisasi Oleh" value={opname.finalized_by} />
           <InfoRow
             label="Tgl. Finalisasi"
-            value={opname.finalized_at ? formatDate(opname.finalized_at) : null}
+            value={opname.finalized_at ? formatDateTimeWib(opname.finalized_at) : null}
           />
           <InfoRow label="Catatan" value={opname.notes} />
         </div>

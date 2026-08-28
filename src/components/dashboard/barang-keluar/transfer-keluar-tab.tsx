@@ -48,7 +48,7 @@ import { toast } from "sonner";
 import { apiError } from "@/lib/toast";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import type { InventoryTransfer } from "@/types/barang-masuk/inventory-transfer";
-import { formatDate, formatDateTime } from "@/lib/format";
+import { formatDateTime } from "@/lib/format";
 import { ImportTransferDialog } from "@/components/dashboard/barang-keluar/import-transfer-dialog";
 
 type SubTab = "draft" | "transit" | "finished";

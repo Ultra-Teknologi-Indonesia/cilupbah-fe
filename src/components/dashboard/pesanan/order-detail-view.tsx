@@ -95,7 +95,7 @@ import { ManualCancelDialog } from "./manual-cancel-dialog";
 import { canRequestChannelCancel } from "@/lib/pesanan/cancel-eligibility";
 import {
   formatCurrency,
-  formatDate,
+  formatDateTimeWib,
   formatDateLong,
   formatDateTime,
 } from "@/lib/format";
@@ -266,7 +266,7 @@ function FinancialSummary({ order }: { order: Order }) {
           <div className="mt-2 flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Tanggal Cair</span>
             <span className="tabular-nums font-medium text-foreground">
-              {formatDate(finance?.settled_at)}
+              {formatDateTimeWib(finance?.settled_at)}
             </span>
           </div>
           <div className="mt-2 flex items-center justify-between text-sm">

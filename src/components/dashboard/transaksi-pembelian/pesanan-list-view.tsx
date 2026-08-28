@@ -50,7 +50,7 @@ import type {
   PurchaseOrder,
   PurchaseOrderListParams,
 } from "@/types/transaksi-pembelian/purchase-order";
-import { formatDate, formatCurrency } from "@/lib/format";
+import { formatDateTimeWib, formatCurrency } from "@/lib/format";
 
 interface FilterState {
   location_id: string;
@@ -212,7 +212,7 @@ export function PesananListView() {
           <DataTableColumnHeader column={column} title="Tgl. Pesanan" />
         ),
         enableSorting: true,
-        cell: ({ row }) => <span>{formatDate(row.original.order_date)}</span>,
+        cell: ({ row }) => <span>{formatDateTimeWib(row.original.order_date)}</span>,
       },
       {
         accessorKey: "total_amount",

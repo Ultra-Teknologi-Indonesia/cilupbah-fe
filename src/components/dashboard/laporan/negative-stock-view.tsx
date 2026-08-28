@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { formatDate } from "@/lib/format";
+import { formatDateTimeWib } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
@@ -146,7 +146,7 @@ export function NegativeStockView() {
         header: "Minus Pertama",
         cell: ({ row }) => (
           <span className="text-xs">
-            {formatDate(row.original.first_negative_at)}
+            {formatDateTimeWib(row.original.first_negative_at)}
           </span>
         ),
       },
@@ -181,7 +181,7 @@ export function NegativeStockView() {
         cell: ({ row }) => (
           <span className="text-xs">
             {row.original.normalized_at
-              ? formatDate(row.original.normalized_at)
+              ? formatDateTimeWib(row.original.normalized_at)
               : "—"}
           </span>
         ),

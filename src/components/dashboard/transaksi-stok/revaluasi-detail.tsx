@@ -22,7 +22,7 @@ import {
 } from "@/hooks/transaksi-stok/use-stock-revaluations";
 import type { StockRevaluationItem } from "@/types/transaksi-stok/stock-revaluation";
 import { exportCsv } from "@/lib/export-csv";
-import { formatDate, formatCurrency } from "@/lib/format";
+import { formatDateTimeWib, formatCurrency } from "@/lib/format";
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -240,7 +240,7 @@ export function RevaluasiDetail({ id }: { id: string }) {
           <InfoRow label="Disetujui Oleh" value={reval.approved_by} />
           <InfoRow
             label="Tgl. Dibuat"
-            value={reval.created_at ? formatDate(reval.created_at) : null}
+            value={reval.created_at ? formatDateTimeWib(reval.created_at) : null}
           />
           <InfoRow label="Catatan" value={reval.notes} />
         </div>

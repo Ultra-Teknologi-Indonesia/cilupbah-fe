@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { formatCurrency, formatDate, formatNumber } from "@/lib/format";
+import { formatCurrency, formatDateTimeWib, formatNumber } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
@@ -222,7 +222,7 @@ export function SettlementView() {
         header: "Tgl Pesanan",
         cell: ({ row }) => (
           <span className="text-xs text-muted-foreground">
-            {formatDate(row.original.transaction_date)}
+            {formatDateTimeWib(row.original.transaction_date)}
           </span>
         ),
       },
@@ -305,7 +305,7 @@ export function SettlementView() {
         header: "Tgl Cair",
         cell: ({ row }) => (
           <span className="text-xs text-muted-foreground">
-            {formatDate(row.original.finance?.settled_at)}
+            {formatDateTimeWib(row.original.finance?.settled_at)}
           </span>
         ),
       },

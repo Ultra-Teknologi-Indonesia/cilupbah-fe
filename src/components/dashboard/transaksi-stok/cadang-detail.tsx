@@ -22,7 +22,7 @@ import {
   useReservedStockDetail,
   useCancelReservedStock,
 } from "@/hooks/transaksi-stok/use-reserved-stocks";
-import { formatDate } from "@/lib/format";
+import { formatDateTimeWib } from "@/lib/format";
 
 function getRemainingDays(endDate: string): {
   label: string;
@@ -167,8 +167,8 @@ export function CadangDetail({ id }: { id: string }) {
         <div className="grid gap-3 sm:grid-cols-2">
           <InfoRow label="No. Reservasi Stok" value={stock.reserved_stock_no} />
           <InfoRow label="Lokasi" value={stock.location?.location_name} />
-          <InfoRow label="Mulai" value={formatDate(stock.start_date)} />
-          <InfoRow label="Berakhir" value={formatDate(stock.end_date)} />
+          <InfoRow label="Mulai" value={formatDateTimeWib(stock.start_date)} />
+          <InfoRow label="Berakhir" value={formatDateTimeWib(stock.end_date)} />
           <InfoRow
             label="Status"
             value={

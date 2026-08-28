@@ -48,7 +48,7 @@ import {
   useChannelAcceptSalesReturn,
   useChannelRejectSalesReturn,
 } from "@/hooks/barang-masuk/use-sales-return-actions";
-import { formatDate } from "@/lib/format";
+import { formatDateTimeWib } from "@/lib/format";
 
 function isMpDecisionActionable(decision?: string | null): boolean {
   return !decision || decision === "MP_PENDING";
@@ -271,7 +271,7 @@ export function SalesReturnDetailView({ id }: { id: string }) {
             label="Total Qty"
             value={<span className="tabular-nums">{totalQty}</span>}
           />
-          <InfoRow label="Tgl. Dibuat" value={formatDate(ret.created_at)} />
+          <InfoRow label="Tgl. Dibuat" value={formatDateTimeWib(ret.created_at)} />
           <InfoRow label="Diproses oleh" value={ret.processed_by ?? "—"} />
           {(ret.reason_display || ret.reason || ret.channel_reason_text) && (
             <InfoRow
@@ -363,7 +363,7 @@ export function SalesReturnDetailView({ id }: { id: string }) {
             <InfoRow
               label="Terakhir Disinkron"
               value={
-                ret.detail_synced_at ? formatDate(ret.detail_synced_at) : "—"
+                ret.detail_synced_at ? formatDateTimeWib(ret.detail_synced_at) : "—"
               }
             />
           </div>
@@ -451,7 +451,7 @@ export function SalesReturnDetailView({ id }: { id: string }) {
                       </p>
                     )}
                     <span className="text-2xs text-muted-foreground">
-                      {formatDate(appeal.recorded_at)}
+                      {formatDateTimeWib(appeal.recorded_at)}
                     </span>
                   </div>
                 </li>

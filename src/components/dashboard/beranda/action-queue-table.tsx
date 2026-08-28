@@ -7,7 +7,7 @@ import type { LucideIcon } from "lucide-react";
 import { ArrowRightIcon, Loader2Icon, PackageCheckIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { formatCurrency, formatDate } from "@/lib/format";
+import { formatCurrency, formatDateTimeWib } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -191,7 +191,7 @@ function QueueRow({
         {formatCurrency(row.grand_total)}
       </TableCell>
       <TableCell className="text-muted-foreground">
-        {formatDate(row.transaction_date)}
+        {formatDateTimeWib(row.transaction_date)}
       </TableCell>
       <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
         <QueueRowActions queue={queue} row={row} />

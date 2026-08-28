@@ -77,6 +77,14 @@ export function formatDateTime(
   return date ? dateTime.format(date) : "—";
 }
 
+/** Formats an ISO timestamp in the application's business timezone. */
+export function formatDateTimeWib(
+  d: string | number | Date | null | undefined,
+): string {
+  const date = toDate(d);
+  return date ? `${dateTime.format(date)} WIB` : "—";
+}
+
 export function formatTime(
   d: string | number | Date | null | undefined,
 ): string {

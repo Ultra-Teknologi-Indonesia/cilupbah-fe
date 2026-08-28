@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { formatDate } from "@/lib/format";
+import { formatDateTimeWib } from "@/lib/format";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { DateRange } from "react-day-picker";
 import {
@@ -299,7 +299,7 @@ export function LaporanReturView() {
         header: "Diproses",
         cell: ({ row }) => (
           <div className="flex flex-col text-xs">
-            <span>{formatDate(row.original.processed_at)}</span>
+            <span>{formatDateTimeWib(row.original.processed_at)}</span>
             {row.original.processed_by && (
               <span className="text-muted-foreground">
                 {row.original.processed_by}
@@ -313,7 +313,7 @@ export function LaporanReturView() {
         header: "Dibuat",
         cell: ({ row }) => (
           <span className="text-xs text-muted-foreground">
-            {formatDate(row.original.created_at)}
+            {formatDateTimeWib(row.original.created_at)}
           </span>
         ),
       },

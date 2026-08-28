@@ -24,7 +24,7 @@ import type {
   ReservedStock,
   ReservedStockListParams,
 } from "@/types/transaksi-stok/reserved-stock";
-import { formatDate } from "@/lib/format";
+import { formatDateTimeWib } from "@/lib/format";
 
 interface FilterState {
   status: string;
@@ -113,7 +113,7 @@ export function CadangTab() {
         enableSorting: true,
         cell: ({ row }) => (
           <span className="text-foreground">
-            {formatDate(row.original.start_date)}
+            {formatDateTimeWib(row.original.start_date)}
           </span>
         ),
       },
@@ -125,7 +125,7 @@ export function CadangTab() {
         enableSorting: true,
         cell: ({ row }) => (
           <span className="text-foreground">
-            {formatDate(row.original.end_date)}
+            {formatDateTimeWib(row.original.end_date)}
           </span>
         ),
       },
@@ -199,8 +199,8 @@ export function CadangTab() {
       items.map((item: ReservedStock) => [
         item.reserved_stock_no,
         item.location?.location_name ?? "",
-        formatDate(item.start_date),
-        formatDate(item.end_date),
+        formatDateTimeWib(item.start_date),
+        formatDateTimeWib(item.end_date),
         getStatusMeta("stock-reserve", item.status).label,
         item.created_by,
       ]),

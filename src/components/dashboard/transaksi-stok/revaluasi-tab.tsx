@@ -22,7 +22,7 @@ import type {
   StockRevaluation,
   StockRevaluationListParams,
 } from "@/types/transaksi-stok/stock-revaluation";
-import { formatDate } from "@/lib/format";
+import { formatDateTimeWib } from "@/lib/format";
 
 interface FilterState {
   status: string;
@@ -139,7 +139,7 @@ export function RevaluasiTab() {
         cell: ({ row }) => (
           <span className="text-foreground">
             {row.original.approved_at
-              ? formatDate(row.original.approved_at)
+              ? formatDateTimeWib(row.original.approved_at)
               : "—"}
           </span>
         ),
@@ -173,7 +173,7 @@ export function RevaluasiTab() {
         getStatusMeta("stock-revaluation", item.status).label,
         item.created_by,
         item.approved_by ?? "—",
-        item.approved_at ? formatDate(item.approved_at) : "—",
+        item.approved_at ? formatDateTimeWib(item.approved_at) : "—",
       ]),
     );
   }, [items]);

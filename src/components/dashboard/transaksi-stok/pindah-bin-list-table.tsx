@@ -33,7 +33,7 @@ import {
   type BinTransferStatus,
 } from "@/hooks/transaksi-stok/use-bin-transfer";
 import { exportCsv } from "@/lib/export-csv";
-import { formatDate, formatDateTime } from "@/lib/format";
+import { formatDateTimeWib, formatDateTime } from "@/lib/format";
 import { openBinTransferPdf } from "@/lib/bin-transfer-pdf";
 import { toast } from "sonner";
 
@@ -332,7 +332,7 @@ export function PindahBinListTable({ status }: { status: BinTransferStatus }) {
       ],
       items.map((it) => [
         it.transfer_number,
-        formatDate(it.transfer_date),
+        formatDateTimeWib(it.transfer_date),
         it.location?.location_name ?? "",
         it.status,
         it.notes ?? "",
