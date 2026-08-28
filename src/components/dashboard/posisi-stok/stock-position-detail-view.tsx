@@ -1577,7 +1577,24 @@ export function StockPositionDetailView({ itemId }: { itemId: string }) {
         </LiquidGlass>
       )}
 
-      {item && (
+      {item?.is_bundle ? (
+        <LiquidGlass
+          radius={20}
+          intensity="subtle"
+          className="bg-white/30 p-5 dark:bg-white/[0.04]"
+        >
+          <div className="flex items-start gap-3">
+            <BoxIcon className="mt-0.5 size-5 shrink-0 text-blue-600 dark:text-blue-400" />
+            <div>
+              <h3 className="text-sm font-semibold">Stok bundle dihitung dari komponen</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Angka di atas adalah kapasitas bundle yang bisa dirakit pada lokasi yang sama.
+                Kronologi, rak, dan pesanan tetap tercatat pada masing-masing SKU komponen.
+              </p>
+            </div>
+          </div>
+        </LiquidGlass>
+      ) : item ? (
         <LiquidGlass
           radius={20}
           intensity="subtle"
@@ -1622,7 +1639,7 @@ export function StockPositionDetailView({ itemId }: { itemId: string }) {
             )}
           </div>
         </LiquidGlass>
-      )}
+      ) : null}
     </div>
   );
 }

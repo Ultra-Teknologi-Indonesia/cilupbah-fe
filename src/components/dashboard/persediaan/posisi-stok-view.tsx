@@ -860,8 +860,12 @@ export function PosisiStokView() {
                       return (
                         <TableRow
                           key={item.item_id}
-                          onMouseEnter={() => prefetchDetail(item.item_id)}
-                          onFocus={() => prefetchDetail(item.item_id)}
+                          onMouseEnter={() => {
+                            if (!item.is_bundle) prefetchDetail(item.item_id);
+                          }}
+                          onFocus={() => {
+                            if (!item.is_bundle) prefetchDetail(item.item_id);
+                          }}
                           className="group border-b border-border/20 transition-colors last:border-0 hover:bg-muted/40"
                         >
                           <TableCell
@@ -878,17 +882,18 @@ export function PosisiStokView() {
                               >
                                 <Checkbox
                                   checked={selected.has(item.item_id)}
+                                  disabled={item.is_bundle}
                                   onCheckedChange={() =>
                                     toggleRow(item.item_id)
                                   }
-                                  aria-label={`Pilih ${item.item_name || item.item_code}`}
+                                  aria-label={
+                                    item.is_bundle
+                                      ? `Bundle ${item.item_name || item.item_code} dihitung dari komponen`
+                                      : `Pilih ${item.item_name || item.item_code}`
+                                  }
                                 />
                               </span>
-                              <Link
-                                href={`/dashboard/posisi-stok/${item.item_id}`}
-                                aria-label={`Buka detail ${item.item_name || item.item_code}`}
-                                className="shrink-0"
-                              >
+                              <div className="shrink-0">
                                 {item.thumbnail ? (
                                   <Image
                                     src={item.thumbnail}
@@ -902,18 +907,25 @@ export function PosisiStokView() {
                                     <PackageIcon className="size-5 text-muted-foreground/60" />
                                   </div>
                                 )}
-                              </Link>
+                              </div>
                               <div className="flex min-w-0 flex-col gap-0.5">
                                 <div className="flex flex-wrap items-center gap-1.5">
-                                  <Link
-                                    href={`/dashboard/posisi-stok/${item.item_id}`}
-                                    className="whitespace-normal break-words text-sm font-medium text-foreground transition-colors hover:text-primary hover:underline"
-                                  >
-                                    {item.item_name || item.item_code}
-                                  </Link>
+                                  {item.is_bundle ? (
+                                    <span className="whitespace-normal break-words text-sm font-medium text-foreground">
+                                      {item.item_name || item.item_code}
+                                    </span>
+                                  ) : (
+                                    <Link
+                                      href={`/dashboard/posisi-stok/${item.item_id}`}
+                                      className="whitespace-normal break-words text-sm font-medium text-foreground transition-colors hover:text-primary hover:underline"
+                                    >
+                                      {item.item_name || item.item_code}
+                                    </Link>
+                                  )}
                                   {item.is_bundle && (
                                     <Badge
                                       variant="outline"
+                                      title="Stok virtual yang dihitung otomatis dari komponen bundle"
                                       className="shrink-0 text-2xs leading-tight border-blue-300 text-blue-600 dark:border-blue-500/30 dark:text-blue-400"
                                     >
                                       Bundle
@@ -942,7 +954,7 @@ export function PosisiStokView() {
                             <MetricCells
                               key={l.location_id}
                               stock={locMap.get(l.location_id)}
-                              itemId={item.item_id}
+                              itemId={item.is_bundle ? undefined : item.item_id}
                               locationId={l.location_id}
                             />
                           ))}
@@ -951,7 +963,7 @@ export function PosisiStokView() {
                             <DrillableQty
                               value={item.total_stocks.transit ?? 0}
                               variant="info"
-                              itemId={item.item_id}
+                              itemId={item.is_bundle ? undefined : item.item_id}
                               metric="transit"
                               title="Lihat kronologi transfer antar gudang"
                             />
@@ -960,7 +972,7 @@ export function PosisiStokView() {
                           <MetricCells
                             stock={item.total_stocks}
                             emphasize
-                            itemId={item.item_id}
+                            itemId={item.is_bundle ? undefined : item.item_id}
                           />
                         </TableRow>
                       );
