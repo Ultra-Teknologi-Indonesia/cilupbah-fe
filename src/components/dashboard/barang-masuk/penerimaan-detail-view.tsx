@@ -136,7 +136,11 @@ export function PenerimaanDetailView({ id }: { id: string }) {
     ) {
       return false;
     }
-    return ["DRAFT", "PARTIAL"].includes(inbound.status);
+    // COMPLETED dapat muncul pada data lama yang selesai otomatis. Tampilkan
+    // tombol agar admin dapat menutup sesi dan menormalkannya ke RECEIVED.
+    return ["DRAFT", "PARTIAL"].includes(inbound.status) ||
+      (inbound.status === "COMPLETED" &&
+        (inbound.edit_lock?.active_participants?.length ?? 0) > 0);
   }, [inbound, roles]);
 
   const activeParticipants = inbound?.edit_lock?.active_participants ?? [];
