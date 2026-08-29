@@ -65,12 +65,34 @@ interface LineItem {
   totalOnHand: number;
 }
 
-function toDateOnly(d: Date | undefined) {
+/**
+ * Converts Date to ISO 8601 datetime string with current time in Asia/Jakarta timezone.
+ * Used for order transaction_date to ensure accurate timestamp (not midnight UTC).
+ */
+function toIsoDateTimeWib(d: Date | undefined): string {
   if (!d) return "";
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}`;
+  
+  // Create new date combining selected date with current time
+  const now = new Date();
+  const combined = new Date(
+    d.getFullYear(),
+    d.getMonth(),
+    d.getDate(),
+    now.getHours(),
+    now.getMinutes(),
+    now.getSeconds()
+  );
+  
+  // Format to ISO 8601 with timezone offset
+  // Example: 2026-08-28T14:30:45+07:00
+  const year = combined.getFullYear();
+  const month = String(combined.getMonth() + 1).padStart(2, "0");
+  const day = String(combined.getDate()).padStart(2, "0");
+  const hours = String(combined.getHours()).padStart(2, "0");
+  const minutes = String(combined.getMinutes()).padStart(2, "0");
+  const seconds = String(combined.getSeconds()).padStart(2, "0");
+  
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}+07:00`;
 }
 
 function parseCurrency(s: string) {
@@ -320,7 +342,7 @@ export function PesananManualFormPage() {
           ? null
           : salesorderNo.trim(),
       no_ref: noRef || null,
-      transaction_date: toDateOnly(date),
+      transaction_date: toIsoDateTimeWib(date),
       internal_store_id: tokoId,
       salesman_id: salesmanId,
       location_id: locationId,
