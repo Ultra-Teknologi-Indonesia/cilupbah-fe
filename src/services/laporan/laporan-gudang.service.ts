@@ -240,15 +240,36 @@ export const LaporanGudangService = {
 
   exportShipmentList: async (params: ShipmentExportParams): Promise<Blob> => {
     const sp = new URLSearchParams();
-    sp.set("from", params.from);
-    sp.set("to", params.to);
+    if (params.from) sp.set("from", params.from);
+    if (params.to) sp.set("to", params.to);
+    if (params.courier_ids?.length) {
+      params.courier_ids.forEach((id) => sp.append("courier_ids[]", id));
+    }
     if (params.status_mp) sp.set("status_mp", params.status_mp);
-    params.courier_ids?.forEach((id) => sp.append("courier_ids[]", id));
 
-    return fetchBlobRaw(
+    return fetchBlob(
       `/reports/wms/shipment/export?${sp.toString()}`,
+      `daftar-pengiriman-${params.from}-${params.to}.xlsx`,
       XLSX_MIME,
     );
+  },
+
+  exportShipmentListAsync: async (
+    params: ShipmentExportParams,
+  ): Promise<string> => {
+    const sp = new URLSearchParams();
+    if (params.from) sp.set("from", params.from);
+    if (params.to) sp.set("to", params.to);
+    if (params.courier_ids?.length) {
+      params.courier_ids.forEach((id) => sp.append("courier_ids[]", id));
+    }
+    if (params.status_mp) sp.set("status_mp", params.status_mp);
+
+    const res = await fetchClient<ApiResponse<{ export_id: string }>>(
+      `/reports/wms/shipment/export/async?${sp.toString()}`,
+    );
+
+    return res.data.export_id;
   },
 
   shipmentFilterOptions: async (): Promise<ShipmentFilterOptions> => {

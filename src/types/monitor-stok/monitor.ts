@@ -113,7 +113,6 @@ export interface KronologiRow {
   direction: "in" | "out" | "none";
   qty: number;
   balance: number;
-  available_balance?: number;
   current_balance?: number;
   current_available_balance?: number;
   transaction_date: string;

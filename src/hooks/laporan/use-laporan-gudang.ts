@@ -40,12 +40,9 @@ export function useExportPicklistReport() {
 }
 
 export function useExportShipmentList() {
-  return useMutation({
-    mutationFn: async (params: ShipmentExportParams) => {
-      const blob = await LaporanGudangService.exportShipmentList(params);
-      downloadBlob(blob, `daftar-pengiriman-${params.from}-${params.to}.xlsx`);
-    },
-  });
+  return useAsyncExport((params: ShipmentExportParams) =>
+    LaporanGudangService.exportShipmentListAsync(params),
+  );
 }
 
 export function useExportOrderPerformance() {
