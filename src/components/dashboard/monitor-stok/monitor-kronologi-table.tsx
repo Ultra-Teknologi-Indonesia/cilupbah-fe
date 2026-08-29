@@ -142,20 +142,38 @@ export function MonitorKronologiTable({
       {
         accessorKey: "balance",
         header: () => <span className="block text-right">Saldo saat kejadian</span>,
-        cell: ({ row }) => (
-          <div className="text-right text-sm tabular-nums">
-            {row.original.balance.toLocaleString("id-ID")}
-          </div>
-        ),
+        cell: ({ row }) => {
+          const available = row.original.available_balance ?? row.original.balance;
+          const physical = row.original.balance;
+          return (
+            <div className="flex flex-col items-end">
+              <span className="text-sm font-semibold tabular-nums text-foreground/90">
+                {available.toLocaleString("id-ID")}
+              </span>
+              <span className="text-2xs text-muted-foreground">
+                Fisik: {physical.toLocaleString("id-ID")}
+              </span>
+            </div>
+          );
+        },
       },
       {
         accessorKey: "current_balance",
         header: () => <span className="block text-right">Stok saat ini</span>,
-        cell: ({ row }) => (
-          <div className="text-right text-sm font-semibold tabular-nums">
-            {(row.original.current_balance ?? 0).toLocaleString("id-ID")}
-          </div>
-        ),
+        cell: ({ row }) => {
+          const available = row.original.current_available_balance ?? 0;
+          const physical = row.original.current_balance ?? 0;
+          return (
+            <div className="flex flex-col items-end">
+              <span className="text-sm font-semibold tabular-nums text-foreground/90">
+                {available.toLocaleString("id-ID")}
+              </span>
+              <span className="text-2xs text-muted-foreground">
+                Fisik: {physical.toLocaleString("id-ID")}
+              </span>
+            </div>
+          );
+        },
       },
       {
         accessorKey: "transaction_number",
