@@ -85,6 +85,45 @@ export function MonitorStockTable({
                   ))}
                 </div>
               )}
+              {row.original.pending_order_nos && (
+                <div className="mt-2 flex flex-col gap-1">
+                  <span className="text-xs font-semibold text-foreground/80">
+                    Menunggu Pesanan:
+                  </span>
+                  <div className="flex flex-wrap gap-1">
+                    {(() => {
+                      const orders = row.original.pending_order_nos
+                        .split(",")
+                        .map((n) => n.trim())
+                        .filter(Boolean);
+                      const maxToShow = 5;
+                      const toShow = orders.slice(0, maxToShow);
+                      const remaining = orders.length - maxToShow;
+
+                      return (
+                        <>
+                          {toShow.map((no, idx) => (
+                            <span
+                              key={idx}
+                              className="whitespace-nowrap rounded border border-border/50 bg-muted/30 px-1.5 py-0.5 text-[10px] text-muted-foreground"
+                            >
+                              {no}
+                            </span>
+                          ))}
+                          {remaining > 0 && (
+                            <span
+                              className="cursor-help whitespace-nowrap rounded border border-border/50 bg-muted/50 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground"
+                              title={orders.slice(maxToShow).join(", ")}
+                            >
+                              +{remaining} lagi
+                            </span>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ),

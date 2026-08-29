@@ -329,8 +329,8 @@ export function MonitorStokView() {
     [resetPage],
   );
 
-  const hasFilter = Boolean(locationId || categoryId);
-  const activeCount = [locationId, categoryId].filter(Boolean).length;
+  const hasFilter = Boolean(locationId || categoryId || search);
+  const activeCount = [locationId, categoryId, search].filter(Boolean).length;
 
   const subTotal = (key: OutOfStockMode): number | undefined => {
     if (!summary) return undefined;
@@ -582,6 +582,7 @@ export function MonitorStokView() {
                 hasFilter
                   ? () =>
                       onFilter(() => {
+                        setSearch("");
                         setLocationId("");
                         setCategoryId("");
                       })
