@@ -65,7 +65,7 @@ import {
 import { useUserLookup } from "@/hooks/pengaturan/use-users";
 import { playScanFeedback } from "@/lib/scan-feedback";
 import { matchesKnownBin } from "@/lib/validators/bin-code";
-import { apiError } from "@/lib/toast";
+import { apiError, apiSuccess } from "@/lib/toast";
 
 const LIST_HREF = "/dashboard/proses-pesanan/picking";
 
@@ -265,10 +265,21 @@ export function PickingProsesView({ id }: { id: string }) {
     [pickItem, id, itemsQuery],
   );
   const { bump: bumpPick } = useScanDeltaQueue(commitPick, {
-    onGiveUp: (itemId, lostQty) => {
+    onSuccess: (res, itemId) => {
+      if (
+        res &&
+        typeof res === "object" &&
+        res.status === "success" &&
+        res.already_shipped
+      ) {
+        apiSuccess(res, "Sukses");
+      }
+    },
+    onGiveUp: (itemId, lostQty, error) => {
       const item = itemsRef.current.find((i) => i.id === itemId);
       playScanFeedback("error");
-      toast.error(
+      apiError(
+        error,
         `Gagal menyimpan ${lostQty} scan ${item?.sku ?? ""} — scan ulang barang ini.`,
       );
     },

@@ -3,11 +3,12 @@
 import * as React from "react";
 
 export interface ScanDeltaQueueOptions {
-  onGiveUp?: (itemId: string, lostQty: number) => void;
+  onGiveUp?: (itemId: string, lostQty: number, error: unknown) => void;
+  onSuccess?: (res: any, itemId: string, qty: number) => void;
 }
 
 export function useScanDeltaQueue(
-  commit: (itemId: string, deltaQty: number) => Promise<unknown>,
+  commit: (itemId: string, deltaQty: number) => Promise<any>,
   options?: ScanDeltaQueueOptions,
 ) {
   const commitRef = React.useRef(commit);
@@ -37,10 +38,11 @@ export function useScanDeltaQueue(
         pendingRef.current.set(itemId, 0);
 
         try {
-          await commitRef.current(itemId, pending);
-        } catch {
+          const res = await commitRef.current(itemId, pending);
+          optionsRef.current?.onSuccess?.(res, itemId, pending);
+        } catch (error) {
           pendingRef.current.delete(itemId);
-          optionsRef.current?.onGiveUp?.(itemId, pending);
+          optionsRef.current?.onGiveUp?.(itemId, pending, error);
           break;
         }
       }
