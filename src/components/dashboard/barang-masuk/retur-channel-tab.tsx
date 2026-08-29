@@ -14,6 +14,7 @@ import {
   Loader2Icon,
   RefreshCwIcon,
   DownloadIcon,
+  CalendarIcon,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -23,6 +24,14 @@ import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
@@ -156,6 +165,8 @@ export function ReturChannelTab() {
     to: new Date(),
   });
   const [isExporting, setIsExporting] = useState(false);
+  const [exportModalOpen, setExportModalOpen] = useState(false);
+  const [exportStatus, setExportStatus] = useState<string | null>(null);
 
   const acceptMutation = useAcceptSalesReturn();
   const rejectMutation = useRejectSalesReturn();
@@ -174,14 +185,16 @@ export function ReturChannelTab() {
           ? format(exportRange.to, "yyyy-MM-dd")
           : undefined,
         location_id: list.filters.location_id || undefined,
+        status: exportStatus || undefined,
       });
       toast.success("File Excel berhasil diunduh");
+      setExportModalOpen(false);
     } catch {
       toast.error("Gagal mengunduh file Excel");
     } finally {
       setIsExporting(false);
     }
-  }, [exportRange, list.filters.location_id]);
+  }, [exportRange, list.filters.location_id, exportStatus]);
 
   const handleSubTabChange = useCallback(
     (t: ReturSubTab) => {
@@ -574,14 +587,9 @@ export function ReturChannelTab() {
               size="sm"
               variant="outline"
               className="gap-1.5"
-              disabled={isExporting}
-              onClick={handleExport}
+              onClick={() => setExportModalOpen(true)}
             >
-              {isExporting ? (
-                <Loader2Icon className="size-4 animate-spin" />
-              ) : (
-                <DownloadIcon className="size-4" />
-              )}
+              <DownloadIcon className="size-4" />
               Unduh Excel
             </Button>
             <Button size="sm" asChild className="gap-1.5">
@@ -603,7 +611,7 @@ export function ReturChannelTab() {
           }
           hasFilter={list.hasActiveFilter || !!list.search}
           activeCount={list.activeFilterCount}
-          gridCols={2}
+          gridCols={3}
         >
           <Combobox
             options={locationOptions}
@@ -638,12 +646,7 @@ export function ReturChannelTab() {
             searchPlaceholder="Cari alasan"
             className="h-9 bg-background"
           />
-          <DateRangePicker
-            value={exportRange}
-            onChange={setExportRange}
-            placeholder="Rentang unduh"
-            className="h-9 bg-background"
-          />
+
         </FilterToolbar>
 
         <div className="px-5 py-5 sm:px-6">
@@ -845,6 +848,74 @@ export function ReturChannelTab() {
           </div>
         </div>
       </ConfirmDialog>
+
+      {/* Modal Export Excel */}
+      <Dialog open={exportModalOpen} onOpenChange={setExportModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <DownloadIcon className="size-4" />
+              Unduh Excel Retur
+            </DialogTitle>
+            <DialogDescription>
+              Pilih rentang tanggal dan status yang ingin diunduh.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex flex-col gap-5 py-2">
+            <div className="flex flex-col gap-2">
+              <Label className="flex items-center gap-1.5 text-sm font-medium">
+                <CalendarIcon className="size-3.5 text-muted-foreground" />
+                Rentang Tanggal
+              </Label>
+              <DateRangePicker
+                value={exportRange}
+                onChange={setExportRange}
+                placeholder="Pilih rentang tanggal"
+                className="h-9 w-full"
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label className="text-sm font-medium">Status</Label>
+              <Combobox
+                value={exportStatus}
+                onChange={setExportStatus}
+                options={[
+                  { value: "unprocessed", label: "Barang Retur" },
+                  { value: "REJECTED", label: "Ditolak" },
+                  { value: "ACCEPTED", label: "Disetujui" },
+                  { value: "COMPLETED", label: "Selesai" },
+                ]}
+                placeholder="Semua Status"
+                className="h-9"
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setExportModalOpen(false)}
+              disabled={isExporting}
+            >
+              Batal
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleExport}
+              disabled={isExporting}
+            >
+              {isExporting ? (
+                <Loader2Icon className="size-4 animate-spin" />
+              ) : (
+                <DownloadIcon className="size-4" />
+              )}
+              Unduh Excel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

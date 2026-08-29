@@ -185,11 +185,13 @@ export const SalesReturnService = {
     date_from?: string;
     date_to?: string;
     location_id?: string;
+    status?: string;
   }) => {
     const sp = new URLSearchParams();
     if (params.date_from) sp.set("date_from", params.date_from);
     if (params.date_to) sp.set("date_to", params.date_to);
     if (params.location_id) sp.set("location_id", params.location_id);
+    if (params.status) sp.set("status", params.status);
     const filename = `retur-channel-online-${params.date_from ?? "hari-ini"}-${params.date_to ?? "now"}.xlsx`;
     return fetchBlob(
       `/sales/returns/channel-online/export?${sp}`,

@@ -26,8 +26,8 @@ export const ProductPickerService = {
         options.push({
           value: v.itemId,
           label: varLabel
-            ? `${p.itemName} (${varLabel}) — ${v.sku}`
-            : `${p.itemName} — ${v.sku}`,
+            ? `${v.sku} — ${p.itemName} (${varLabel})`
+            : `${v.sku} — ${p.itemName}`,
           badgeLabel: v.sku,
         });
       }
