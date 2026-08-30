@@ -113,6 +113,19 @@ export interface Order {
   cancel_requested_at: string | null;
   cancel_request_reason: string | null;
   cancel_accepted_at: string | null;
+  buyer_cancel_sync_status:
+    | "pending"
+    | "sending"
+    | "succeeded"
+    | "failed"
+    | "unsupported"
+    | "stale"
+    | null;
+  buyer_cancel_sync_status_label: string | null;
+  buyer_cancel_sync_decision: "accept" | "reject" | null;
+  buyer_cancel_sync_error: string | null;
+  buyer_cancel_synced_at: string | null;
+  buyer_cancel_channel_reference: string | null;
   cancel_channel: "auto" | "manual" | null;
   channel_cancel_status: "pending" | "accepted" | "rejected" | "failed" | null;
   channel_cancel_error: string | null;

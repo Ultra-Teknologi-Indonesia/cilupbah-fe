@@ -100,15 +100,26 @@ export const useRequestAwb = createMutationHook({
 
 export const useAcceptCancelRequest = createMutationHook({
   mutationFn: (orderId: string) => OrderService.acceptCancelRequest(orderId),
-  successMessage: "Pembatalan pesanan berhasil diterima",
+  successMessage: "Pembatalan buyer diterima dan sudah dikonfirmasi ke channel",
   errorMessage: "Gagal menerima pembatalan",
+  invalidateOnError: true,
   invalidates: (orderId) => forOrder(orderId),
 });
 
 export const useRejectCancelRequest = createMutationHook({
   mutationFn: (orderId: string) => OrderService.rejectCancelRequest(orderId),
-  successMessage: "Pembatalan pesanan berhasil ditolak",
+  successMessage: "Pembatalan buyer ditolak dan sudah dikonfirmasi ke channel",
   errorMessage: "Gagal menolak pembatalan",
+  invalidateOnError: true,
+  invalidates: (orderId) => forOrder(orderId),
+});
+
+export const useRetryBuyerCancellationSync = createMutationHook({
+  mutationFn: (orderId: string) =>
+    OrderService.retryBuyerCancellationSync(orderId),
+  successMessage: "Keputusan pembatalan buyer berhasil dikirim ulang ke channel",
+  errorMessage: "Gagal mengirim ulang keputusan ke channel",
+  invalidateOnError: true,
   invalidates: (orderId) => forOrder(orderId),
 });
 

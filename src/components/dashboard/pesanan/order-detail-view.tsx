@@ -82,6 +82,7 @@ import {
   useSetPaid,
   useMarkComplete,
   useDeleteOrderItem,
+  useRetryBuyerCancellationSync,
 } from "@/hooks/pesanan/use-order-actions";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -255,7 +256,7 @@ function FinancialSummary({ order }: { order: Order }) {
                   )}
                 >
                   {hasSettlement
-                    ? formatCurrency(finance?.settlement_amount!)
+                    ? formatCurrency(finance?.settlement_amount ?? 0)
                     : (finance?.settlement_amount ?? 0) < 0
                       ? `-${formatCurrency(Math.abs(finance?.settlement_amount ?? 0))}`
                       : `${formatCurrency(estimatedNet)} (Est.)`}
@@ -667,6 +668,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
   const setPaid = useSetPaid();
   const _markComplete = useMarkComplete();
   const deleteItem = useDeleteOrderItem();
+  const retryBuyerCancellationSync = useRetryBuyerCancellationSync();
   const [contactOpen, setContactOpen] = React.useState(false);
   const [pickupOpen, setPickupOpen] = React.useState(false);
   const [riwayatOpen, setRiwayatOpen] = React.useState(false);
@@ -934,6 +936,56 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                 </p>
               )}
             </div>
+          </div>
+        </LiquidGlass>
+      )}
+
+      {order.buyer_cancel_sync_status && (
+        <LiquidGlass
+          radius={16}
+          intensity="subtle"
+          className={cn(
+            "px-5 py-3",
+            order.buyer_cancel_sync_status === "failed"
+              ? "border-destructive/20 bg-destructive/[0.06]"
+              : order.buyer_cancel_sync_status === "succeeded"
+                ? "border-success/20 bg-success/[0.06]"
+                : "border-primary/20 bg-primary/[0.05]",
+          )}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start gap-3">
+              {order.buyer_cancel_sync_status === "failed" ? (
+                <TriangleAlertIcon className="mt-0.5 size-4 shrink-0 text-destructive" />
+              ) : (
+                <InfoIcon className="mt-0.5 size-4 shrink-0 text-primary" />
+              )}
+              <div>
+                <p className="text-sm font-medium">
+                  Status keputusan pembatalan buyer
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {order.buyer_cancel_sync_status_label}
+                </p>
+                {order.buyer_cancel_sync_error && (
+                  <p className="mt-1 text-xs text-destructive">
+                    {order.buyer_cancel_sync_error}
+                  </p>
+                )}
+              </div>
+            </div>
+            {order.buyer_cancel_sync_status === "failed" && (
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={retryBuyerCancellationSync.isPending}
+                onClick={() => retryBuyerCancellationSync.mutate(order.id)}
+              >
+                {retryBuyerCancellationSync.isPending
+                  ? "Mengirim..."
+                  : "Kirim ulang"}
+              </Button>
+            )}
           </div>
         </LiquidGlass>
       )}

@@ -1,4 +1,4 @@
-import { fetchBlobPost, fetchBlobRaw, fetchClient } from "@/lib/api-client";
+import { fetchBlob, fetchBlobPost, fetchBlobRaw, fetchClient } from "@/lib/api-client";
 import type { ApiResponse } from "@/types/api.types";
 import type {
   PicklistDetailPdfParams,
@@ -238,7 +238,7 @@ export const LaporanGudangService = {
     );
   },
 
-  exportShipmentList: async (params: ShipmentExportParams): Promise<Blob> => {
+  exportShipmentList: async (params: ShipmentExportParams): Promise<void> => {
     const sp = new URLSearchParams();
     if (params.from) sp.set("from", params.from);
     if (params.to) sp.set("to", params.to);

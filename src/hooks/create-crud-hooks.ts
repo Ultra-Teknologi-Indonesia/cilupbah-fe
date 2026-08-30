@@ -76,6 +76,8 @@ interface MutationConfig<TVars, TData> {
 
   silentError?: boolean;
 
+  invalidateOnError?: boolean;
+
   invalidates: (
     vars: TVars,
     data: TData,
@@ -103,7 +105,12 @@ export function createMutationHook<TVars, TData = unknown>(
         }
         config.onSuccess?.(data, vars);
       },
-      onError: (err: unknown) => {
+      onError: (err: unknown, vars) => {
+        if (config.invalidateOnError) {
+          for (const key of config.invalidates(vars, undefined as TData)) {
+            qc.invalidateQueries({ queryKey: key as QueryKey });
+          }
+        }
         if (config.silentError) return;
         apiError(err, config.errorMessage || "Terjadi kesalahan");
       },

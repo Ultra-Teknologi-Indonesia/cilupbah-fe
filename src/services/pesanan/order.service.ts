@@ -187,6 +187,13 @@ export const OrderService = {
     });
   },
 
+  retryBuyerCancellationSync: (orderId: string) => {
+    return fetchClient<ApiResponse<Order>>(
+      `/sales/orders/${orderId}/retry-cancel-sync`,
+      { method: "POST" },
+    );
+  },
+
   cancelManualOrder: (orderId: string, reason?: string) => {
     return fetchClient<ApiResponse<Order>>(`/sales/orders/${orderId}/cancel-manual`, {
       method: "POST",
