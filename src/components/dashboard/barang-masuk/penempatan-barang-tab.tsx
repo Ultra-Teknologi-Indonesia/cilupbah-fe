@@ -5,6 +5,7 @@ import { useState, useMemo, useCallback } from "react";
 import { useListState } from "@/hooks/use-list-state";
 import { useUrlTab } from "@/hooks/use-url-tab";
 import Link from "next/link";
+import type { DateRange } from "react-day-picker";
 import { useRouter } from "next/navigation";
 import {
   ArchiveIcon,
@@ -18,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Combobox } from "@/components/ui/combobox";
+import { DateRangePicker } from "@/components/ui/date-picker";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Progress } from "@/components/ui/progress";
@@ -63,9 +65,27 @@ type StatusTab = (typeof STATUS_TABS)[number];
 
 interface FilterState {
   location_id: string;
+  date_from: string;
+  date_to: string;
 }
 
-const EMPTY_FILTERS: FilterState = { location_id: "" };
+const EMPTY_FILTERS: FilterState = {
+  location_id: "",
+  date_from: "",
+  date_to: "",
+};
+
+function toDateStr(date?: Date): string {
+  if (!date) return "";
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function parseDateStr(value: string): Date | undefined {
+  return value ? new Date(`${value}T00:00:00`) : undefined;
+}
 
 function handleExportPutaway(items: Putaway[]) {
   const headers = [
@@ -160,6 +180,24 @@ export function PenempatanBarangTab() {
   const deleteMut = useDeletePutaway();
   const bulkDeleteMut = useBulkDeletePutaway();
 
+  const sortParam = useMemo(() => {
+    const sort = list.sorting[0];
+    if (!sort) {
+      return statusTab !== "ALL"
+        ? (sortByStatus[statusTab] ?? undefined)
+        : undefined;
+    }
+    const field =
+      sort.id === "tanggal"
+        ? statusTab === "COMPLETED"
+          ? "completed_at"
+          : statusTab === "IN_PROGRESS"
+            ? "started_at"
+            : "created_at"
+        : sort.id;
+    return `${sort.desc ? "-" : ""}${field}`;
+  }, [list.sorting, statusTab]);
+
   const params = useMemo(
     () => ({
       search: list.debouncedSearch || undefined,
@@ -167,19 +205,27 @@ export function PenempatanBarangTab() {
       per_page: list.perPage,
       "filter[status]": statusTab === "ALL" ? undefined : statusTab,
       "filter[location_id]": list.filters.location_id || undefined,
-      sort:
-        statusTab !== "ALL"
-          ? (sortByStatus[statusTab] ?? undefined)
-          : undefined,
+      "filter[date_from]": list.filters.date_from || undefined,
+      "filter[date_to]": list.filters.date_to || undefined,
+      sort: sortParam,
     }),
     [
       list.debouncedSearch,
       list.page,
       list.perPage,
       list.filters.location_id,
+      list.filters.date_from,
+      list.filters.date_to,
       statusTab,
+      sortParam,
     ],
   );
+
+  const dateRange: DateRange | undefined = useMemo(() => {
+    const from = parseDateStr(list.filters.date_from);
+    const to = parseDateStr(list.filters.date_to);
+    return from || to ? { from, to } : undefined;
+  }, [list.filters.date_from, list.filters.date_to]);
 
   const { data, isLoading, isFetching } = usePutaways(params);
   const { data: locData } = useLocations({ perPage: 100 });
@@ -520,6 +566,18 @@ export function PenempatanBarangTab() {
             searchPlaceholder="Cari lokasi"
             className="h-9 bg-background"
           />
+          <DateRangePicker
+            value={dateRange}
+            onChange={(range) =>
+              list.setFilters({
+                ...list.filters,
+                date_from: toDateStr(range?.from),
+                date_to: toDateStr(range?.to),
+              })
+            }
+            placeholder="Rentang tanggal dibuat"
+            className="h-9 bg-background"
+          />
         </FilterToolbar>
 
         <div className="px-5 py-5 sm:px-6">
@@ -530,6 +588,9 @@ export function PenempatanBarangTab() {
             isFetching={isFetching}
             hideToolbar
             manualPagination
+            manualSorting
+            sorting={list.sorting}
+            onSortingChange={list.setSorting}
             enableRowSelection={canDeletePutaway}
             getRowId={(row) => row.id}
             bulkActions={bulkActions}

@@ -136,6 +136,7 @@ export interface BinTransferListParams {
   locationId?: string;
   dateFrom?: string;
   dateTo?: string;
+  sort?: string;
 }
 
 export function useBinTransferList(params: BinTransferListParams = {}) {
@@ -166,6 +167,7 @@ export function useBinTransferList(params: BinTransferListParams = {}) {
         q.set("date_to", params.dateTo);
         q.set("filter_date_to", params.dateTo);
       }
+      if (params.sort) q.set("sort", params.sort);
       const res = await fetchClient<Paginated<BinTransferListItem>>(
         `/inventory/bin-transfers?${q.toString()}`,
       );

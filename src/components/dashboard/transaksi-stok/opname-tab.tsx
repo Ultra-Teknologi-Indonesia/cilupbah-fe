@@ -3,9 +3,11 @@
 import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { ClipboardCheckIcon, PlayIcon, Trash2Icon } from "lucide-react";
+import type { DateRange } from "react-day-picker";
 
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
+import { DateRangePicker } from "@/components/ui/date-picker";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -31,9 +33,16 @@ import { formatDateTime } from "@/lib/format";
 interface FilterState {
   status: string;
   location_id: string;
+  date_from: string;
+  date_to: string;
 }
 
-const EMPTY_FILTERS: FilterState = { status: "", location_id: "" };
+const EMPTY_FILTERS: FilterState = {
+  status: "",
+  location_id: "",
+  date_from: "",
+  date_to: "",
+};
 
 const STATUS_OPTIONS = [
   { value: "", label: "Semua Status" },
@@ -42,6 +51,18 @@ const STATUS_OPTIONS = [
   { value: "FINALIZED", label: "Selesai" },
   { value: "CANCELLED", label: "Dibatalkan" },
 ];
+
+function toDateStr(date?: Date): string {
+  if (!date) return "";
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function parseDateStr(value: string): Date | undefined {
+  return value ? new Date(`${value}T00:00:00`) : undefined;
+}
 
 export function OpnameTab() {
   const list = useListState<FilterState>(EMPTY_FILTERS, {
@@ -54,6 +75,12 @@ export function OpnameTab() {
   const { can } = usePermissions();
   const canManage = can("edit-stok-opname");
 
+  const sortParam = useMemo(() => {
+    const sort = list.sorting[0];
+    if (!sort) return undefined;
+    return `${sort.desc ? "-" : ""}${sort.id}`;
+  }, [list.sorting]);
+
   const params = useMemo<StockOpnameListParams>(
     () => ({
       search: list.debouncedSearch || undefined,
@@ -61,9 +88,18 @@ export function OpnameTab() {
       per_page: list.perPage,
       "filter[status]": list.filters.status || undefined,
       "filter[location_id]": list.filters.location_id || undefined,
+      "filter[date_from]": list.filters.date_from || undefined,
+      "filter[date_to]": list.filters.date_to || undefined,
+      sort: sortParam,
     }),
-    [list.debouncedSearch, list.page, list.perPage, list.filters],
+    [list.debouncedSearch, list.page, list.perPage, list.filters, sortParam],
   );
+
+  const dateRange: DateRange | undefined = useMemo(() => {
+    const from = parseDateStr(list.filters.date_from);
+    const to = parseDateStr(list.filters.date_to);
+    return from || to ? { from, to } : undefined;
+  }, [list.filters.date_from, list.filters.date_to]);
 
   const { data, isLoading, isFetching } = useStockOpnames(params);
   const { data: locData } = useLocations({ perPage: 100 });
@@ -263,6 +299,18 @@ export function OpnameTab() {
               }
               placeholder="Lokasi"
               searchPlaceholder="Cari lokasi"
+              className="h-9 bg-background"
+            />
+            <DateRangePicker
+              value={dateRange}
+              onChange={(range) =>
+                list.setFilters({
+                  ...list.filters,
+                  date_from: toDateStr(range?.from),
+                  date_to: toDateStr(range?.to),
+                })
+              }
+              placeholder="Rentang tanggal dibuat"
               className="h-9 bg-background"
             />
           </>

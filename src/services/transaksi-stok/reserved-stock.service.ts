@@ -18,6 +18,10 @@ export const ReservedStockService = {
       sp.set("filter[status]", params["filter[status]"]);
     if (params["filter[location_id]"])
       sp.set("filter[location_id]", params["filter[location_id]"]);
+    if (params["filter[date_from]"])
+      sp.set("filter[date_from]", params["filter[date_from]"]);
+    if (params["filter[date_to]"])
+      sp.set("filter[date_to]", params["filter[date_to]"]);
     if (params.sort) sp.set("sort", params.sort);
 
     const res = await fetchClient<ApiPaginated<ReservedStock>>(`${BASE}?${sp}`);

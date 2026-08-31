@@ -69,6 +69,12 @@ export function PindahBinListTable({ status }: { status: BinTransferStatus }) {
     namespace: `pbin_${status.toLowerCase()}`,
   });
 
+  const sortParam = useMemo(() => {
+    const sort = list.sorting[0];
+    if (!sort) return undefined;
+    return `${sort.desc ? "-" : ""}${sort.id}`;
+  }, [list.sorting]);
+
   const params = useMemo(
     () => ({
       q: list.debouncedSearch || undefined,
@@ -78,8 +84,16 @@ export function PindahBinListTable({ status }: { status: BinTransferStatus }) {
       locationId: list.filters.locationId || undefined,
       dateFrom: list.filters.dateFrom || undefined,
       dateTo: list.filters.dateTo || undefined,
+      sort: sortParam,
     }),
-    [list.debouncedSearch, list.page, list.perPage, list.filters, status],
+    [
+      list.debouncedSearch,
+      list.page,
+      list.perPage,
+      list.filters,
+      status,
+      sortParam,
+    ],
   );
 
   const { data, isLoading, isFetching } = useBinTransferList(params);

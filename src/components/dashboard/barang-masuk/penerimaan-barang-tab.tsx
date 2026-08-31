@@ -3,6 +3,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 
 import { useState, useMemo, useCallback, useRef } from "react";
 import Link from "next/link";
+import type { DateRange } from "react-day-picker";
 import {
   EyeIcon,
   LockIcon,
@@ -22,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Combobox } from "@/components/ui/combobox";
+import { DateRangePicker } from "@/components/ui/date-picker";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -137,9 +139,27 @@ function isTransitReceivable(item: Inbound): boolean {
 
 interface FilterState {
   location_id: string;
+  date_from: string;
+  date_to: string;
 }
 
-const EMPTY_FILTERS: FilterState = { location_id: "" };
+const EMPTY_FILTERS: FilterState = {
+  location_id: "",
+  date_from: "",
+  date_to: "",
+};
+
+function toDateStr(date?: Date): string {
+  if (!date) return "";
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function parseDateStr(value: string): Date | undefined {
+  return value ? new Date(`${value}T00:00:00`) : undefined;
+}
 
 function handleExportList(items: Inbound[]) {
   const headers = [
@@ -191,6 +211,13 @@ export function PenerimaanBarangTab() {
     [setSourceTab],
   );
 
+  const sortParam = useMemo(() => {
+    const sort = list.sorting[0];
+    if (!sort) return "-expected_date";
+    const field = sort.id === "tanggal" ? "expected_date" : sort.id;
+    return `${sort.desc ? "-" : ""}${field}`;
+  }, [list.sorting]);
+
   const params = useMemo(
     () => ({
       search: list.debouncedSearch || undefined,
@@ -198,10 +225,25 @@ export function PenerimaanBarangTab() {
       per_page: list.perPage,
       "filter[location_id]": list.filters.location_id || undefined,
       "filter[type]": TAB_TO_TYPE[sourceTab] || undefined,
-      sort: "-expected_date",
+      "filter[date_from]": list.filters.date_from || undefined,
+      "filter[date_to]": list.filters.date_to || undefined,
+      sort: sortParam,
     }),
-    [list.debouncedSearch, list.page, list.perPage, list.filters, sourceTab],
+    [
+      list.debouncedSearch,
+      list.page,
+      list.perPage,
+      list.filters,
+      sourceTab,
+      sortParam,
+    ],
   );
+
+  const dateRange: DateRange | undefined = useMemo(() => {
+    const from = parseDateStr(list.filters.date_from);
+    const to = parseDateStr(list.filters.date_to);
+    return from || to ? { from, to } : undefined;
+  }, [list.filters.date_from, list.filters.date_to]);
 
   const { data, isLoading, isFetching } = useInbounds(params);
   const { data: locData } = useLocations({ perPage: 100 });
@@ -577,6 +619,18 @@ export function PenerimaanBarangTab() {
             searchPlaceholder="Cari lokasi"
             className="h-9 bg-background"
           />
+          <DateRangePicker
+            value={dateRange}
+            onChange={(range) =>
+              list.setFilters({
+                ...list.filters,
+                date_from: toDateStr(range?.from),
+                date_to: toDateStr(range?.to),
+              })
+            }
+            placeholder="Rentang tanggal dibuat"
+            className="h-9 bg-background"
+          />
         </FilterToolbar>
 
         <div className="px-5 py-5 sm:px-6">
@@ -587,6 +641,9 @@ export function PenerimaanBarangTab() {
             isFetching={isFetching}
             hideToolbar
             manualPagination
+            manualSorting
+            sorting={list.sorting}
+            onSortingChange={list.setSorting}
             getRowId={(row) => row.id}
             enableRowSelection={(row) =>
               (canCreatePutaway || canDeleteInbound) && isSelectable(row.original)

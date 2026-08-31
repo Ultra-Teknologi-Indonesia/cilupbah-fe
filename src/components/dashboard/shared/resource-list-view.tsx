@@ -26,6 +26,8 @@ interface ResourceListViewProps<T> {
     | "resetFilters"
     | "resetAll"
     | "reset"
+    | "sorting"
+    | "setSorting"
   >;
   columns: ColumnDef<T>[];
   rows: T[];
@@ -117,6 +119,9 @@ export function ResourceListView<T>({
           isFetching={isFetching}
           hideToolbar
           manualPagination
+          manualSorting
+          sorting={list.sorting}
+          onSortingChange={list.setSorting}
           pagination={list.pagination}
           rowCount={total}
           onPaginationChange={list.onPaginationChange}

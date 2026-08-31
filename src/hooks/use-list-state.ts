@@ -303,10 +303,12 @@ export function useListState<F extends object>(
             });
           }
         }
+        setPageRaw(1);
+        if (urlSync) writeUrl({ [pageKey]: 1 });
         return next;
       });
     },
-    [writeUrl, urlSync, sortByRawKey, sortDirRawKey],
+    [writeUrl, urlSync, sortByRawKey, sortDirRawKey, pageKey],
   );
 
   const activeFilterCount = useMemo(() => {

@@ -56,6 +56,8 @@ export interface StockOpnameListParams {
   per_page?: number;
   "filter[status]"?: string;
   "filter[location_id]"?: string;
+  "filter[date_from]"?: string;
+  "filter[date_to]"?: string;
   sort?: string;
 }
 

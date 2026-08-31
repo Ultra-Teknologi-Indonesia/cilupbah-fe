@@ -114,18 +114,22 @@ export function PesananListView() {
   }
 
   const params = useMemo<PurchaseOrderListParams>(() => {
+    const sort = list.sorting[0];
     const p: PurchaseOrderListParams = {
       search: debouncedSearch || undefined,
       page,
       per_page: perPage,
       "filter[location_id]": filters.location_id || undefined,
+      sort: sort
+        ? `${sort.desc ? "-" : ""}${sort.id}`
+        : undefined,
     };
 
     if (filters.date_from) p["filter[date_from]"] = filters.date_from;
     if (filters.date_to) p["filter[date_to]"] = filters.date_to;
 
     return p;
-  }, [debouncedSearch, page, perPage, filters]);
+  }, [debouncedSearch, page, perPage, filters, list.sorting]);
 
   const handleExportList = async () => {
     try {
@@ -390,6 +394,9 @@ export function PesananListView() {
             )}
             hideToolbar
             manualPagination
+            manualSorting
+            sorting={list.sorting}
+            onSortingChange={list.setSorting}
             pagination={pagination}
             rowCount={meta.total}
             onPaginationChange={onPaginationChange}

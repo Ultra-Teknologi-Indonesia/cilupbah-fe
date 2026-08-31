@@ -99,6 +99,9 @@ const EMPTY_FILTERS: FilterState = { channel: "" };
 
 const SERVER_SORT_MAP: Partial<Record<SortField, string>> = {
   item_code: "product_variants.sku",
+  average_cost: "average_cost",
+  on_hand: "total_on_hand",
+  available: "total_available",
 };
 
 function SortHeader({
@@ -487,30 +490,7 @@ export function PosisiStokView() {
 
   const { data, isLoading, isFetching, refetch } = useStockPosition(params);
 
-  const items = useMemo(() => {
-    const raw = data?.data ?? [];
-    if (!sortField || SERVER_SORT_MAP[sortField]) return raw;
-    return [...raw].sort((a, b) => {
-      let av: number, bv: number;
-      switch (sortField) {
-        case "average_cost":
-          av = Number(a.average_cost);
-          bv = Number(b.average_cost);
-          break;
-        case "on_hand":
-          av = a.total_stocks.on_hand;
-          bv = b.total_stocks.on_hand;
-          break;
-        case "available":
-          av = a.total_stocks.available;
-          bv = b.total_stocks.available;
-          break;
-        default:
-          return 0;
-      }
-      return sortDir === "asc" ? av - bv : bv - av;
-    });
-  }, [data?.data, sortField, sortDir]);
+  const items = useMemo(() => data?.data ?? [], [data?.data]);
 
   const meta = data?.meta ?? {
     current_page: 1,
