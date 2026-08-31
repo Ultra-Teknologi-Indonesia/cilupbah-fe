@@ -3,6 +3,7 @@
 import * as React from "react";
 import { toast } from "sonner";
 import { formatDateTime } from "@/lib/format";
+import { apiError } from "@/lib/toast";
 import { ExternalLinkIcon, RefreshCwIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -55,7 +56,7 @@ export function TabRiwayat({ productId }: { productId: string }) {
     (id: string) => {
       reupload.mutate(id, {
         onSuccess: () => toast.success("Produk diantrekan untuk upload ulang"),
-        onError: () => toast.error("Gagal mengantrekan upload ulang"),
+        onError: (error) => apiError(error, "Gagal mengantrekan upload ulang"),
       });
     },
     [reupload],

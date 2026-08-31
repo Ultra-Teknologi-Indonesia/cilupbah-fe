@@ -15,6 +15,7 @@ export interface MonitorStockRow {
   on_order: number;
   available: number;
   qty_to_restock: number;
+  has_active_restock_request?: boolean;
   pending_order_nos?: string | null;
 }
 

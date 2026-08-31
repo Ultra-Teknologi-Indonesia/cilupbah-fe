@@ -631,6 +631,9 @@ export function MonitorStokView() {
                       { onSuccess: () => table.resetRowSelection() },
                     );
                   }}
+                  onQueueRow={(row) => {
+                    queueMutation.mutate({ item_ids: [row.item_id] });
+                  }}
                   emptyText={
                     tab === "menipis"
                       ? "Tidak ada produk menipis."

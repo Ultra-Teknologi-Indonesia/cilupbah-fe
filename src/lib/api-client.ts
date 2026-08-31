@@ -35,6 +35,56 @@ apiClient.interceptors.response.use(undefined, async (error) => {
   return Promise.reject(error);
 });
 
+function payloadFromBody(body: unknown): Record<string, unknown> {
+  return body && typeof body === "object"
+    ? { ...(body as Record<string, unknown>) }
+    : { message: body };
+}
+
+function throwRequestError(
+  payload: Record<string, unknown>,
+  status: number,
+): never {
+  const message =
+    typeof payload.message === "string" && payload.message.trim()
+      ? payload.message
+      : "Permintaan tidak dapat diproses.";
+  const requestError = new Error(message);
+
+  Object.assign(requestError, payload, { status });
+  throw requestError;
+}
+
+async function normalizeRequestError(error: unknown): Promise<never> {
+  if (axios.isAxiosError(error) && error.response) {
+    let body: unknown = error.response.data;
+
+    if (typeof Blob !== "undefined" && body instanceof Blob) {
+      try {
+        const text = await body.text();
+        body = JSON.parse(text);
+      } catch {
+        body = undefined;
+      }
+    }
+
+    return throwRequestError(payloadFromBody(body), error.response.status);
+  }
+
+  if (axios.isAxiosError(error)) {
+    return throwRequestError(
+      {
+        title: "Tidak dapat terhubung ke server",
+        message:
+          "Periksa koneksi internet Anda, lalu coba lagi. Jika masalah berlanjut, laporkan ke admin/developer terkait masalah ini.",
+      },
+      0,
+    );
+  }
+
+  throw error;
+}
+
 type ServerFetcher = <T>(
   endpoint: string,
   options?: AxiosRequestConfig,
@@ -71,21 +121,7 @@ export async function fetchClient<T>(
     const response = await apiClient(formattedEndpoint, requestOptions);
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
-      const body = error.response.data;
-      const payload =
-        body && typeof body === "object" ? { ...body } : { message: body };
-      throw { ...payload, status: error.response.status };
-    }
-    if (axios.isAxiosError(error)) {
-      throw {
-        status: 0,
-        title: "Tidak dapat terhubung ke server",
-        message:
-          "Periksa koneksi internet Anda, lalu coba lagi. Jika masalah berlanjut, laporkan ke admin/developer terkait masalah ini.",
-      };
-    }
-    throw error;
+    return normalizeRequestError(error);
   }
 }
 
@@ -117,27 +153,7 @@ export async function fetchBlob(
     a.remove();
     URL.revokeObjectURL(url);
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
-      let body = error.response.data;
-      if (body instanceof Blob) {
-        try {
-          const text = await body.text();
-          body = JSON.parse(text);
-        } catch {}
-      }
-      const payload =
-        body && typeof body === "object" ? { ...body } : { message: body };
-      throw { ...payload, status: error.response.status };
-    }
-    if (axios.isAxiosError(error)) {
-      throw {
-        status: 0,
-        title: "Tidak dapat terhubung ke server",
-        message:
-          "Periksa koneksi internet Anda, lalu coba lagi. Jika masalah berlanjut, laporkan ke admin/developer terkait masalah ini.",
-      };
-    }
-    throw error;
+    return normalizeRequestError(error);
   }
 }
 
@@ -149,14 +165,18 @@ export async function fetchBlobRaw(
     ? endpoint
     : `/${endpoint}`;
 
-  const response = await apiClient(formattedEndpoint, {
-    responseType: "blob",
-    headers: { Accept: "*/*" },
-  });
+  try {
+    const response = await apiClient(formattedEndpoint, {
+      responseType: "blob",
+      headers: { Accept: "*/*" },
+    });
 
-  return mimeType
-    ? new Blob([response.data], { type: mimeType })
-    : response.data;
+    return mimeType
+      ? new Blob([response.data], { type: mimeType })
+      : response.data;
+  } catch (error) {
+    return normalizeRequestError(error);
+  }
 }
 
 export async function fetchBlobPost(
@@ -168,14 +188,18 @@ export async function fetchBlobPost(
     ? endpoint
     : `/${endpoint}`;
 
-  const response = await apiClient(formattedEndpoint, {
-    method: "POST",
-    data,
-    responseType: "blob",
-    headers: { Accept: "*/*" },
-  });
+  try {
+    const response = await apiClient(formattedEndpoint, {
+      method: "POST",
+      data,
+      responseType: "blob",
+      headers: { Accept: "*/*" },
+    });
 
-  return mimeType
-    ? new Blob([response.data], { type: mimeType })
-    : response.data;
+    return mimeType
+      ? new Blob([response.data], { type: mimeType })
+      : response.data;
+  } catch (error) {
+    return normalizeRequestError(error);
+  }
 }

@@ -2,14 +2,16 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ArrowRightIcon,
   CheckIcon,
   ExternalLinkIcon,
+  FilterXIcon,
   ImageIcon,
   PackageIcon,
   PencilIcon,
+  SearchIcon,
   Trash2Icon,
   UserIcon,
   XIcon,
@@ -21,8 +23,15 @@ import { PageTitle } from "@/components/dashboard/page-title";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { CopySku } from "@/components/dashboard/shared/copy-sku";
 import { Button } from "@/components/ui/button";
+import { Combobox } from "@/components/ui/combobox";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Input } from "@/components/ui/input";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  SimplePagination,
+  TABLE_PAGE_SIZES,
+} from "@/components/ui/simple-pagination";
 import {
   Table,
   TableBody,
@@ -32,12 +41,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatDateTime, formatDateTimeFull } from "@/lib/format";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import {
   useRejectReplenishment,
   useRemoveReplenishmentItem,
+  useStockReplenishmentItemFilters,
   useStockReplenishmentDetail,
+  useStockReplenishmentItems,
 } from "@/hooks/gudang/use-stock-replenishment";
-import type { StockReplenishmentItem } from "@/types/gudang/stock-replenishment";
+import type {
+  StockReplenishmentItem,
+  StockReplenishmentItemsParams,
+} from "@/types/gudang/stock-replenishment";
 import { AcceptReplenishmentDialog } from "./accept-replenishment-dialog";
 import { EditReplenishmentItemDialog } from "./edit-replenishment-item-dialog";
 
@@ -47,14 +62,62 @@ interface Props {
 
 export function PermintaanRestockDetailView({ id }: Props) {
   const { data: req, isLoading } = useStockReplenishmentDetail(id);
+  const [search, setSearch] = useState("");
+  const [channel, setChannel] = useState("");
+  const [shopId, setShopId] = useState("");
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(20);
   const [acceptOpen, setAcceptOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
   const [editItem, setEditItem] = useState<StockReplenishmentItem | null>(null);
   const [deleteItem, setDeleteItem] = useState<StockReplenishmentItem | null>(
     null,
   );
   const rejectMut = useRejectReplenishment();
   const removeItemMut = useRemoveReplenishmentItem();
+  const debouncedSearch = useDebouncedValue(search, 300);
+  const itemParams = useMemo<StockReplenishmentItemsParams>(
+    () => ({
+      page,
+      per_page: perPage,
+      search: debouncedSearch.trim() || undefined,
+      channel: channel || undefined,
+      shop_id: shopId || undefined,
+    }),
+    [channel, debouncedSearch, page, perPage, shopId],
+  );
+  const {
+    data: itemData,
+    isLoading: itemsLoading,
+    isFetching: itemsFetching,
+  } = useStockReplenishmentItems(id, itemParams);
+  const { data: itemFilters } = useStockReplenishmentItemFilters(id);
+  const hasItemFilters = Boolean(search || channel || shopId);
+  const channelOptions = useMemo(
+    () => [
+      { value: "", label: "Semua channel" },
+      ...(itemFilters?.channels ?? []),
+    ],
+    [itemFilters?.channels],
+  );
+  const shopOptions = useMemo(
+    () => [
+      { value: "", label: "Semua toko" },
+      ...(itemFilters?.shops ?? []).map((shop) => ({
+        value: shop.value,
+        label: shop.channel ? `${shop.label} · ${shop.channel}` : shop.label,
+      })),
+    ],
+    [itemFilters?.shops],
+  );
+
+  const resetItemFilters = () => {
+    setSearch("");
+    setChannel("");
+    setShopId("");
+    setPage(1);
+  };
 
   if (isLoading) {
     return (
@@ -96,8 +159,8 @@ export function PermintaanRestockDetailView({ id }: Props) {
     );
   }
 
-  const items = req.items ?? [];
-  const totalQty = items.reduce((acc, i) => acc + i.qty, 0);
+  const items = (itemData?.items ?? []) as StockReplenishmentItem[];
+  const totalQty = req.items_qty ?? 0;
   const editable = req.status === "PENDING";
 
   return (
@@ -131,7 +194,10 @@ export function PermintaanRestockDetailView({ id }: Props) {
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
-                onClick={() => setRejectOpen(true)}
+                onClick={() => {
+                  setRejectReason("");
+                  setRejectOpen(true);
+                }}
                 disabled={rejectMut.isPending}
               >
                 <XIcon className="mr-1 size-4 text-destructive" />
@@ -171,6 +237,9 @@ export function PermintaanRestockDetailView({ id }: Props) {
           </InfoField>
           <InfoField label="Ditolak Pada">
             {req.rejected_at ? formatDateTime(req.rejected_at) : "—"}
+          </InfoField>
+          <InfoField label="Ditolak Oleh">
+            {req.rejected_by_name ?? "—"}
           </InfoField>
 
           <InfoField label="Transfer Keluar">
@@ -216,7 +285,7 @@ export function PermintaanRestockDetailView({ id }: Props) {
           </h2>
           <div className="flex items-center gap-3">
             <span className="text-xs text-muted-foreground">
-              {items.length} SKU · {totalQty} qty
+              {req.items_count ?? 0} SKU · {totalQty} qty
             </span>
             {editable && (
               <span className="text-xs text-muted-foreground">
@@ -226,20 +295,79 @@ export function PermintaanRestockDetailView({ id }: Props) {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <Table>
+        <div className="flex flex-wrap items-center gap-2 border-b border-border/60 px-5 py-3">
+          <div className="relative min-w-0 flex-1 basis-full sm:basis-64">
+            <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setPage(1);
+              }}
+              placeholder="Cari SKU atau nama produk…"
+              aria-label="Cari SKU atau nama produk"
+              className="pl-9"
+            />
+          </div>
+          <Combobox
+            options={channelOptions}
+            value={channel}
+            onChange={(value) => {
+              setChannel(value ?? "");
+              setPage(1);
+            }}
+            placeholder="Semua channel"
+            searchPlaceholder="Cari channel"
+            className="w-full sm:w-48"
+          />
+          <Combobox
+            options={shopOptions}
+            value={shopId}
+            onChange={(value) => {
+              setShopId(value ?? "");
+              setPage(1);
+            }}
+            placeholder="Semua toko"
+            searchPlaceholder="Cari toko"
+            className="w-full sm:w-56"
+          />
+          {hasItemFilters && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={resetItemFilters}
+              className="gap-1.5"
+            >
+              <FilterXIcon className="size-4" />
+              Reset
+            </Button>
+          )}
+        </div>
+
+        <div className="w-full overflow-hidden">
+          <Table className="w-full table-fixed" scrollContainer={false}>
             <TableHeader>
               <TableRow>
-                <TableHead>Produk</TableHead>
-                <TableHead className="w-24 text-right">Qty</TableHead>
-                <TableHead>Alasan</TableHead>
+                <TableHead className="w-[44%]">Produk</TableHead>
+                <TableHead className="w-20 text-right">Qty</TableHead>
+                <TableHead className="w-[36%]">Alasan</TableHead>
                 {editable && (
                   <TableHead className="w-24 text-right">Aksi</TableHead>
                 )}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {items.length === 0 ? (
+              {itemsLoading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={editable ? 4 : 3}
+                    className="py-10 text-center text-sm text-muted-foreground"
+                  >
+                    Memuat produk…
+                  </TableCell>
+                </TableRow>
+              ) : items.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={editable ? 4 : 3}
@@ -251,7 +379,7 @@ export function PermintaanRestockDetailView({ id }: Props) {
               ) : (
                 items.map((it) => (
                   <TableRow key={it.id}>
-                    <TableCell>
+                    <TableCell className="max-w-0 whitespace-normal align-top">
                       <div className="flex items-center gap-3">
                         <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted/40">
                           {it.thumbnail_url ? (
@@ -277,7 +405,10 @@ export function PermintaanRestockDetailView({ id }: Props) {
                           />
                         </div>
                         <div className="flex min-w-0 flex-col gap-0.5">
-                          <span className="text-sm font-medium">
+                          <span
+                            className="line-clamp-2 break-words text-sm font-medium"
+                            title={it.product_name ?? it.sku}
+                          >
                             {it.product_name ?? "—"}
                           </span>
                           <CopySku sku={it.sku} />
@@ -287,8 +418,8 @@ export function PermintaanRestockDetailView({ id }: Props) {
                     <TableCell className="text-right font-medium tabular-nums">
                       {it.qty}
                     </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {it.reason ?? "—"}
+                    <TableCell className="max-w-0 whitespace-normal align-top text-xs text-muted-foreground">
+                      <ReasonSummary item={it} />
                     </TableCell>
                     {editable && (
                       <TableCell className="text-right">
@@ -318,6 +449,24 @@ export function PermintaanRestockDetailView({ id }: Props) {
             </TableBody>
           </Table>
         </div>
+        {itemData && itemData.meta.total > 0 && (
+          <div className="px-5 pb-4">
+            <SimplePagination
+              page={itemData.meta.current_page}
+              lastPage={itemData.meta.last_page}
+              onPageChange={setPage}
+              perPage={itemData.meta.per_page}
+              onPerPageChange={(size) => {
+                setPerPage(size);
+                setPage(1);
+              }}
+              pageSizeOptions={TABLE_PAGE_SIZES}
+              isFetching={itemsFetching}
+              total={itemData.meta.total}
+              label="SKU"
+            />
+          </div>
+        )}
       </LiquidGlass>
 
       <AcceptReplenishmentDialog
@@ -328,15 +477,41 @@ export function PermintaanRestockDetailView({ id }: Props) {
 
       <ConfirmDialog
         open={rejectOpen}
-        onOpenChange={setRejectOpen}
-        title="Tolak permintaan pengisian stok?"
-        description="Tim gudang perlu mengirim ulang permintaan bila ditolak."
-        confirmLabel="Tolak"
-        onConfirm={async () => {
-          await rejectMut.mutateAsync({ id: req.id });
-          setRejectOpen(false);
+        onOpenChange={(open) => {
+          setRejectOpen(open);
+          if (!open) setRejectReason("");
         }}
-      />
+        title="Tolak permintaan pengisian stok?"
+        description="Alasan penolakan wajib diisi dan akan tersimpan di histori request."
+        confirmLabel="Tolak"
+        variant="destructive"
+        loading={rejectMut.isPending}
+        confirmDisabled={rejectReason.trim().length < 3}
+        onConfirm={async () => {
+          await rejectMut.mutateAsync({
+            id: req.id,
+            reason: rejectReason.trim(),
+          });
+          setRejectOpen(false);
+          setRejectReason("");
+        }}
+      >
+        <div className="space-y-2">
+          <Textarea
+            value={rejectReason}
+            onChange={(event) => setRejectReason(event.target.value)}
+            placeholder="Contoh: Qty terlalu kecil, digabung dengan request berikutnya."
+            maxLength={500}
+            rows={4}
+            autoFocus
+            aria-label="Alasan penolakan"
+          />
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span>Minimal 3 karakter.</span>
+            <span>{rejectReason.length}/500</span>
+          </div>
+        </div>
+      </ConfirmDialog>
 
       <EditReplenishmentItemDialog
         requestId={req.id}
@@ -379,6 +554,57 @@ function InfoField({
     <div className="flex flex-col gap-1">
       <span className="text-xs font-medium text-muted-foreground">{label}</span>
       <div className="text-sm">{children}</div>
+    </div>
+  );
+}
+
+function ReasonSummary({ item }: { item: StockReplenishmentItem }) {
+  const detail = item.reason_detail;
+
+  if (!detail) {
+    return (
+      <span className="line-clamp-2 break-words" title={item.reason ?? "—"}>
+        {item.reason ?? "—"}
+      </span>
+    );
+  }
+
+  return (
+    <div className="min-w-0 space-y-1">
+      <p className="truncate font-medium text-foreground" title={detail.label}>
+        {detail.label}
+      </p>
+      <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] leading-4">
+        <span>
+          <span className="text-muted-foreground/75">Kebutuhan</span>{" "}
+          <strong className="font-semibold tabular-nums text-foreground">
+            {detail.demand_qty}
+          </strong>
+        </span>
+        <span>
+          <span className="text-muted-foreground/75">Tersedia</span>{" "}
+          <strong
+            className={cn(
+              "font-semibold tabular-nums",
+              detail.available_qty <= 0 ? "text-destructive" : "text-foreground",
+            )}
+          >
+            {detail.available_qty}
+          </strong>
+        </span>
+        <span>
+          <span className="text-muted-foreground/75">Dikirim</span>{" "}
+          <strong className="font-semibold tabular-nums text-foreground">
+            {detail.in_flight_qty}
+          </strong>
+        </span>
+        <span>
+          <span className="text-muted-foreground/75">Disarankan</span>{" "}
+          <strong className="font-semibold tabular-nums text-foreground">
+            {detail.suggested_qty}
+          </strong>
+        </span>
+      </div>
     </div>
   );
 }

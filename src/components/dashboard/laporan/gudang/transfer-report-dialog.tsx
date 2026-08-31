@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Loader2, PrinterIcon } from "lucide-react";
 import { toast } from "sonner";
+import { apiError } from "@/lib/toast";
 
 import {
   Dialog,
@@ -83,8 +84,8 @@ export function TransferReportDialog({
       });
       toast.success("Berhasil mengunduh laporan transfer");
       handleOpenChange(false);
-    } catch {
-      toast.error("Gagal mengunduh laporan transfer");
+    } catch (error) {
+      apiError(error, "Gagal mengunduh laporan transfer");
     }
   }
 

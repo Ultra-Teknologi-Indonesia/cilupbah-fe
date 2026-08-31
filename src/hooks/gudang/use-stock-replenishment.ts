@@ -10,6 +10,7 @@ import type {
   StockReplenishmentListParams,
   UpdateReplenishmentItemPayload,
   QueueFromMonitorPayload,
+  StockReplenishmentItemsParams,
 } from "@/types/gudang/stock-replenishment";
 
 const KEYS = {
@@ -17,6 +18,9 @@ const KEYS = {
   list: (params: StockReplenishmentListParams) =>
     [...KEYS.all, "list", params] as const,
   detail: (id: string) => [...KEYS.all, "detail", id] as const,
+  items: (id: string, params?: StockReplenishmentItemsParams) =>
+    [...KEYS.all, "items", id, params] as const,
+  itemFilters: (id: string) => [...KEYS.all, "item-filters", id] as const,
   pendingCount: () => [...KEYS.all, "pending-count"] as const,
 };
 
@@ -34,6 +38,27 @@ export function useStockReplenishmentDetail(id: string) {
     queryKey: KEYS.detail(id),
     queryFn: () => StockReplenishmentService.detail(id),
     enabled: !!id,
+  });
+}
+
+export function useStockReplenishmentItems(
+  id: string,
+  params: StockReplenishmentItemsParams = {},
+) {
+  return useQuery({
+    queryKey: KEYS.items(id, params),
+    queryFn: () => StockReplenishmentService.items(id, params),
+    enabled: !!id,
+    placeholderData: (previous) => previous,
+  });
+}
+
+export function useStockReplenishmentItemFilters(id: string) {
+  return useQuery({
+    queryKey: KEYS.itemFilters(id),
+    queryFn: () => StockReplenishmentService.itemFilters(id),
+    enabled: !!id,
+    staleTime: 60_000,
   });
 }
 
@@ -90,7 +115,11 @@ export function useRejectReplenishment() {
       StockReplenishmentService.reject(id, reason),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: KEYS.all });
-      toast.success("Permintaan ditolak");
+      qc.invalidateQueries({ queryKey: ["monitor-stok"] });
+      qc.invalidateQueries({ queryKey: KEYS.pendingCount() });
+      toast.success("Permintaan ditolak", {
+        description: "SKU kembali tersedia di Monitor Stok untuk diajukan ulang.",
+      });
     },
     onError: (err) => {
       apiError(err, "Gagal menolak permintaan.");
@@ -108,7 +137,9 @@ function useItemMutation<TVars extends { id: string }>(
     mutationFn,
     onSuccess: (_data, vars) => {
       qc.invalidateQueries({ queryKey: KEYS.detail(vars.id) });
+      qc.invalidateQueries({ queryKey: [...KEYS.all, "items", vars.id] });
       qc.invalidateQueries({ queryKey: KEYS.all });
+      qc.invalidateQueries({ queryKey: ["monitor-stok"] });
       toast.success(successMessage);
     },
     onError: (err) => {
@@ -137,7 +168,7 @@ export function useRemoveReplenishmentItem() {
   return useItemMutation(
     ({ id, itemId }: { id: string; itemId: string }) =>
       StockReplenishmentService.removeItem(id, itemId),
-    "Item dihapus",
+    "Item dihapus dan kembali ke Monitor Stok",
     "Gagal menghapus item.",
   );
 }

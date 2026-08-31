@@ -23,6 +23,7 @@ import {
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
+import { apiError } from "@/lib/toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -1523,16 +1524,8 @@ export function LayoutGudangTab({
           toast.success(
             `SKU "${sku.sku}" berhasil ditambahkan ke rak ${binCode}.`,
           );
-        } catch (err: unknown) {
-          const message =
-            typeof err === "object" && err !== null
-              ? (err as { response?: { data?: { message?: string } }; message?: string })
-              : {};
-          toast.error(
-            message.response?.data?.message ||
-              message.message ||
-              "Gagal menambahkan SKU ke rak.",
-          );
+        } catch (error) {
+          apiError(error, "Gagal menambahkan SKU ke rak.");
         }
       } else {
         handleAssignChange(binId, sku);

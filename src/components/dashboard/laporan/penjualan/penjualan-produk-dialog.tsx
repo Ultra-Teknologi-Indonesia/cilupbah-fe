@@ -3,6 +3,7 @@
 import * as React from "react";
 import { DownloadIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { apiError } from "@/lib/toast";
 
 import {
   Dialog,
@@ -83,7 +84,7 @@ export function PenjualanProdukDialog({
           toast.success("Berhasil mengunduh laporan penjualan produk");
           handleOpenChange(false);
         },
-        onError: () => toast.error("Gagal mengunduh laporan penjualan produk"),
+        onError: (error) => apiError(error, "Gagal mengunduh laporan penjualan produk"),
       },
     );
   }

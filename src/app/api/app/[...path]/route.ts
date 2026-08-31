@@ -156,11 +156,14 @@ async function proxyRequest(
 
     return NextResponse.json(
       {
-        message: "Internal Server Error",
-        error: message,
+        status: "error",
+        code: "BACKEND_UNAVAILABLE",
+        title: "Layanan sementara tidak tersedia",
+        message: "Server sedang padat. Silakan coba lagi beberapa saat.",
       },
       {
-        status: 500,
+        status: 503,
+        headers: { "Retry-After": "10" },
       },
     );
   }

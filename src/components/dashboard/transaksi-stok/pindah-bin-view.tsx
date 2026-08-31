@@ -41,6 +41,7 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { InventoryStockService } from "@/services/persediaan/inventory.service";
 import { playScanFeedback } from "@/lib/scan-feedback";
+import { apiError } from "@/lib/toast";
 import { toast } from "sonner";
 
 const LIST_HREF = "/dashboard/transaksi-stok?tab=transfer";
@@ -164,6 +165,8 @@ export function PindahBinView() {
         toast.error(
           `SKU "${q}" tidak ditemukan di gudang ini. Hanya SKU yg punya stok yg bisa ditransfer.`,
         );
+      } else if (status === 503) {
+        apiError(err, `Gagal mencari SKU "${q}".`);
       } else {
         toast.error(`Gagal mencari SKU "${q}".`);
       }
@@ -186,8 +189,8 @@ export function PindahBinView() {
         });
         upsertLineFromVariant(res.data);
         added += 1;
-      } catch {
-        toast.error(`Gagal memuat detail rak untuk SKU "${p.sku}".`);
+      } catch (error) {
+        apiError(error, `Gagal memuat detail rak untuk SKU "${p.sku}".`);
       }
     }
     if (added > 0) {

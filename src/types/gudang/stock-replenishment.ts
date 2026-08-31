@@ -1,6 +1,15 @@
 export type StockReplenishmentStatus =
   "PENDING" | "ACCEPTED" | "REJECTED" | "DONE" | "CANCELLED";
 
+export interface StockReplenishmentReasonDetail {
+  type: "stock_shortage";
+  label: string;
+  demand_qty: number;
+  available_qty: number;
+  in_flight_qty: number;
+  suggested_qty: number;
+}
+
 export interface StockReplenishmentItem {
   id: string;
   item_id: string;
@@ -9,6 +18,7 @@ export interface StockReplenishmentItem {
   thumbnail_url: string | null;
   qty: number;
   reason: string | null;
+  reason_detail?: StockReplenishmentReasonDetail | null;
   demand_qty?: number;
   available_qty?: number;
   in_flight_qty?: number;
@@ -24,6 +34,8 @@ export interface StockReplenishment {
   to_location_name: string | null;
   requested_by_user_id: string | null;
   requested_by_name: string | null;
+  rejected_by_user_id?: string | null;
+  rejected_by_name?: string | null;
   assignee_user_id: string | null;
   assignee_name: string | null;
   transfer_out_id: string | null;
@@ -43,6 +55,8 @@ export interface StockReplenishment {
   last_reconciled_at?: string | null;
   cancelled_at?: string | null;
   cancel_reason?: string | null;
+  items_count?: number;
+  items_qty?: number;
 }
 
 export interface QueueFromMonitorPayload {
@@ -55,6 +69,25 @@ export interface StockReplenishmentListParams {
   status?: StockReplenishmentStatus;
   page?: number;
   per_page?: number;
+}
+
+export interface StockReplenishmentItemsParams {
+  page?: number;
+  per_page?: number;
+  search?: string;
+  channel?: string;
+  shop_id?: string;
+}
+
+export interface StockReplenishmentFilterOption {
+  value: string;
+  label: string;
+  channel?: string | null;
+}
+
+export interface StockReplenishmentItemFilters {
+  channels: StockReplenishmentFilterOption[];
+  shops: StockReplenishmentFilterOption[];
 }
 
 export interface AcceptReplenishmentPayload {

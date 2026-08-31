@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { apiError } from "@/lib/toast";
 
 import { LocationZoneService } from "@/services/manajemen-rak/location-zone.service";
 import { locationKeys } from "./use-locations";
@@ -31,7 +32,7 @@ export function useCreateZone(locationId?: string) {
       qc.invalidateQueries({ queryKey: locationKeys.detail(locationId!) });
       toast.success("Zona berhasil dibuat");
     },
-    onError: () => toast.error("Gagal membuat zona"),
+    onError: (error) => apiError(error, "Gagal membuat zona"),
   });
 }
 
@@ -50,7 +51,7 @@ export function useUpdateZone(locationId?: string) {
       qc.invalidateQueries({ queryKey: locationKeys.detail(locationId!) });
       toast.success("Zona berhasil diperbarui");
     },
-    onError: () => toast.error("Gagal memperbarui zona"),
+    onError: (error) => apiError(error, "Gagal memperbarui zona"),
   });
 }
 
@@ -64,6 +65,6 @@ export function useDeleteZone(locationId?: string) {
       qc.invalidateQueries({ queryKey: locationKeys.detail(locationId!) });
       toast.success("Zona berhasil dihapus");
     },
-    onError: () => toast.error("Gagal menghapus zona"),
+    onError: (error) => apiError(error, "Gagal menghapus zona"),
   });
 }

@@ -38,9 +38,32 @@ async function serverFetch<T>(
   });
 
   const text = await res.text();
-  const data = text ? JSON.parse(text) : null;
+  let data: unknown = null;
+
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = null;
+    }
+  }
+
   if (!res.ok) {
-    throw data ?? { message: res.statusText };
+    const payload =
+      data && typeof data === "object"
+        ? { ...(data as Record<string, unknown>) }
+        : {
+            title:
+              res.status === 503
+                ? "Layanan sementara tidak tersedia"
+                : "Terjadi kesalahan server",
+            message:
+              res.status === 503
+                ? "Server sedang padat. Silakan coba lagi beberapa saat."
+                : "Silakan coba lagi. Jika masalah berlanjut, laporkan ke admin/developer terkait masalah ini.",
+          };
+
+    throw { ...payload, status: res.status };
   }
   return data as T;
 }

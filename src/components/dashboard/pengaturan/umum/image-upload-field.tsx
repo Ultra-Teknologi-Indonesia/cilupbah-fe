@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useMediaUpload } from "@/hooks/media/use-media-upload";
 import { cn } from "@/lib/utils";
+import { apiError } from "@/lib/toast";
 
 const MAX_BYTES = 2 * 1024 * 1024;
 
@@ -49,8 +50,8 @@ export function ImageUploadField({
     try {
       const media = await upload.mutateAsync(picked);
       onChange(media);
-    } catch {
-      toast.error("Gagal mengunggah berkas.");
+    } catch (error) {
+      apiError(error, "Gagal mengunggah berkas.");
     }
   };
 

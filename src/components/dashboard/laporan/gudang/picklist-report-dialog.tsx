@@ -3,6 +3,7 @@
 import * as React from "react";
 import { DownloadIcon, Loader2, PrinterIcon } from "lucide-react";
 import { toast } from "sonner";
+import { apiError } from "@/lib/toast";
 
 import { cn } from "@/lib/utils";
 import {
@@ -136,8 +137,8 @@ export function PicklistReportDialog({
         });
         toast.success("Berhasil mengunduh daftar picklist");
         handleOpenChange(false);
-      } catch {
-        toast.error("Gagal mengunduh daftar picklist");
+      } catch (error) {
+        apiError(error, "Gagal mengunduh daftar picklist");
       }
       return;
     }
@@ -152,8 +153,8 @@ export function PicklistReportDialog({
         });
         toast.success("Berhasil mengunduh detail picklist");
         handleOpenChange(false);
-      } catch {
-        toast.error("Gagal mengunduh detail picklist");
+      } catch (error) {
+        apiError(error, "Gagal mengunduh detail picklist");
       }
       return;
     }

@@ -10,6 +10,9 @@ type ApiErrorBody = {
 const SERVER_ERROR_TITLE = "Terjadi kesalahan server";
 const SERVER_ERROR_DESCRIPTION =
   "Silakan laporkan ke admin/developer terkait masalah ini.";
+const UNAVAILABLE_TITLE = "Layanan sementara tidak tersedia";
+const UNAVAILABLE_DESCRIPTION =
+  "Server sedang padat. Silakan coba lagi beberapa saat.";
 
 function extractValidationSummary(
   errors?: ApiErrorBody["errors"],
@@ -29,13 +32,26 @@ function normalize(err: unknown): ApiErrorBody {
   return {};
 }
 
-export function apiError(err: unknown, fallbackTitle = "Terjadi kesalahan") {
+export function getApiErrorStatus(err: unknown): number | undefined {
+  return normalize(err).status;
+}
+
+export function getApiErrorPresentation(
+  err: unknown,
+  fallbackTitle = "Terjadi kesalahan",
+): { title: string; description?: string } {
   const body = normalize(err);
   const status = body.status;
 
+  if (status === 503) {
+    return {
+      title: body.title?.trim() || UNAVAILABLE_TITLE,
+      description: body.message?.trim() || UNAVAILABLE_DESCRIPTION,
+    };
+  }
+
   if (status !== undefined && status >= 500) {
-    toast.error(SERVER_ERROR_TITLE, { description: SERVER_ERROR_DESCRIPTION });
-    return;
+    return { title: SERVER_ERROR_TITLE, description: SERVER_ERROR_DESCRIPTION };
   }
 
   const beTitle = body.title?.trim() || undefined;
@@ -54,9 +70,19 @@ export function apiError(err: unknown, fallbackTitle = "Terjadi kesalahan") {
   }
 
   if (description && description !== title) {
-    toast.error(title, { description });
+    return { title, description };
+  }
+
+  return { title };
+}
+
+export function apiError(err: unknown, fallbackTitle = "Terjadi kesalahan") {
+  const presentation = getApiErrorPresentation(err, fallbackTitle);
+
+  if (presentation.description) {
+    toast.error(presentation.title, { description: presentation.description });
   } else {
-    toast.error(title);
+    toast.error(presentation.title);
   }
 }
 

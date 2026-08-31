@@ -58,6 +58,7 @@ import type { SalesReturn } from "@/types/barang-masuk/sales-return";
 import { SalesReturnService } from "@/services/barang-masuk/sales-return.service";
 import { DateRangePicker } from "@/components/ui/date-picker";
 import { toast } from "sonner";
+import { apiError } from "@/lib/toast";
 import { format } from "date-fns";
 import type { DateRange } from "react-day-picker";
 import { formatDateTime } from "@/lib/format";
@@ -194,8 +195,8 @@ export function ReturChannelTab() {
       });
       toast.success("File Excel berhasil diunduh");
       setExportModalOpen(false);
-    } catch {
-      toast.error("Gagal mengunduh file Excel");
+    } catch (error) {
+      apiError(error, "Gagal mengunduh file Excel");
     } finally {
       setIsExporting(false);
     }

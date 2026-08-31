@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import type { ColumnDef, Table as TableInstance } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import type { MonitorStockRow } from "@/types/monitor-stok/monitor";
 
 interface PageMeta {
@@ -31,6 +32,7 @@ interface MonitorStockTableProps {
   enableQueueAction?: boolean;
   isQueueing?: boolean;
   onQueue?: (rows: MonitorStockRow[], table: TableInstance<MonitorStockRow>) => void;
+  onQueueRow?: (row: MonitorStockRow) => void;
 }
 
 function Thumb({ url, alt }: { url: string | null; alt: string }) {
@@ -57,9 +59,40 @@ export function MonitorStockTable({
   enableQueueAction = false,
   isQueueing = false,
   onQueue,
+  onQueueRow,
 }: MonitorStockTableProps) {
   const columns = React.useMemo<ColumnDef<MonitorStockRow>[]>(() => {
+    const selectionColumn: ColumnDef<MonitorStockRow> = {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) =>
+            table.toggleAllPageRowsSelected(!!value)
+          }
+          aria-label="Pilih semua produk"
+        />
+      ),
+      cell: ({ row }) => (
+        <div onClick={(event) => event.stopPropagation()}>
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            disabled={!row.getCanSelect()}
+            aria-label={`Pilih ${row.original.sku}`}
+          />
+        </div>
+      ),
+      enableSorting: false,
+      enableHiding: false,
+      size: 36,
+    };
+
     const baseCols: ColumnDef<MonitorStockRow>[] = [
+      ...(enableQueueAction ? [selectionColumn] : []),
       {
         accessorKey: "product_name",
         header: "Produk",
@@ -79,6 +112,14 @@ export function MonitorStockTable({
               <p className="text-xs text-muted-foreground">
                 {row.original.sku}
               </p>
+              {row.original.has_active_restock_request && (
+                <Badge
+                  variant="outline"
+                  className="mt-1 text-2xs font-normal text-muted-foreground"
+                >
+                  Sudah diminta
+                </Badge>
+              )}
               {row.original.variation_values.length > 0 && (
                 <div className="mt-1 flex flex-wrap gap-1">
                   {row.original.variation_values.map((v, idx) => (
@@ -186,15 +227,54 @@ export function MonitorStockTable({
       });
     }
 
+    if (enableQueueAction) {
+      baseCols.push({
+        id: "actions",
+        header: () => <div className="text-right">Aksi</div>,
+        cell: ({ row }) => (
+          <div className="flex justify-end">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={(event) => {
+                event.stopPropagation();
+                onQueueRow?.(row.original);
+              }}
+              disabled={isQueueing || row.original.has_active_restock_request}
+              title={
+                row.original.has_active_restock_request
+                  ? "SKU sudah memiliki request aktif"
+                  : undefined
+              }
+              className="whitespace-nowrap"
+            >
+              <PackagePlusIcon className="mr-1.5 h-4 w-4" />
+              {row.original.has_active_restock_request
+                ? "Sudah diminta"
+                : "Masukkan ke restock"}
+            </Button>
+          </div>
+        ),
+        enableSorting: false,
+        enableHiding: false,
+        size: 190,
+      });
+    }
+
     return baseCols;
-  }, [locationLabel, showRestock]);
+  }, [enableQueueAction, isQueueing, locationLabel, onQueueRow, showRestock]);
 
   return (
     <DataTable
       columns={columns}
       data={rows}
       getRowId={(row) => row.item_id}
-      enableRowSelection={enableQueueAction}
+      enableRowSelection={
+        enableQueueAction
+          ? (row) => !row.original.has_active_restock_request
+          : false
+      }
       bulkActions={
         enableQueueAction
           ? (selected, table) => (
