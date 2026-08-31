@@ -60,6 +60,10 @@ function isInternalManualOrder(order: Order): boolean {
   return order.is_manual === true && !hasChannelIdentity;
 }
 
+function isShipmentCreationEligible(order: Order): boolean {
+  return isInternalManualOrder(order) || Boolean(order.is_instant);
+}
+
 type CardFilterState = {
   shipping_provider: string;
   courier_code: string;
@@ -266,8 +270,29 @@ export function FulfillmentCardList({
   const createShipmentDisabled = React.useMemo(() => {
     if (!shipmentCreationEnabled || selectedOrders.length === 0)
       return undefined;
-    if (selectedOrders.some((m) => !isInternalManualOrder(m.ui))) {
-      return "Buat Pengiriman hanya untuk pesanan internal/manual";
+    if (selectedOrders.some((m) => !isShipmentCreationEligible(m.ui))) {
+      return "Buat Pengiriman hanya untuk pesanan instant atau internal/manual";
+    }
+    const internalCount = selectedOrders.filter((m) =>
+      isInternalManualOrder(m.ui),
+    ).length;
+    if (internalCount > 0 && internalCount < selectedOrders.length) {
+      return "Pisahkan pesanan marketplace instant dan internal/manual";
+    }
+    const marketplaceOrders = selectedOrders.filter(
+      (m) => !isInternalManualOrder(m.ui),
+    );
+    if (
+      marketplaceOrders.length > 0 &&
+      marketplaceOrders.some((m) => !m.ui.is_instant)
+    ) {
+      return "Pesanan marketplace reguler tidak dapat dibuatkan pengiriman dari sini";
+    }
+    if (
+      marketplaceOrders.length > 0 &&
+      marketplaceOrders.some((m) => !m.raw.shippingProvider?.trim())
+    ) {
+      return "Kurir instant belum tersedia pada pesanan";
     }
     if (hasMissingShipmentLocation) {
       return "Lokasi pesanan belum tersedia";
@@ -280,6 +305,12 @@ export function FulfillmentCardList({
     }
     if (shipmentProviderKeys.size > 1) {
       return "Pilih pesanan dengan kurir yang sama";
+    }
+    const marketplaceSources = new Set(
+      marketplaceOrders.map((m) => (m.raw.source ?? "").trim().toLowerCase()),
+    );
+    if (marketplaceSources.size > 1) {
+      return "Pilih pesanan dari channel yang sama";
     }
     return undefined;
   }, [
@@ -300,11 +331,6 @@ export function FulfillmentCardList({
       ? undefined
       : "Siap Kirim hanya tersedia untuk order marketplace";
   }, [selectedOrders, shipmentCreationEnabled]);
-
-  const hasSelectedInternalOrder = React.useMemo(
-    () => selectedOrders.some((m) => isInternalManualOrder(m.ui)),
-    [selectedOrders],
-  );
 
   const toggleId = React.useCallback((id: string, checked: boolean) => {
     setSelectedIds((prev) => {
@@ -424,9 +450,7 @@ export function FulfillmentCardList({
                 onReset={() => setSelectedIds(new Set())}
                 onReadyToShip={handleReadyToShip}
                 onCreateShipment={
-                  shipmentCreationEnabled && hasSelectedInternalOrder
-                    ? handleCreateShipment
-                    : undefined
+                  shipmentCreationEnabled ? handleCreateShipment : undefined
                 }
                 onPrintLabel={handlePrintLabel}
                 onPrintInvoice={handlePrintInvoice}
@@ -497,7 +521,9 @@ export function FulfillmentCardList({
               : null
           }
           multiLocation={shipmentLocationIds.size > 1}
-          internalOnly
+          internalOnly={selectedOrders.every((m) =>
+            isInternalManualOrder(m.ui),
+          )}
           onCreated={() => setSelectedIds(new Set())}
           marketplaceSource={(() => {
             const sources = new Set(
@@ -511,6 +537,9 @@ export function FulfillmentCardList({
             shipmentProviderKeys.size === 1
               ? selectedOrders[0]?.raw.shippingProvider
               : null
+          }
+          shippingType={
+            hasMixedShipmentTypes ? null : selectedOrders[0]?.raw.shippingType
           }
         />
       )}

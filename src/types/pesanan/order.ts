@@ -158,6 +158,14 @@ export interface Order {
   seller_note: string | null;
   location_id: string | null;
   location_name: string | null;
+  scheduled_shipment?: {
+    id: string;
+    shipment_no: string;
+    status: string;
+    shipment_date: string | null;
+    courier_name: string | null;
+    courier_code: string | null;
+  } | null;
   total_qty: number;
   total_sku: number;
   items: OrderItem[];

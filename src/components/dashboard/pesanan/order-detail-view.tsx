@@ -87,6 +87,7 @@ import {
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { usePermissions } from "@/hooks/auth/use-permissions";
+import { BuatPengirimanDialog } from "@/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog";
 
 import { ContactBuyerDialog } from "./contact-buyer-dialog";
 import { CourierPickupDialog } from "./courier-pickup-dialog";
@@ -676,6 +677,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
   const [riwayatOpen, setRiwayatOpen] = React.useState(false);
   const [requestCancelOpen, setRequestCancelOpen] = React.useState(false);
   const [manualCancelOpen, setManualCancelOpen] = React.useState(false);
+  const [pengirimanOpen, setPengirimanOpen] = React.useState(false);
   const [editingItem, setEditingItem] = React.useState<OrderItem | null>(null);
   const [deletingItemId, setDeletingItemId] = React.useState<string | null>(
     null,
@@ -690,6 +692,14 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
   const canExportShipping = can("export-pengiriman");
   const canRequestCancel = !!order && canEditOrder && canRequestChannelCancel(order);
   const canManualCancel = !!order && canEditOrder && !isMarketplace;
+  const canCreateInstantShipment = Boolean(
+    order &&
+      can("create-pengiriman") &&
+      order.status === "packed" &&
+      order.is_instant &&
+      !order.is_canceled &&
+      !order.scheduled_shipment,
+  );
 
   const handlePrintInvoice = () => {
     window.open(
@@ -788,6 +798,17 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
         ]}
         actions={
           <div className="flex items-center gap-2">
+            {canCreateInstantShipment && (
+              <Button
+                variant="primary"
+                size="sm"
+                className="gap-1.5"
+                onClick={() => setPengirimanOpen(true)}
+              >
+                <TruckIcon className="size-4" />
+                Buat Pengiriman
+              </Button>
+            )}
             {canExportOrder && <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="gap-1.5">
@@ -1402,6 +1423,20 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
         orderNo={order.salesorder_no}
         pickup={order.courier_pickup}
       />}
+
+      {canCreateInstantShipment && (
+        <BuatPengirimanDialog
+          open={pengirimanOpen}
+          onOpenChange={setPengirimanOpen}
+          orderIds={[order.id]}
+          locationId={order.location_id}
+          locationName={order.location_name}
+          marketplaceSource={isMarketplace ? order.source : undefined}
+          shippingProvider={order.shipping?.provider}
+          shippingType={order.shipping_type}
+          onCreated={refetch}
+        />
+      )}
 
       <RiwayatPesananDialog
         open={riwayatOpen}

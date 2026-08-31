@@ -48,6 +48,7 @@ export function BuatPengirimanDialog({
   onCreated,
   marketplaceSource,
   shippingProvider,
+  shippingType,
   locationId,
   locationName,
   multiLocation,
@@ -66,6 +67,7 @@ export function BuatPengirimanDialog({
           onCreated={onCreated}
           marketplaceSource={marketplaceSource}
           shippingProvider={shippingProvider}
+          shippingType={shippingType}
           locationId={locationId}
           locationName={locationName}
           multiLocation={multiLocation}
@@ -82,6 +84,7 @@ function PengirimanForm({
   onCreated,
   marketplaceSource,
   shippingProvider,
+  shippingType,
   locationId,
   locationName,
   multiLocation,
@@ -92,6 +95,7 @@ function PengirimanForm({
   onCreated?: () => void;
   marketplaceSource?: string | null;
   shippingProvider?: string | null;
+  shippingType?: string | null;
   locationId?: string | null;
   locationName?: string | null;
   multiLocation?: boolean;
@@ -152,7 +156,9 @@ function PengirimanForm({
       return;
     }
 
-    const shipmentType = guessShipmentTypeFromCourierName(courierName);
+    const shipmentType = shippingType
+      ? guessShipmentTypeFromCourierName(shippingType)
+      : guessShipmentTypeFromCourierName(courierName);
 
     const payload = {
       shipment_no: shipmentNo.trim() || null,

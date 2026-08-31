@@ -16,6 +16,12 @@ describe("shipment type helpers", () => {
     expect(guessShipmentTypeFromCourierName("Nextday")).toBe("EXPRESS");
   });
 
+  it("classifies marketplace instant courier names consistently", () => {
+    expect(guessShipmentTypeFromCourierName("GoSend")).toBe("INSTANT");
+    expect(guessShipmentTypeFromCourierName("GoJek Instant")).toBe("INSTANT");
+    expect(guessShipmentTypeFromCourierName("SAME_DAY")).toBe("INSTANT");
+  });
+
   it("uses the shipment number to distinguish dropdown options", () => {
     expect(
       formatShipmentLabel({

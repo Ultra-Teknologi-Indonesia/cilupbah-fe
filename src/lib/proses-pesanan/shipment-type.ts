@@ -9,9 +9,8 @@ export function guessShipmentTypeFromCourierName(name: string): ShipmentType {
   if (
     lower.includes("instant") ||
     lower.includes("instan") ||
-    lower.includes("sameday") ||
-    lower.includes("same day") ||
-    lower.includes("same-day")
+    /same[\s_-]?day/.test(lower) ||
+    /gosend|gojek|grab|lalamove|borzo|bluebird|paxel/.test(lower)
   ) {
     return "INSTANT";
   }
