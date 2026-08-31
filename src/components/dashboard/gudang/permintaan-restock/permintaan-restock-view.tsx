@@ -16,6 +16,10 @@ import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
+import {
+  SimplePagination,
+  TABLE_PAGE_SIZES,
+} from "@/components/ui/simple-pagination";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
@@ -59,23 +63,38 @@ export function PermintaanRestockView() {
     null,
   );
   const [sortDir, setSortDir] = useState<"desc" | "asc">("desc");
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(20);
 
   const params = useMemo(
-    () => ({ status: status === "ALL" ? undefined : status, per_page: 30 }),
-    [status],
+    () => ({
+      status: status === "ALL" ? undefined : status,
+      page,
+      per_page: perPage,
+    }),
+    [page, perPage, status],
   );
 
-  const { data, isLoading } = useStockReplenishments(params);
+  const { data, isLoading, isFetching } = useStockReplenishments(params);
   const rejectMut = useRejectReplenishment();
 
-  const rawItems = data?.items ?? [];
   const items = useMemo(() => {
-    return [...rawItems].sort((a, b) => {
+    return [...(data?.items ?? [])].sort((a, b) => {
       const timeA = new Date(a.requested_at).getTime() || 0;
       const timeB = new Date(b.requested_at).getTime() || 0;
       return sortDir === "asc" ? timeA - timeB : timeB - timeA;
     });
-  }, [rawItems, sortDir]);
+  }, [data?.items, sortDir]);
+
+  const handleStatusChange = (value: string) => {
+    setStatus(value as StockReplenishmentStatus | "ALL");
+    setPage(1);
+  };
+
+  const handlePerPageChange = (size: number) => {
+    setPerPage(size);
+    setPage(1);
+  };
 
   return (
     <div className="flex flex-col gap-5">
@@ -94,9 +113,7 @@ export function PermintaanRestockView() {
       >
         <Tabs
           value={status}
-          onValueChange={(v) =>
-            setStatus(v as StockReplenishmentStatus | "ALL")
-          }
+          onValueChange={handleStatusChange}
         >
           <TabsList className="bg-transparent">
             {STATUS_TABS.map((t) => (
@@ -252,6 +269,20 @@ export function PermintaanRestockView() {
           </Table>
         </div>
       </LiquidGlass>
+
+      {data && data.meta.total > 0 && (
+        <SimplePagination
+          page={data.meta.current_page}
+          lastPage={data.meta.last_page}
+          onPageChange={setPage}
+          perPage={data.meta.per_page}
+          onPerPageChange={handlePerPageChange}
+          pageSizeOptions={TABLE_PAGE_SIZES}
+          isFetching={isFetching}
+          total={data.meta.total}
+          label="permintaan"
+        />
+      )}
 
       <AcceptReplenishmentDialog
         open={!!acceptTarget}
