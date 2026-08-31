@@ -23,7 +23,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { PRODUCT_STATUS_OPTIONS } from "@/lib/master-produk/constants";
+import {
+  PRODUCT_STATUS_OPTIONS,
+  PRODUCT_TYPE_OPTIONS,
+} from "@/lib/master-produk/constants";
 import { useCategoryTree } from "@/hooks/master-produk/use-master-data";
 import type { useProductListQuery } from "@/hooks/master-produk/use-product-list-query";
 import type { ImportBatchType } from "@/hooks/master-produk/use-import";
@@ -200,9 +203,11 @@ export function ProductExplorer({ query }: { query: Query }) {
           searchPlaceholder="Cari nama / SKU…"
           onReset={query.hasFilter ? query.reset : undefined}
           hasFilter={query.hasFilter}
-          activeCount={[query.status, query.category].filter(Boolean).length}
+          activeCount={
+            [query.status, query.category, query.type].filter(Boolean).length
+          }
           align="end"
-          gridCols={2}
+          gridCols={3}
         >
           <Combobox
             options={PRODUCT_STATUS_OPTIONS}
@@ -217,6 +222,14 @@ export function ProductExplorer({ query }: { query: Query }) {
             onChange={query.setCategory}
             tree={categoryTree}
             triggerClassName="h-9 bg-background"
+          />
+          <Combobox
+            options={PRODUCT_TYPE_OPTIONS}
+            value={query.type}
+            onChange={query.setType}
+            placeholder="Semua tipe"
+            searchPlaceholder="Cari tipe"
+            className="h-9 bg-background"
           />
         </FilterToolbar>
 

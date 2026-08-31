@@ -28,6 +28,7 @@ export function useProductListQuery() {
   const [category, setCategoryRaw] = React.useState<SelectedCategory | null>(
     null,
   );
+  const [type, setTypeRaw] = React.useState<string | null>(null);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
@@ -70,11 +71,19 @@ export function useProductListQuery() {
     },
     [resetPage],
   );
+  const setType = React.useCallback(
+    (v: string | null) => {
+      setTypeRaw(v);
+      resetPage();
+    },
+    [resetPage],
+  );
 
   const reset = React.useCallback(() => {
     setSearch("");
     setDebouncedSearch("");
     setCategoryRaw(null);
+    setTypeRaw(null);
     setSorting([]);
     resetPage();
     if (searchParams.get("status")) {
@@ -93,12 +102,15 @@ export function useProductListQuery() {
     search: debouncedSearch || undefined,
     status: status || undefined,
     categoryId: category?.id || undefined,
+    type: type || undefined,
     sort,
     page: pagination.pageIndex + 1,
     perPage: pagination.pageSize,
   });
 
-  const hasFilter = Boolean(search || status || category || sorting.length);
+  const hasFilter = Boolean(
+    search || status || category || type || sorting.length,
+  );
 
   return {
     search,
@@ -107,6 +119,8 @@ export function useProductListQuery() {
     setStatus,
     category,
     setCategory,
+    type,
+    setType,
     sorting,
     setSorting,
     pagination,

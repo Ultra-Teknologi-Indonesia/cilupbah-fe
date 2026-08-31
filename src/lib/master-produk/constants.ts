@@ -16,6 +16,11 @@ export const PRODUCT_STATUS_OPTIONS = (
   Object.keys(PRODUCT_STATUS_META) as ProductStatus[]
 ).map((value) => ({ value, label: PRODUCT_STATUS_META[value].label }));
 
+export const PRODUCT_TYPE_OPTIONS = [
+  { value: "satuan", label: "Satuan" },
+  { value: "bundle", label: "Bundle" },
+];
+
 export const CHANNEL_COLORS: Record<string, string> = {
   shopee: "bg-orange-500",
   tokopedia: "bg-green-600",
