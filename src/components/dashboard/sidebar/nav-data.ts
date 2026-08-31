@@ -339,6 +339,7 @@ const ROUTE_PERMISSION_RULES: Array<{
   { link: "/dashboard/kontak-pemasok/[id]/edit", permission: "edit-kontak-pemasok" },
   { link: "/dashboard/kontak-pemasok", permission: "view-kontak-pemasok" },
   { link: "/dashboard/lokasi/buat", permission: "create-manajemen-rak" },
+  { link: "/dashboard/lokasi/[id]", permission: "view-manajemen-rak" },
   { link: "/dashboard/lokasi/[id]/edit", permission: "edit-manajemen-rak" },
   { link: "/dashboard/lokasi", permission: "view-manajemen-rak" },
   { link: "/dashboard/barang-masuk/retur/buat", permission: "create-retur-penjualan" },

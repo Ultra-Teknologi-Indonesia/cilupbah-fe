@@ -35,6 +35,7 @@ import { DeleteLocationDialog } from "./delete-location-dialog";
 export function LocationListView() {
   const { can } = usePermissions();
   const canCreateLocation = can("create-manajemen-rak");
+  const canViewLocation = can("view-manajemen-rak");
   const canEditLocation = can("edit-manajemen-rak");
   const canDeleteLocation = can("delete-manajemen-rak");
   const canViewSystemSettings = can("view-pengaturan-sistem");
@@ -168,6 +169,7 @@ export function LocationListView() {
             togglingId={togglingId}
             onToggleActive={handleToggleActive}
             onDelete={(loc) => setDeleteTarget(loc)}
+            canView={canViewLocation}
             canEdit={canEditLocation}
             canDelete={canDeleteLocation}
           />

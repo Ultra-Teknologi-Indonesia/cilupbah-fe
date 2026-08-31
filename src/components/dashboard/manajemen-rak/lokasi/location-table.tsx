@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LockIcon, Trash2Icon } from "lucide-react";
+import { LockIcon, PencilIcon, Trash2Icon } from "lucide-react";
 
 import {
   Table,
@@ -27,6 +27,7 @@ interface LocationTableProps {
   togglingId: string | null;
   onToggleActive: (location: Location) => void;
   onDelete: (location: Location) => void;
+  canView: boolean;
   canEdit: boolean;
   canDelete: boolean;
 }
@@ -36,6 +37,7 @@ export function LocationTable({
   togglingId,
   onToggleActive,
   onDelete,
+  canView,
   canEdit,
   canDelete,
 }: LocationTableProps) {
@@ -55,7 +57,9 @@ export function LocationTable({
             const locked = location.isSystem || location.isLocked;
 
             const editable = !location.isSystem && !location.isLocked;
+            const detailHref = `/dashboard/lokasi/${location.id}`;
             const editHref = `/dashboard/lokasi/${location.id}/edit`;
+            const nameHref = editable && canEdit ? editHref : detailHref;
 
             return (
               <TableRow key={location.id}>
@@ -74,10 +78,9 @@ export function LocationTable({
                         </TooltipContent>
                       </Tooltip>
                     )}
-                    {editable && canEdit ? (
+                    {canView ? (
                       <Link
-                        href={editHref}
-
+                        href={nameHref}
                         className="font-medium text-primary hover:underline"
                       >
                         {location.locationName}
@@ -104,6 +107,18 @@ export function LocationTable({
                 </TableCell>
 
                 <TableCell className="text-right">
+                  {editable && canEdit && (
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      asChild
+                      aria-label={`Edit ${location.locationName}`}
+                    >
+                      <Link href={editHref}>
+                        <PencilIcon />
+                      </Link>
+                    </Button>
+                  )}
                   {!location.isSystem && canDelete && (
                     <Button
                       variant="ghost"
