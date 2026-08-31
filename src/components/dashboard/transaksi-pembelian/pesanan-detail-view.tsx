@@ -44,7 +44,11 @@ import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { InfoField } from "@/components/dashboard/shared/info-field";
 import { SortableHeader } from "@/components/dashboard/shared/sortable-header";
 import { SectionTitle } from "@/components/dashboard/shared/section-title";
-import { formatCurrency, formatDateLong, formatDateTimeWib } from "@/lib/format";
+import {
+  formatCurrency,
+  formatDateLong,
+  formatDateTimeWib,
+} from "@/lib/format";
 
 function DetailRow({
   label,

@@ -213,7 +213,7 @@ export function PesananListView() {
       {
         accessorKey: "order_date",
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Tgl. Pesanan" />
+          <DataTableColumnHeader column={column} title="Tgl. Pesanan / Dibuat" />
         ),
         enableSorting: true,
         cell: ({ row }) => (
