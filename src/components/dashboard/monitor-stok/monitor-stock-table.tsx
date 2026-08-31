@@ -10,6 +10,13 @@ import type { ColumnDef, Table as TableInstance } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Popover,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import type { MonitorStockRow } from "@/types/monitor-stok/monitor";
 
 interface PageMeta {
@@ -31,7 +38,10 @@ interface MonitorStockTableProps {
   onPerPageChange: (size: number) => void;
   enableQueueAction?: boolean;
   isQueueing?: boolean;
-  onQueue?: (rows: MonitorStockRow[], table: TableInstance<MonitorStockRow>) => void;
+  onQueue?: (
+    rows: MonitorStockRow[],
+    table: TableInstance<MonitorStockRow>,
+  ) => void;
   onQueueRow?: (row: MonitorStockRow) => void;
 }
 
@@ -43,6 +53,96 @@ function Thumb({ url, alt }: { url: string | null; alt: string }) {
       aria-label={alt}
       style={url ? { backgroundImage: `url(${url})` } : undefined}
     />
+  );
+}
+
+function parsePendingOrderNumbers(value: string | null | undefined): string[] {
+  return (value ?? "")
+    .split(",")
+    .map((number) => number.trim())
+    .filter(Boolean);
+}
+
+function PendingOrdersPopover({ orderNumbers }: { orderNumbers: string[] }) {
+  const [open, setOpen] = React.useState(false);
+  const closeTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const cancelScheduledClose = React.useCallback(() => {
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+  }, []);
+
+  const openOnHoverOrFocus = React.useCallback(() => {
+    cancelScheduledClose();
+    setOpen(true);
+  }, [cancelScheduledClose]);
+
+  const scheduleClose = React.useCallback(() => {
+    cancelScheduledClose();
+    closeTimer.current = setTimeout(() => {
+      setOpen(false);
+      closeTimer.current = null;
+    }, 140);
+  }, [cancelScheduledClose]);
+
+  React.useEffect(
+    () => () => {
+      cancelScheduledClose();
+    },
+    [cancelScheduledClose],
+  );
+
+  const visibleOrderNumbers = orderNumbers.slice(5);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className="max-w-full cursor-help rounded border border-border/50 bg-muted/50 px-1.5 py-0.5 text-left text-[10px] font-medium text-muted-foreground outline-none transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+          onPointerEnter={openOnHoverOrFocus}
+          onPointerLeave={scheduleClose}
+          onFocus={openOnHoverOrFocus}
+          aria-label={`Lihat ${visibleOrderNumbers.length} pesanan lainnya`}
+        >
+          +{visibleOrderNumbers.length} lagi
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        side="bottom"
+        sideOffset={8}
+        className="w-[min(22rem,calc(100vw-2rem))] max-h-[min(22rem,calc(100vh-2rem))] gap-3 overflow-x-hidden overflow-y-auto p-3"
+        onPointerEnter={cancelScheduledClose}
+        onPointerLeave={scheduleClose}
+      >
+        <PopoverHeader className="gap-0.5">
+          <PopoverTitle className="text-sm font-semibold">
+            Pesanan menunggu
+          </PopoverTitle>
+          <p className="text-xs text-muted-foreground">
+            {orderNumbers.length} pesanan terkait produk ini
+          </p>
+        </PopoverHeader>
+        <div className="grid min-w-0 gap-1.5">
+          {orderNumbers.map((number, index) => (
+            <div
+              key={`${number}-${index}`}
+              className="grid min-w-0 grid-cols-[1.5rem_minmax(0,1fr)] items-start gap-2 rounded-lg border border-border/50 bg-muted/20 px-2.5 py-2"
+            >
+              <span className="text-[10px] font-medium tabular-nums text-muted-foreground">
+                {index + 1}.
+              </span>
+              <span className="min-w-0 break-all text-xs leading-4 text-foreground">
+                {number}
+              </span>
+            </div>
+          ))}
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }
 
@@ -70,9 +170,7 @@ export function MonitorStockTable({
             table.getIsAllPageRowsSelected() ||
             (table.getIsSomePageRowsSelected() && "indeterminate")
           }
-          onCheckedChange={(value) =>
-            table.toggleAllPageRowsSelected(!!value)
-          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Pilih semua produk"
         />
       ),
@@ -140,10 +238,9 @@ export function MonitorStockTable({
                   </span>
                   <div className="flex flex-wrap gap-1">
                     {(() => {
-                      const orders = row.original.pending_order_nos
-                        .split(",")
-                        .map((n) => n.trim())
-                        .filter(Boolean);
+                      const orders = parsePendingOrderNumbers(
+                        row.original.pending_order_nos,
+                      );
                       const maxToShow = 5;
                       const toShow = orders.slice(0, maxToShow);
                       const remaining = orders.length - maxToShow;
@@ -159,12 +256,7 @@ export function MonitorStockTable({
                             </span>
                           ))}
                           {remaining > 0 && (
-                            <span
-                              className="cursor-help whitespace-nowrap rounded border border-border/50 bg-muted/50 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground"
-                              title={orders.slice(maxToShow).join(", ")}
-                            >
-                              +{remaining} lagi
-                            </span>
+                            <PendingOrdersPopover orderNumbers={orders} />
                           )}
                         </>
                       );
