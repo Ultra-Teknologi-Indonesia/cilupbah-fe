@@ -175,7 +175,7 @@ export function ProductPickerDialog({
   const stockByItemId = React.useMemo(() => {
     const map = new Map<string, number>();
     for (const row of stocksData?.data ?? []) {
-      if (row.location?.location_code !== "WH-KECIL") continue;
+      if (row.location?.is_small_warehouse !== true) continue;
       map.set(row.item_id, Number(row.total_available ?? 0));
     }
     return map;

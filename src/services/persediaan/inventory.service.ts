@@ -125,6 +125,7 @@ export const InventoryStockService = {
             id: string;
             location_code: string;
             location_name: string;
+            is_small_warehouse?: boolean;
           } | null;
         }[]
       >

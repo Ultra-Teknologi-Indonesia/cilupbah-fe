@@ -222,9 +222,7 @@ export function PesananManualFormPage() {
     setPrevLocData(locData);
     setPrevLocationId(locationId);
     if (!locationId) {
-      const kecil = (locData?.items ?? []).find(
-        (l) => l.locationCode === "WH-KECIL",
-      );
+      const kecil = (locData?.items ?? []).find((l) => l.isSmallWarehouse);
       if (kecil) setLocationId(kecil.id);
     }
   }
