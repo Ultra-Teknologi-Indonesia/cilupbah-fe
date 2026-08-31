@@ -36,7 +36,13 @@ function Req() {
   return <span className="text-destructive"> *</span>;
 }
 
-export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
+export function InformasiTab({
+  disabled = false,
+  activeDisabled = false,
+}: {
+  disabled?: boolean;
+  activeDisabled?: boolean;
+}) {
   const form = useFormContext<LocationFormValues>();
 
   const provinceId = form.watch("provinceId");
@@ -357,7 +363,7 @@ export function InformasiTab({ disabled = false }: { disabled?: boolean }) {
                 <Switch
                   checked={field.value}
                   onCheckedChange={field.onChange}
-                  disabled={disabled}
+                  disabled={activeDisabled}
                 />
               </FormControl>
               <FormLabel className="!mt-0">Aktif</FormLabel>

@@ -135,7 +135,9 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
     }
   }, [mode, detail.data, form]);
 
-  const locked = mode === "edit" && Boolean(detail.data?.isLocked);
+  const protectedLocation =
+    mode === "edit" &&
+    Boolean(detail.data?.isSystem || detail.data?.isLocked);
   const layoutEnabled = layoutSetting.data?.useWarehouseLayout ?? false;
   const saving =
     createLocation.isPending ||
@@ -166,6 +168,11 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
     async (values) => {
       try {
         const payload = buildPayload(values);
+        if (protectedLocation) {
+          // The active state of a protected location is immutable. Omitting it
+          // also keeps edits safe for legacy protected locations already inactive.
+          delete payload.is_active;
+        }
         let locationId = id;
 
         if (mode === "create") {
@@ -254,7 +261,7 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
     );
   }
 
-  const formDisabled = locked || !canSaveLocation;
+  const formDisabled = !canSaveLocation;
   const navItems: { key: Section; label: string; show: boolean }[] = [
     { key: "informasi", label: "Informasi Lokasi", show: true },
     { key: "layout", label: "Layout Gudang", show: layoutEnabled },
@@ -275,10 +282,10 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
           ]}
         />
 
-        {locked && (
+        {protectedLocation && (
           <div className="flex items-center gap-2 rounded-2xl border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
             <LockIcon className="size-4" />
-            Lokasi sistem ini terkunci dan tidak dapat diubah.
+            Lokasi ini dilindungi: data tetap dapat diedit sesuai permission, tetapi tidak dapat dihapus atau dinonaktifkan.
           </div>
         )}
 
@@ -305,7 +312,10 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
 
           <div className="rounded-2xl border border-border bg-card p-6">
             {section === "informasi" ? (
-              <InformasiTab disabled={formDisabled} />
+              <InformasiTab
+                disabled={formDisabled}
+                activeDisabled={formDisabled || protectedLocation}
+              />
             ) : section === "layout" ? (
               <LayoutGudangTab
                 disabled={formDisabled || !canEditLayout}
@@ -338,7 +348,7 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
           <Button variant="outline" asChild>
             <Link href={LIST_HREF}>Batal</Link>
           </Button>
-          {canSaveLocation && !locked && (
+          {canSaveLocation && (
             <Button type="submit" variant="primary" disabled={saving}>
               {saving && <Loader2Icon className="animate-spin" />}
               Simpan

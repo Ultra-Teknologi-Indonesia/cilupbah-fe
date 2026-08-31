@@ -44,7 +44,7 @@ import {
   useImportPurchaseOrderConfirm,
 } from "@/hooks/transaksi-pembelian/use-purchase-order-import-export";
 import { apiError } from "@/lib/toast";
-import { formatCurrency, formatDateTimeWib } from "@/lib/format";
+import { formatCurrency, formatDate } from "@/lib/format";
 import type {
   PurchaseImportPreview,
   PurchaseImportDoc,
@@ -518,7 +518,7 @@ export function ImportPesananDialog({ open, onOpenChange }: Props) {
                               </span>
                               <span className="flex items-center gap-1.5">
                                 <CalendarIcon className="size-3 text-muted-foreground/70 shrink-0" />
-                                <span>{formatDateTimeWib(doc.order_date)}</span>
+                                <span>{formatDate(doc.order_date)}</span>
                               </span>
                               <span className="flex items-center gap-1.5">
                                 <LayersIcon className="size-3 text-muted-foreground/70 shrink-0" />

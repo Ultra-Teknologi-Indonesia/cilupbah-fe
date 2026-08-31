@@ -56,10 +56,9 @@ export function LocationTable({
           {locations.map((location) => {
             const locked = location.isSystem || location.isLocked;
 
-            const editable = !location.isSystem && !location.isLocked;
             const detailHref = `/dashboard/lokasi/${location.id}`;
             const editHref = `/dashboard/lokasi/${location.id}/edit`;
-            const nameHref = editable && canEdit ? editHref : detailHref;
+            const nameHref = canEdit ? editHref : detailHref;
 
             return (
               <TableRow key={location.id}>
@@ -71,10 +70,8 @@ export function LocationTable({
                           <LockIcon className="size-4 shrink-0 text-muted-foreground" />
                         </TooltipTrigger>
                         <TooltipContent>
-                          Lokasi sistem
-                          {location.isLocked
-                            ? " — tidak dapat diubah/dihapus"
-                            : " — tidak dapat dihapus"}
+                          Lokasi dilindungi
+                          {" — tidak dapat dihapus atau dinonaktifkan"}
                         </TooltipContent>
                       </Tooltip>
                     )}
@@ -107,7 +104,7 @@ export function LocationTable({
                 </TableCell>
 
                 <TableCell className="text-right">
-                  {editable && canEdit && (
+                  {canEdit && (
                     <Button
                       variant="ghost"
                       size="icon-sm"
@@ -119,7 +116,7 @@ export function LocationTable({
                       </Link>
                     </Button>
                   )}
-                  {!location.isSystem && canDelete && (
+                  {!locked && canDelete && (
                     <Button
                       variant="ghost"
                       size="icon-sm"

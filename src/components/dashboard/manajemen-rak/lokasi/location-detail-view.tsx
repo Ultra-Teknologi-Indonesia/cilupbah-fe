@@ -67,8 +67,8 @@ export function LocationDetailView({ id }: { id: string }) {
     );
   }
 
-  const locked = location.isSystem || location.isLocked;
-  const canEdit = can("edit-manajemen-rak") && !locked;
+  const protectedLocation = location.isSystem || location.isLocked;
+  const canEdit = can("edit-manajemen-rak");
   const village = location.village;
   const region = [
     village?.nama,
@@ -103,10 +103,10 @@ export function LocationDetailView({ id }: { id: string }) {
         ]}
       />
 
-      {locked && (
+      {protectedLocation && (
         <div className="flex items-center gap-2 rounded-2xl border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
           <LockIcon className="size-4" />
-          Lokasi sistem ini bersifat read-only dan tidak dapat diubah.
+          Lokasi ini dilindungi: tetap dapat diedit sesuai permission, tetapi tidak dapat dihapus atau dinonaktifkan.
         </div>
       )}
 
