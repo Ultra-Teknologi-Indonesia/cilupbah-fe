@@ -101,6 +101,13 @@ export const InventoryStockService = {
         thumbnail_url: string | null;
         total_on_hand: number;
         sell_price: number;
+        item_code?: string;
+        item_name?: string | null;
+        item_group_id?: string;
+        is_bundle?: boolean;
+        sell_unit?: string;
+        available_qty?: number;
+        variant?: unknown | null;
       }>
     >(`/inventory/stock/items?${q.toString()}`);
   },

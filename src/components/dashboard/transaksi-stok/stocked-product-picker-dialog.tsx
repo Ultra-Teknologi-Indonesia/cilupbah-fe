@@ -35,6 +35,7 @@ export interface StockedPickedProduct {
   sku: string;
   name: string;
   variantLabel: string;
+  isBundle?: boolean;
   thumbnail: string | null;
   totalOnHand: number;
   sellPrice: number;
@@ -60,6 +61,8 @@ interface RawRow {
   thumbnail_url: string | null;
   total_on_hand: number;
   sell_price: number;
+  is_bundle?: boolean;
+  variant?: unknown | null;
 }
 
 function normalizeProductName(value: string | null | undefined): string | null {
@@ -154,6 +157,7 @@ export function StockedProductPickerDialog({
         productId: string;
         productName: string;
         thumbnail: string | null;
+        isBundle: boolean;
         variants: RawRow[];
       }
     >();
@@ -161,8 +165,10 @@ export function StockedProductPickerDialog({
       const key = r.product_id ?? r.item_id;
       const existing = map.get(key);
       const productName = normalizeProductName(r.product_name);
+      const isBundle = Boolean(r.is_bundle || r.variant === null);
       if (existing) {
         existing.variants.push(r);
+        existing.isBundle = existing.isBundle || isBundle;
         if (!existing.productName && productName) {
           existing.productName = productName;
         }
@@ -175,6 +181,7 @@ export function StockedProductPickerDialog({
           // SKU remains visible in the variant row; it must not become the group title.
           productName: productName ?? "Nama produk belum tersedia",
           thumbnail: r.thumbnail_url,
+          isBundle,
           variants: [r],
         });
       }
@@ -199,6 +206,7 @@ export function StockedProductPickerDialog({
           sku: variant.sku,
           name: group.productName,
           variantLabel: variant.variant_label,
+          isBundle: Boolean(variant.is_bundle || variant.variant === null),
           thumbnail: variant.thumbnail_url ?? group.thumbnail,
           totalOnHand: variant.total_on_hand,
           sellPrice: Number(variant.sell_price ?? 0),
@@ -303,7 +311,7 @@ export function StockedProductPickerDialog({
                               </span>
                             </div>
                             <span className="shrink-0 text-xs text-muted-foreground">
-                              {g.variants.length} varian
+                              {g.isBundle ? "Bundle" : `${g.variants.length} varian`}
                             </span>
                           </div>
                         </TableCell>
@@ -342,7 +350,7 @@ export function StockedProductPickerDialog({
                                   )}
                                 </div>
                                 <span className="text-sm font-medium">
-                                  {v.variant_label || "Default"}
+                                  {v.is_bundle ? "Bundle" : v.variant_label || "Default"}
                                 </span>
                               </div>
                             </TableCell>
