@@ -20,6 +20,7 @@ import {
 } from "@/components/dashboard/proses-pesanan/shared/order-table";
 import { FulfillmentBulkActionBar } from "@/components/dashboard/proses-pesanan/shared/fulfillment-bulk-action-bar";
 import { AmbilNoResiDialog } from "@/components/dashboard/proses-pesanan/shared/ambil-no-resi-dialog";
+import { BuatPengirimanDialog } from "@/components/dashboard/proses-pesanan/shipping/buat-pengiriman-dialog";
 import { DocActions } from "@/hooks/proses-pesanan/use-doc-actions";
 import type { Order, OrderTab } from "@/types/pesanan/order";
 import type { FulfillmentListParams } from "@/types/proses-pesanan/fulfillment";
@@ -27,21 +28,36 @@ import { useOrdersByStage } from "@/hooks/proses-pesanan/use-fulfillment";
 import { useListState } from "@/hooks/use-list-state";
 import { fulfillmentToOrder } from "@/lib/proses-pesanan/order-card-mapper";
 import { cn } from "@/lib/utils";
-
-const SHIPPING_LABEL_CHANNELS = new Set(["shopee", "tiktok", "lazada"]);
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 function shippingLabelSelectability(order: Order): RowSelectability {
-  const src = (order.source ?? "").toLowerCase();
-  if (!src) {
-    return { selectable: false, reason: "Pesanan manual tanpa kanal" };
-  }
-  if (!SHIPPING_LABEL_CHANNELS.has(src)) {
+  if (!order.shipping_label_supported) {
     return {
       selectable: false,
-      reason: "Kanal ini belum mendukung cetak resi otomatis",
+      reason: order.source
+        ? "Kanal ini belum mendukung cetak resi otomatis"
+        : "Pesanan manual tanpa kanal",
     };
   }
   return { selectable: true };
+}
+
+function shipmentSelectability(order: Order): RowSelectability {
+  if (order.is_canceled) {
+    return { selectable: false, reason: "Pesanan sudah dibatalkan" };
+  }
+  if (order.cancel_requested_at) {
+    return { selectable: false, reason: "Pesanan sedang meminta pembatalan" };
+  }
+  return { selectable: true };
+}
+
+function isInternalManualOrder(order: Order): boolean {
+  const hasChannelIdentity = Boolean(
+    order.channel_order_no || order.channel_shop_id || order.commerce_platform,
+  );
+
+  return order.is_manual === true && !hasChannelIdentity;
 }
 
 type CardFilterState = {
@@ -91,6 +107,7 @@ export function FulfillmentCardList({
   extraColumns,
   searchPlaceholder = "Cari no. pesanan…",
   baseParams,
+  allowShipmentCreation = false,
 }: {
   stage: string;
   tab?: OrderTab;
@@ -104,7 +121,9 @@ export function FulfillmentCardList({
   extraColumns?: OrderTableExtraColumn[];
   searchPlaceholder?: string;
   baseParams?: Partial<FulfillmentListParams>;
+  allowShipmentCreation?: boolean;
 }) {
+  const { can } = usePermissions();
   const list = useListState<CardFilterState>(EMPTY_CARD_FILTERS, {
     perPage: 20,
     debounceMs: 350,
@@ -172,19 +191,120 @@ export function FulfillmentCardList({
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
   const [ambilResiOpen, setAmbilResiOpen] = React.useState(false);
   const [resiOrderIds, setResiOrderIds] = React.useState<string[]>([]);
+  const [pengirimanOpen, setPengirimanOpen] = React.useState(false);
+
+  const shipmentCreationEnabled =
+    allowShipmentCreation &&
+    stage === "finish-pack" &&
+    can("create-pengiriman");
 
   React.useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- reset seleksi saat stage/tab berganti
     setSelectedIds(new Set());
   }, [stage, tab]);
 
+  const rowSelectability = shipmentCreationEnabled
+    ? shipmentSelectability
+    : shippingLabelSelectability;
+
   const eligibleIds = React.useMemo(() => {
     const ids = new Set<string>();
     for (const m of mappedOrders) {
-      if (shippingLabelSelectability(m.ui).selectable) ids.add(m.ui.id);
+      if (rowSelectability(m.ui).selectable) ids.add(m.ui.id);
     }
     return ids;
-  }, [mappedOrders]);
+  }, [mappedOrders, rowSelectability]);
+
+  const selectedOrders = React.useMemo(
+    () => mappedOrders.filter((m) => selectedIds.has(m.ui.id)),
+    [mappedOrders, selectedIds],
+  );
+
+  const selectedOrderIds = React.useMemo(
+    () => selectedOrders.map((m) => m.raw.id),
+    [selectedOrders],
+  );
+
+  const selectedLabelOrderIds = React.useMemo(
+    () =>
+      selectedOrders
+        .filter((m) => shippingLabelSelectability(m.ui).selectable)
+        .map((m) => m.raw.id),
+    [selectedOrders],
+  );
+
+  const shipmentLocationIds = React.useMemo(
+    () =>
+      new Set(
+        selectedOrders
+          .map((m) => m.raw.locationId)
+          .filter((id): id is string => !!id),
+      ),
+    [selectedOrders],
+  );
+
+  const hasMissingShipmentLocation = React.useMemo(
+    () => selectedOrders.some((m) => !m.raw.locationId),
+    [selectedOrders],
+  );
+
+  const shipmentProviderKeys = React.useMemo(
+    () =>
+      new Set(
+        selectedOrders.map((m) =>
+          (m.raw.shippingProvider ?? "").trim().toLowerCase(),
+        ),
+      ),
+    [selectedOrders],
+  );
+
+  const hasMixedShipmentTypes = React.useMemo(() => {
+    const types = new Set(selectedOrders.map((m) => m.ui.is_instant));
+    return types.size > 1;
+  }, [selectedOrders]);
+
+  const createShipmentDisabled = React.useMemo(() => {
+    if (!shipmentCreationEnabled || selectedOrders.length === 0)
+      return undefined;
+    if (selectedOrders.some((m) => !isInternalManualOrder(m.ui))) {
+      return "Buat Pengiriman hanya untuk pesanan internal/manual";
+    }
+    if (hasMissingShipmentLocation) {
+      return "Lokasi pesanan belum tersedia";
+    }
+    if (shipmentLocationIds.size > 1) {
+      return "Pilih pesanan dari satu lokasi saja";
+    }
+    if (hasMixedShipmentTypes) {
+      return "Pisahkan pesanan Instant dan reguler";
+    }
+    if (shipmentProviderKeys.size > 1) {
+      return "Pilih pesanan dengan kurir yang sama";
+    }
+    return undefined;
+  }, [
+    hasMissingShipmentLocation,
+    hasMixedShipmentTypes,
+    selectedOrders,
+    shipmentCreationEnabled,
+    shipmentLocationIds.size,
+    shipmentProviderKeys.size,
+  ]);
+
+  const readyToShipDisabled = React.useMemo(() => {
+    if (!shipmentCreationEnabled || selectedOrders.length === 0)
+      return undefined;
+    return selectedOrders.every((m) => {
+      return Boolean(m.ui.shipping_label_supported);
+    })
+      ? undefined
+      : "Siap Kirim hanya tersedia untuk order marketplace";
+  }, [selectedOrders, shipmentCreationEnabled]);
+
+  const hasSelectedInternalOrder = React.useMemo(
+    () => selectedOrders.some((m) => isInternalManualOrder(m.ui)),
+    [selectedOrders],
+  );
 
   const toggleId = React.useCallback((id: string, checked: boolean) => {
     setSelectedIds((prev) => {
@@ -223,13 +343,16 @@ export function FulfillmentCardList({
   }, [mappedOrders, selectedIds]);
 
   const handlePrintLabel = React.useCallback(() => {
-    const ids = mappedOrders
-      .filter((m) => selectedIds.has(m.ui.id))
-      .map((m) => m.ui.id);
+    const ids = selectedLabelOrderIds;
     if (ids.length === 0) return;
     setResiOrderIds(ids);
     setAmbilResiOpen(true);
-  }, [mappedOrders, selectedIds]);
+  }, [selectedLabelOrderIds]);
+
+  const handleCreateShipment = React.useCallback(() => {
+    if (selectedOrderIds.length === 0 || createShipmentDisabled) return;
+    setPengirimanOpen(true);
+  }, [createShipmentDisabled, selectedOrderIds.length]);
 
   const handlePrintInvoice = React.useCallback(() => {
     const ids = mappedOrders
@@ -300,8 +423,20 @@ export function FulfillmentCardList({
                 selectedCount={selectedIds.size}
                 onReset={() => setSelectedIds(new Set())}
                 onReadyToShip={handleReadyToShip}
+                onCreateShipment={
+                  shipmentCreationEnabled && hasSelectedInternalOrder
+                    ? handleCreateShipment
+                    : undefined
+                }
                 onPrintLabel={handlePrintLabel}
                 onPrintInvoice={handlePrintInvoice}
+                readyToShipDisabled={readyToShipDisabled}
+                createShipmentDisabled={createShipmentDisabled}
+                printLabelDisabled={
+                  selectedLabelOrderIds.length === 0
+                    ? "Tidak ada order yang mendukung cetak label"
+                    : undefined
+                }
               />
             </div>
             <OrderTable
@@ -315,7 +450,7 @@ export function FulfillmentCardList({
               allSelected={allSelected}
               someSelected={someSelected}
               onToggleAll={toggleAll}
-              getRowSelectable={shippingLabelSelectability}
+              getRowSelectable={rowSelectability}
               sorting={list.sorting}
               onSortingChange={list.setSorting}
             />
@@ -345,6 +480,40 @@ export function FulfillmentCardList({
         onOpenChange={setAmbilResiOpen}
         orderIds={resiOrderIds}
       />
+
+      {shipmentCreationEnabled && (
+        <BuatPengirimanDialog
+          open={pengirimanOpen}
+          onOpenChange={setPengirimanOpen}
+          orderIds={selectedOrderIds}
+          locationId={
+            shipmentLocationIds.size === 1
+              ? Array.from(shipmentLocationIds)[0]
+              : null
+          }
+          locationName={
+            shipmentLocationIds.size === 1
+              ? selectedOrders[0]?.raw.locationName
+              : null
+          }
+          multiLocation={shipmentLocationIds.size > 1}
+          internalOnly
+          onCreated={() => setSelectedIds(new Set())}
+          marketplaceSource={(() => {
+            const sources = new Set(
+              selectedOrders
+                .map((m) => (m.raw.source ?? "").toLowerCase())
+                .filter(Boolean),
+            );
+            return sources.size === 1 ? selectedOrders[0]?.raw.source : null;
+          })()}
+          shippingProvider={
+            shipmentProviderKeys.size === 1
+              ? selectedOrders[0]?.raw.shippingProvider
+              : null
+          }
+        />
+      )}
     </div>
   );
 }

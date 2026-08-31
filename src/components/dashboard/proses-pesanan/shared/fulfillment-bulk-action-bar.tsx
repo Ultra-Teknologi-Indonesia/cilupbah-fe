@@ -1,6 +1,6 @@
 "use client";
 
-import { PrinterIcon, Trash2Icon, TruckIcon } from "lucide-react";
+import { PlusIcon, PrinterIcon, Trash2Icon, TruckIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -8,10 +8,12 @@ interface FulfillmentBulkActionBarProps {
   selectedCount: number;
   onReset: () => void;
   onReadyToShip?: () => void;
+  onCreateShipment?: () => void;
   onPrintLabel?: () => void;
   onPrintInvoice?: () => void;
   onPrintInvoiceAndLabel?: () => void;
   readyToShipDisabled?: string;
+  createShipmentDisabled?: string;
   printLabelDisabled?: string;
   printInvoiceDisabled?: string;
 }
@@ -20,10 +22,12 @@ export function FulfillmentBulkActionBar({
   selectedCount,
   onReset,
   onReadyToShip,
+  onCreateShipment,
   onPrintLabel,
   onPrintInvoice,
   onPrintInvoiceAndLabel,
   readyToShipDisabled,
+  createShipmentDisabled,
   printLabelDisabled,
   printInvoiceDisabled,
 }: FulfillmentBulkActionBarProps) {
@@ -55,6 +59,20 @@ export function FulfillmentBulkActionBar({
           >
             <TruckIcon className="size-4" />
             Siap Kirim
+          </Button>
+        )}
+
+        {onCreateShipment && (
+          <Button
+            size="sm"
+            variant="primary"
+            onClick={onCreateShipment}
+            disabled={!!createShipmentDisabled}
+            title={createShipmentDisabled}
+            className="rounded-full gap-1.5"
+          >
+            <PlusIcon className="size-4" />
+            Buat Pengiriman
           </Button>
         )}
 

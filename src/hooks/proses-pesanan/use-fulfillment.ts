@@ -723,10 +723,15 @@ export function useCreateShipment() {
     mutationFn: ({
       payload,
       orderIds,
+      internalOnly,
     }: {
       payload: CreateShipmentPayload;
       orderIds: string[];
-    }) => OutboundService.createShipmentWithOrders(payload, orderIds),
+      internalOnly?: boolean;
+    }) =>
+      OutboundService.createShipmentWithOrders(payload, orderIds, {
+        internalOnly,
+      }),
     onSuccess: (_shipment, variables) => {
       qc.invalidateQueries({ queryKey: fulfillmentKeys.board });
       notifyOrderActivityChanged(variables.orderIds);

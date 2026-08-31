@@ -96,6 +96,8 @@ export interface Order {
   channel_order_no: string | null;
   source: string | null;
   commerce_platform?: string | null;
+  is_manual?: boolean;
+  shipping_label_supported?: boolean;
   channel_shop_id: string | null;
   shop_name: string | null;
   customer_name: string;

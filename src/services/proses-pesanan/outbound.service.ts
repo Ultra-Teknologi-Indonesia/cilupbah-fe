@@ -112,6 +112,9 @@ function mapOrder(raw: RawFulfillmentOrder): FulfillmentOrder {
         : raw.customer_name) ?? null,
     source: raw.source ?? null,
     commercePlatform: raw.commerce_platform ?? null,
+    channelShopId: raw.channel_shop_id ?? null,
+    isManual: Boolean(raw.is_manual),
+    shippingLabelSupported: Boolean(raw.shipping_label_supported),
     status: raw.status ?? null,
     isPaid: Boolean(raw.is_paid),
     transactionDate: raw.transaction_date ?? null,
@@ -929,6 +932,7 @@ export const OutboundService = {
   createShipmentWithOrders: async (
     payload: CreateShipmentPayload,
     orderIds: string[],
+    options?: { internalOnly?: boolean },
   ): Promise<Shipment> => {
     const created = await fetchClient<{ data: RawShipment }>(
       `/outbound/shipments`,
@@ -943,7 +947,10 @@ export const OutboundService = {
         `/outbound/shipments/${shipment.id}/add-orders`,
         {
           method: "POST",
-          data: { order_ids: orderIds },
+          data: {
+            order_ids: orderIds,
+            ...(options?.internalOnly ? { internal_only: true } : {}),
+          },
         },
       );
     }

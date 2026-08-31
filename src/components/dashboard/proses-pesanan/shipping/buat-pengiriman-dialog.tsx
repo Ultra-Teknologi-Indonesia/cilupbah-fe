@@ -37,6 +37,8 @@ interface BuatPengirimanDialogProps {
   locationName?: string | null;
 
   multiLocation?: boolean;
+
+  internalOnly?: boolean;
 }
 
 export function BuatPengirimanDialog({
@@ -46,6 +48,10 @@ export function BuatPengirimanDialog({
   onCreated,
   marketplaceSource,
   shippingProvider,
+  locationId,
+  locationName,
+  multiLocation,
+  internalOnly,
 }: BuatPengirimanDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -60,13 +66,15 @@ export function BuatPengirimanDialog({
           onCreated={onCreated}
           marketplaceSource={marketplaceSource}
           shippingProvider={shippingProvider}
+          locationId={locationId}
+          locationName={locationName}
+          multiLocation={multiLocation}
+          internalOnly={internalOnly}
         />
       </DialogContent>
     </Dialog>
   );
 }
-
-const MARKETPLACE_SOURCES = ["shopee", "tiktok", "lazada", "tokopedia"];
 
 function PengirimanForm({
   onOpenChange,
@@ -74,18 +82,23 @@ function PengirimanForm({
   onCreated,
   marketplaceSource,
   shippingProvider,
+  locationId,
+  locationName,
+  multiLocation,
+  internalOnly,
 }: {
   onOpenChange: (open: boolean) => void;
   orderIds?: string[];
   onCreated?: () => void;
   marketplaceSource?: string | null;
   shippingProvider?: string | null;
+  locationId?: string | null;
+  locationName?: string | null;
+  multiLocation?: boolean;
+  internalOnly?: boolean;
 }) {
   const orderMode = orderIds !== undefined && orderIds.length > 0;
-  const isMarketplace =
-    orderMode &&
-    !!marketplaceSource &&
-    MARKETPLACE_SOURCES.includes(marketplaceSource);
+  const isMarketplace = orderMode && !!marketplaceSource && !internalOnly;
 
   const [shipmentNo, setShipmentNo] = React.useState("");
   const [courierId, setCourierId] = React.useState("");
@@ -143,6 +156,7 @@ function PengirimanForm({
 
     const payload = {
       shipment_no: shipmentNo.trim() || null,
+      location_id: locationId ?? null,
       courier_name: courierName,
       courier_code: courierCode,
       shipment_type: shipmentType,
@@ -154,6 +168,7 @@ function PengirimanForm({
       await createShipment.mutateAsync({
         payload,
         orderIds: orderIds ?? [],
+        internalOnly,
       });
       toast.success(
         orderMode
@@ -178,6 +193,11 @@ function PengirimanForm({
           <div className="rounded-xl border border-border bg-muted/30 px-3 py-2.5 text-sm">
             <span className="font-medium">{orderIds!.length}</span> pesanan
             terpilih
+            {(locationName || multiLocation) && (
+              <span className="ml-2 text-xs text-muted-foreground">
+                · Lokasi: {multiLocation ? "berbeda" : locationName}
+              </span>
+            )}
             {isMarketplace && (
               <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary capitalize">
                 {marketplaceSource}

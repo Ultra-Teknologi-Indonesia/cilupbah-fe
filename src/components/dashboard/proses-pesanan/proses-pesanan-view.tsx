@@ -32,6 +32,7 @@ function InvoiceLinkCell({
 }
 
 import { useUrlTab } from "@/hooks/use-url-tab";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 import { Button } from "@/components/ui/button";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
@@ -85,6 +86,7 @@ function FulfillmentBoard({ stage }: { stage: FulfillmentStage }) {
   const pickingCounts = usePickingCounts();
   const packingCounts = usePackingCounts();
   const shippingCounts = useShippingCounts();
+  const { can } = usePermissions();
 
   const countsMap =
     stage === "picking"
@@ -228,6 +230,7 @@ function FulfillmentBoard({ stage }: { stage: FulfillmentStage }) {
             "payment",
             "date",
           ]}
+          allowShipmentCreation
         />
       );
     }
@@ -254,7 +257,7 @@ function FulfillmentBoard({ stage }: { stage: FulfillmentStage }) {
   const showAdHocPickingButton = stage === "picking" && sub === "diproses";
   const showPackingButton = stage === "packing" && sub === "belum";
   const showTambahPengirimanButton =
-    stage === "shipping" && sub === "siap-kirim";
+    stage === "shipping" && sub === "siap-kirim" && can("create-pengiriman");
 
   return (
     <>

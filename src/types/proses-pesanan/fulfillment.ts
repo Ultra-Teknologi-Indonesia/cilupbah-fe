@@ -157,6 +157,9 @@ export interface RawFulfillmentOrder {
   shipping_full_name?: string | null;
   source?: string | null;
   commerce_platform?: string | null;
+  channel_shop_id?: string | null;
+  is_manual?: boolean;
+  shipping_label_supported?: boolean;
   status?: string | null;
   is_paid?: boolean;
   transaction_date?: string | null;
@@ -219,6 +222,9 @@ export interface FulfillmentOrder {
   customerName: string | null;
   source: string | null;
   commercePlatform?: string | null;
+  channelShopId: string | null;
+  isManual: boolean;
+  shippingLabelSupported: boolean;
   status: string | null;
   isPaid: boolean;
   transactionDate: string | null;
