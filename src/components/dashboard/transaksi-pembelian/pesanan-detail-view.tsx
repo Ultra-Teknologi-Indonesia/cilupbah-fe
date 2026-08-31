@@ -44,7 +44,7 @@ import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { InfoField } from "@/components/dashboard/shared/info-field";
 import { SortableHeader } from "@/components/dashboard/shared/sortable-header";
 import { SectionTitle } from "@/components/dashboard/shared/section-title";
-import { formatCurrency, formatDateLong } from "@/lib/format";
+import { formatCurrency, formatDateLong, formatDateTimeWib } from "@/lib/format";
 
 function DetailRow({
   label,
@@ -562,7 +562,7 @@ export function PesananDetailView({ id }: { id: string }) {
 
             <div className="mt-5 border-t border-border/40 pt-4 text-xs text-muted-foreground">
               <p>Dibuat oleh: {po.created_by}</p>
-              <p>Pada: {formatDateLong(po.created_at)}</p>
+              <p>Pada: {formatDateTimeWib(po.created_at)}</p>
             </div>
           </LiquidGlass>
         </div>
