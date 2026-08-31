@@ -52,6 +52,7 @@ import {
 import { usePrintWithDriverCall } from "@/hooks/proses-pesanan/use-driver-call";
 import { isShopeeInstantOrSameDay } from "@/lib/proses-pesanan/shopee";
 import { useQtyBumpQueue } from "@/hooks/proses-pesanan/use-qty-bump-queue";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 function PackCorrectButton({
   packlistId,
@@ -185,6 +186,10 @@ function ProgressBar({ packed, total }: { packed: number; total: number }) {
 
 export function PackingDetailView({ id }: { id: string }) {
   const router = useRouter();
+  const { can } = usePermissions();
+  const canEditPacking = can("edit-packing");
+  const canEditShipping = can("edit-pengiriman");
+  const canDeleteOrder = can("delete-pesanan");
 
   const [deleteOrderOpen, setDeleteOrderOpen] = React.useState(false);
   const [scanFocusKey, setScanFocusKey] = React.useState(0);
@@ -224,12 +229,12 @@ export function PackingDetailView({ id }: { id: string }) {
   const isTerminal = pk
     ? ["COMPLETED", "CANCELLED"].includes(pk.status)
     : false;
-  const editable = !!pk && !isTerminal;
+  const editable = !!pk && !isTerminal && canEditPacking;
 
   const printWithDriverCall = usePrintWithDriverCall();
 
   const triggerShopeeDriverCall = React.useCallback(() => {
-    if (!pk?.orderId) return;
+    if (!canEditShipping || !pk?.orderId) return;
     const isShopeeInstant = isShopeeInstantOrSameDay({
       shippingProvider: pk.shippingProvider,
       shippingType: pk.shippingType,
@@ -254,12 +259,12 @@ export function PackingDetailView({ id }: { id: string }) {
         },
       },
     );
-  }, [pk, printWithDriverCall]);
+  }, [pk, printWithDriverCall, canEditShipping]);
 
   const didAutoComplete = React.useRef(false);
   React.useEffect(() => {
     if (!pk || didAutoComplete.current) return;
-    if (allPacked && pk.status !== "COMPLETED") {
+    if (allPacked && pk.status !== "COMPLETED" && canEditPacking) {
       didAutoComplete.current = true;
       completePacklist.mutate(id, {
         onSuccess: () => {
@@ -273,17 +278,25 @@ export function PackingDetailView({ id }: { id: string }) {
         },
       });
     }
-  }, [pk, allPacked, id, completePacklist, router, triggerShopeeDriverCall]);
+  }, [
+    pk,
+    allPacked,
+    id,
+    completePacklist,
+    router,
+    triggerShopeeDriverCall,
+    canEditPacking,
+  ]);
 
   React.useEffect(() => {
-    if (pk && pk.status === "DRAFT") {
+    if (pk && pk.status === "DRAFT" && canEditPacking) {
       startPacklist.mutate(id, {
         onError: (e) => apiError(e, "Gagal memulai packing."),
       });
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pk?.id]);
+  }, [pk?.id, canEditPacking]);
 
   const scanLines: ScanAutoflowLine[] = items.map((i) => ({
     id: i.id,
@@ -401,7 +414,7 @@ export function PackingDetailView({ id }: { id: string }) {
           { label: "Proses Packing" },
         ]}
         actions={
-          pk.orderId ? (
+          pk.orderId && canDeleteOrder ? (
             <Button
               variant="outline"
               size="sm"
@@ -548,7 +561,7 @@ export function PackingDetailView({ id }: { id: string }) {
                           )}
                         </TableCell>
                         <TableCell className="px-4 py-3 text-right">
-                          {editable && item.qtyPacked > 0 ? (
+                          {editable && canEditPacking && item.qtyPacked > 0 ? (
                             <PackCorrectButton packlistId={id} item={item} />
                           ) : null}
                         </TableCell>
@@ -609,12 +622,12 @@ export function PackingDetailView({ id }: { id: string }) {
         </aside>
       </div>
 
-      <DeleteOrderDialog
+      {canDeleteOrder && <DeleteOrderDialog
         open={deleteOrderOpen}
         onOpenChange={setDeleteOrderOpen}
         orders={pk.orderId ? [{ id: pk.orderId, no: pk.orderNo }] : []}
         onDeleted={() => router.push(LIST_HREF)}
-      />
+      />}
     </div>
   );
 }

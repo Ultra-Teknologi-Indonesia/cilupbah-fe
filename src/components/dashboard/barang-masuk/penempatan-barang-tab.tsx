@@ -42,6 +42,7 @@ import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { getStatusMeta } from "@/lib/status";
 import type { Putaway } from "@/types/barang-masuk/putaway";
 import { formatDateTimeWib } from "@/lib/format";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 const BULK_PDF_MAX = 50;
 
@@ -132,6 +133,10 @@ const sortByStatus: Record<string, string> = {
 };
 
 export function PenempatanBarangTab() {
+  const { can } = usePermissions();
+  const canEditPutaway = can("edit-penempatan");
+  const canDeletePutaway = can("delete-penempatan");
+  const canExportPutaway = can("export-penempatan");
   const router = useRouter();
   const [statusTab, setStatusTab] = useUrlTab<StatusTab>(
     "status",
@@ -368,10 +373,12 @@ export function PenempatanBarangTab() {
               className="flex items-center justify-end gap-1.5"
               onClick={(e) => e.stopPropagation()}
             >
-              <Button asChild variant="outline" size="sm">
+              {item.status === "COMPLETED" || canEditPutaway ? (
+                <Button asChild variant="outline" size="sm">
                 <Link href={action.href}>{action.label}</Link>
-              </Button>
-              <TooltipProvider delayDuration={200}>
+                </Button>
+              ) : null}
+              {canExportPutaway && <TooltipProvider delayDuration={200}>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
@@ -403,13 +410,13 @@ export function PenempatanBarangTab() {
                   </TooltipTrigger>
                   <TooltipContent>Hapus / Reset Penempatan</TooltipContent>
                 </Tooltip>
-              </TooltipProvider>
+              </TooltipProvider>}
             </div>
           );
         },
       },
     ],
-    [activeStatus],
+    [activeStatus, canEditPutaway, canExportPutaway],
   );
 
   const bulkActions = useCallback(
@@ -418,7 +425,7 @@ export function PenempatanBarangTab() {
       const disablePdf = ids.length > BULK_PDF_MAX;
       return (
         <>
-          <Button
+          {canExportPutaway && <Button
             size="sm"
             variant="outline"
             disabled={disablePdf}
@@ -439,8 +446,8 @@ export function PenempatanBarangTab() {
           >
             <PrinterIcon className="mr-1.5 size-4" />
             Cetak {ids.length}
-          </Button>
-          <Button
+          </Button>}
+          {canDeletePutaway && <Button
             size="sm"
             variant="destructive"
             onClick={() =>
@@ -452,11 +459,11 @@ export function PenempatanBarangTab() {
           >
             <Trash2Icon className="mr-1.5 size-4" />
             Hapus {ids.length}
-          </Button>
+          </Button>}
         </>
       );
     },
-    [router],
+    [canDeletePutaway, canExportPutaway, router],
   );
 
   return (
@@ -479,7 +486,7 @@ export function PenempatanBarangTab() {
             </TabsList>
           </Tabs>
 
-          {items.length > 0 && (
+          {items.length > 0 && canExportPutaway && (
             <Button
               variant="outline"
               size="sm"
@@ -523,7 +530,7 @@ export function PenempatanBarangTab() {
             isFetching={isFetching}
             hideToolbar
             manualPagination
-            enableRowSelection
+            enableRowSelection={canDeletePutaway}
             getRowId={(row) => row.id}
             bulkActions={bulkActions}
             pagination={list.pagination}
@@ -542,7 +549,7 @@ export function PenempatanBarangTab() {
         </div>
       </LiquidGlass>
 
-      <ConfirmDialog
+      {canDeletePutaway && <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(v) => !v && setDeleteTarget(null)}
         title="Hapus / Reset Penempatan"
@@ -558,9 +565,9 @@ export function PenempatanBarangTab() {
             onSuccess: () => setDeleteTarget(null),
           });
         }}
-      />
+      />}
 
-      <ConfirmDialog
+      {canDeletePutaway && <ConfirmDialog
         open={!!bulkDeleteState}
         onOpenChange={(v) => !v && setBulkDeleteState(null)}
         title="Hapus Penempatan Terpilih"
@@ -577,7 +584,7 @@ export function PenempatanBarangTab() {
             },
           });
         }}
-      />
+      />}
     </>
   );
 }

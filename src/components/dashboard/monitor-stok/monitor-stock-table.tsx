@@ -1,13 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { PackageOpenIcon } from "lucide-react";
+import { PackageOpenIcon, PackagePlusIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
-import type { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef, Table as TableInstance } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table/data-table";
+import { Button } from "@/components/ui/button";
 import type { MonitorStockRow } from "@/types/monitor-stok/monitor";
 
 interface PageMeta {
@@ -27,6 +28,9 @@ interface MonitorStockTableProps {
   emptyText?: string;
   onPageChange: (page: number) => void;
   onPerPageChange: (size: number) => void;
+  enableQueueAction?: boolean;
+  isQueueing?: boolean;
+  onQueue?: (rows: MonitorStockRow[], table: TableInstance<MonitorStockRow>) => void;
 }
 
 function Thumb({ url, alt }: { url: string | null; alt: string }) {
@@ -50,6 +54,9 @@ export function MonitorStockTable({
   emptyText = "Tidak ada produk pada kategori ini.",
   onPageChange,
   onPerPageChange,
+  enableQueueAction = false,
+  isQueueing = false,
+  onQueue,
 }: MonitorStockTableProps) {
   const columns = React.useMemo<ColumnDef<MonitorStockRow>[]>(() => {
     const baseCols: ColumnDef<MonitorStockRow>[] = [
@@ -186,6 +193,23 @@ export function MonitorStockTable({
     <DataTable
       columns={columns}
       data={rows}
+      getRowId={(row) => row.item_id}
+      enableRowSelection={enableQueueAction}
+      bulkActions={
+        enableQueueAction
+          ? (selected, table) => (
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => onQueue?.(selected, table)}
+                disabled={isQueueing}
+              >
+                <PackagePlusIcon className="mr-1.5 h-4 w-4" />
+                {isQueueing ? "Memproses..." : "Masukkan ke permintaan restock"}
+              </Button>
+            )
+          : undefined
+      }
       isLoading={isLoading}
       hideToolbar
       manualPagination

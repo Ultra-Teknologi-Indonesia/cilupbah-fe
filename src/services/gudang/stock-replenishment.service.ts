@@ -2,10 +2,10 @@ import { fetchClient } from "@/lib/api-client";
 import type { ApiResponse } from "@/types/api.types";
 import type {
   AcceptReplenishmentPayload,
-  AddReplenishmentItemPayload,
   StockReplenishment,
   StockReplenishmentListParams,
   UpdateReplenishmentItemPayload,
+  QueueFromMonitorPayload,
 } from "@/types/gudang/stock-replenishment";
 
 interface ListResponse {
@@ -46,6 +46,20 @@ export const StockReplenishmentService = {
     return res.data.count;
   },
 
+  queueFromMonitor: async (payload: QueueFromMonitorPayload) => {
+    const res = await fetchClient<
+      ApiResponse<{
+        request: StockReplenishment | null;
+        queued_item_ids: string[];
+        skipped_item_ids: string[];
+      }>
+    >("/inventory/stock-replenishment/queue", {
+      method: "POST",
+      data: payload,
+    });
+    return res.data;
+  },
+
   accept: async (id: string, payload: AcceptReplenishmentPayload) => {
     const res = await fetchClient<ApiResponse<StockReplenishment>>(
       `/inventory/stock-replenishment/${id}/accept`,
@@ -58,14 +72,6 @@ export const StockReplenishmentService = {
     const res = await fetchClient<ApiResponse<StockReplenishment>>(
       `/inventory/stock-replenishment/${id}/reject`,
       { method: "POST", data: { reason } },
-    );
-    return res.data;
-  },
-
-  addItem: async (id: string, payload: AddReplenishmentItemPayload) => {
-    const res = await fetchClient<ApiResponse<StockReplenishment>>(
-      `/inventory/stock-replenishment/${id}/items`,
-      { method: "POST", data: payload },
     );
     return res.data;
   },

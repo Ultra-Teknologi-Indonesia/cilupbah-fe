@@ -34,10 +34,12 @@ export function useUserLookup(
     page?: number;
     perPage?: number;
   } = {},
+  enabled = true,
 ) {
   return useQuery({
     queryKey: ["pengaturan", "pengguna", "lookup", params],
     queryFn: () => UserService.lookup(params),
+    enabled,
     staleTime: 30 * 1000,
   });
 }

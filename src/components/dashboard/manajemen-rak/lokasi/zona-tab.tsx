@@ -41,6 +41,7 @@ import {
 } from "@/hooks/manajemen-rak/use-zones";
 import { useListState } from "@/hooks/use-list-state";
 import type { LocationZone, LocationBin } from "@/types/manajemen-rak/location";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 interface ZonaTabProps {
   locationId?: string;
@@ -262,6 +263,10 @@ function ZoneFormDialog({
 }
 
 export function ZonaTab({ locationId, bins, disabled }: ZonaTabProps) {
+  const { can } = usePermissions();
+  const canCreate = can("create-manajemen-rak");
+  const canEdit = can("edit-manajemen-rak");
+  const canDelete = can("delete-manajemen-rak");
   const { data: zones, isLoading } = useZones(locationId);
   const createZone = useCreateZone(locationId);
   const updateZone = useUpdateZone(locationId);
@@ -380,7 +385,7 @@ export function ZonaTab({ locationId, bins, disabled }: ZonaTabProps) {
           <span className="text-sm text-muted-foreground">
             Total <Badge className="ml-1">{zones?.length ?? 0}</Badge>
           </span>
-          {!disabled && (
+          {!disabled && canCreate && (
             <Button variant="primary" size="sm" onClick={openCreate}>
               <PlusIcon className="mr-1.5 size-4" />
               Buat Zona
@@ -424,7 +429,7 @@ export function ZonaTab({ locationId, bins, disabled }: ZonaTabProps) {
               <TableHead className="px-4 py-3 text-center font-medium text-muted-foreground">
                 Jumlah Rak
               </TableHead>
-              {!disabled && (
+              {!disabled && (canEdit || canDelete) && (
                 <TableHead className="w-24 px-4 py-3 text-center font-medium text-muted-foreground">
                   Aksi
                 </TableHead>
@@ -446,24 +451,28 @@ export function ZonaTab({ locationId, bins, disabled }: ZonaTabProps) {
                 <TableCell className="px-4 py-3 text-center">
                   <Badge variant="outline">{zone.bins_count}</Badge>
                 </TableCell>
-                {!disabled && (
+                {!disabled && (canEdit || canDelete) && (
                   <TableCell className="px-4 py-3">
                     <div className="flex items-center justify-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => openEdit(zone)}
-                      >
-                        <PencilIcon className="size-3.5" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        className="text-destructive hover:text-destructive"
-                        onClick={() => setDeleteTarget(zone)}
-                      >
-                        <Trash2Icon className="size-3.5" />
-                      </Button>
+                      {canEdit && (
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={() => openEdit(zone)}
+                        >
+                          <PencilIcon className="size-3.5" />
+                        </Button>
+                      )}
+                      {canDelete && (
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => setDeleteTarget(zone)}
+                        >
+                          <Trash2Icon className="size-3.5" />
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 )}

@@ -27,6 +27,8 @@ interface LocationTableProps {
   togglingId: string | null;
   onToggleActive: (location: Location) => void;
   onDelete: (location: Location) => void;
+  canEdit: boolean;
+  canDelete: boolean;
 }
 
 export function LocationTable({
@@ -34,6 +36,8 @@ export function LocationTable({
   togglingId,
   onToggleActive,
   onDelete,
+  canEdit,
+  canDelete,
 }: LocationTableProps) {
   return (
     <TooltipProvider>
@@ -50,7 +54,7 @@ export function LocationTable({
           {locations.map((location) => {
             const locked = location.isSystem || location.isLocked;
 
-            const editable = !location.isLocked;
+            const editable = !location.isSystem && !location.isLocked;
             const editHref = `/dashboard/lokasi/${location.id}/edit`;
 
             return (
@@ -70,7 +74,7 @@ export function LocationTable({
                         </TooltipContent>
                       </Tooltip>
                     )}
-                    {editable ? (
+                    {editable && canEdit ? (
                       <Link
                         href={editHref}
 
@@ -93,14 +97,14 @@ export function LocationTable({
                 <TableCell className="text-center">
                   <Switch
                     checked={location.isActive}
-                    disabled={locked || togglingId === location.id}
+                    disabled={!canEdit || locked || togglingId === location.id}
                     onCheckedChange={() => onToggleActive(location)}
                     aria-label={`Toggle aktif ${location.locationName}`}
                   />
                 </TableCell>
 
                 <TableCell className="text-right">
-                  {!location.isSystem && (
+                  {!location.isSystem && canDelete && (
                     <Button
                       variant="ghost"
                       size="icon-sm"

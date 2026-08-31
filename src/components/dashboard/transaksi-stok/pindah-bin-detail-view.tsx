@@ -42,6 +42,7 @@ import {
   type BinTransferDetailItem,
 } from "@/hooks/transaksi-stok/use-bin-transfer";
 import { formatDateTimeFull } from "@/lib/format";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 const LIST_HREF = "/dashboard/transaksi-stok?tab=transfer";
 
@@ -100,12 +101,16 @@ function TimelineStep({
 function CorrectItemButton({
   transferId,
   item,
+  canCorrect,
 }: {
   transferId: string;
   item: BinTransferDetailItem;
+  canCorrect: boolean;
 }) {
   const [open, setOpen] = React.useState(false);
   const deleteMutation = useBinTransferItemDelete(transferId);
+
+  if (!canCorrect) return null;
 
   return (
     <>
@@ -170,6 +175,8 @@ function CorrectItemButton({
 
 export function PindahBinDetailView({ id }: { id: string }) {
   const router = useRouter();
+  const { can } = usePermissions();
+  const canEditTransfer = can("edit-pindah-bin");
   const { data: trf, isLoading } = useBinTransferDetail(id);
 
   if (isLoading) {
@@ -218,7 +225,7 @@ export function PindahBinDetailView({ id }: { id: string }) {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <Button
+            {canEditTransfer && <Button
               size="sm"
               onClick={() =>
                 router.push(
@@ -228,7 +235,7 @@ export function PindahBinDetailView({ id }: { id: string }) {
             >
               <PencilIcon className="mr-1.5 size-3.5" />
               Edit
-            </Button>
+            </Button>}
             <Button
               variant="ghost"
               size="icon-sm"
@@ -414,7 +421,11 @@ export function PindahBinDetailView({ id }: { id: string }) {
                       </TableCell>
                       <TableCell className="px-3 py-2.5 text-right">
                         {(it.placed_qty ?? 0) > 0 ? (
-                          <CorrectItemButton transferId={trf.id} item={it} />
+                          <CorrectItemButton
+                            transferId={trf.id}
+                            item={it}
+                            canCorrect={canEditTransfer}
+                          />
                         ) : (
                           <span className="text-xs text-muted-foreground">
                             —

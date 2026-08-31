@@ -74,6 +74,7 @@ import {
 } from "@/components/shared/channel-lock";
 import { useMe } from "@/hooks/auth/use-auth";
 import { useUserLookup } from "@/hooks/pengaturan/use-users";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 interface PutawayProcessViewProps {
   id: string;
@@ -90,6 +91,9 @@ interface PlacementEntry {
 }
 
 export function PutawayProcessView({ id }: PutawayProcessViewProps) {
+  const { can } = usePermissions();
+  const canEditPermission = can("edit-penempatan");
+  const canDeletePermission = can("delete-penempatan");
   const {
     data: putaway,
     isLoading,
@@ -136,7 +140,8 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
   const isInProgress = putaway?.status === "IN_PROGRESS";
   const isCompleted = putaway?.status === "COMPLETED";
 
-  const canEdit = isNotStarted || isInProgress;
+  const canEdit = canEditPermission && (isNotStarted || isInProgress);
+  const canCorrect = canDeletePermission && (isInProgress || isCompleted);
 
   const { data: me } = useMe();
 
@@ -397,8 +402,8 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
           mode="advisory"
           onUnassign={() => setUnassignOpen(true)}
           onReset={() => setResetOpen(true)}
-          canUnassign={!!putaway.assigned_to}
-          canReset={!!putaway.assigned_to}
+          canUnassign={canEditPermission && !!putaway.assigned_to}
+          canReset={canDeletePermission && !!putaway.assigned_to}
         />
       )}
 
@@ -606,7 +611,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
                         putawayId={id}
                         locationId={locationId}
                         editable={canEdit}
-                        correctable={isInProgress || isCompleted}
+                        correctable={canCorrect}
                         defaultRack={activeRack}
                         binOptions={binOptions}
                         availableBins={availableBins}
@@ -634,7 +639,7 @@ export function PutawayProcessView({ id }: PutawayProcessViewProps) {
               </Table>
             </LiquidGlass>
 
-            {isInProgress && (
+            {isInProgress && canEditPermission && (
               <div className="flex justify-end">
                 <Button
                   variant="primary"
@@ -731,10 +736,6 @@ function ItemNotesInput({
 }) {
   const [notes, setNotes] = useState(initialNotes ?? "");
   const updateNotesMut = useUpdatePutawayItemNotes();
-
-  useEffect(() => {
-    setNotes(initialNotes ?? "");
-  }, [initialNotes]);
 
   const handleBlur = () => {
     const trimmed = notes.trim() || null;
@@ -840,6 +841,7 @@ function PutawayItemRow({
     item.destination_bin,
     item.recommended_bin,
     item.qty,
+    item,
   ]);
 
   const productName =
@@ -965,6 +967,7 @@ function PutawayItemRow({
 
         <TableCell className="min-w-[180px]">
           <ItemNotesInput
+            key={`${item.id}:${item.notes ?? ""}`}
             putawayId={putawayId}
             itemId={item.id}
             initialNotes={item.notes}

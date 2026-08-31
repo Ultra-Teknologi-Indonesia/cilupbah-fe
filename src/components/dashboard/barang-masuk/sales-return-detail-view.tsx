@@ -49,6 +49,7 @@ import {
   useChannelRejectSalesReturn,
 } from "@/hooks/barang-masuk/use-sales-return-actions";
 import { formatDateTimeWib } from "@/lib/format";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 function isMpDecisionActionable(decision?: string | null): boolean {
   return !decision || decision === "MP_PENDING";
@@ -86,6 +87,8 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 
 export function SalesReturnDetailView({ id }: { id: string }) {
   const router = useRouter();
+  const { can } = usePermissions();
+  const canEditReturn = can("edit-retur-penjualan");
   const { data: ret, isLoading } = useSalesReturn(id);
   const isMarketplace = ret?.source === "marketplace";
   const { data: appeals = [] } = useSalesReturnAppeals(id, isMarketplace);
@@ -160,7 +163,7 @@ export function SalesReturnDetailView({ id }: { id: string }) {
             >
               <ArrowLeftIcon className="mr-1.5 size-4" /> Kembali
             </Button>
-            {isMarketplace && (
+            {canEditReturn && isMarketplace && (
               <Button
                 variant="outline"
                 size="sm"
@@ -176,7 +179,7 @@ export function SalesReturnDetailView({ id }: { id: string }) {
                 Sinkron Marketplace
               </Button>
             )}
-            {ret.status === "PENDING" && (
+            {canEditReturn && ret.status === "PENDING" && (
               <>
                 <Button
                   size="sm"
@@ -201,7 +204,7 @@ export function SalesReturnDetailView({ id }: { id: string }) {
                 </Button>
               </>
             )}
-            {ret.status === "ACCEPTED" && (
+            {canEditReturn && ret.status === "ACCEPTED" && (
               <Button
                 size="sm"
                 onClick={() => {
@@ -213,7 +216,7 @@ export function SalesReturnDetailView({ id }: { id: string }) {
                 <FlagIcon className="mr-1.5 size-4" /> Selesaikan
               </Button>
             )}
-            {ret.status === "COMPLETED" && (
+            {canEditReturn && ret.status === "COMPLETED" && (
               <Button variant="outline" size="sm" asChild>
                 <Link href={`${LIST_HREF}/${ret.id}/settlement`}>
                   <WalletIcon className="mr-1.5 size-4" /> Kelola Refund
@@ -291,7 +294,7 @@ export function SalesReturnDetailView({ id }: { id: string }) {
         >
           <div className="flex items-center justify-between gap-2 px-5 pt-5">
             <p className="text-sm font-medium">Keputusan Marketplace</p>
-            {isMpDecisionActionable(ret.marketplace_decision) && (
+            {canEditReturn && isMpDecisionActionable(ret.marketplace_decision) && (
               <div className="flex items-center gap-2">
                 <Button
                   size="sm"

@@ -44,6 +44,7 @@ const STATUS_TABS: Array<{
   { label: "Disetujui", value: "ACCEPTED" },
   { label: "Ditolak", value: "REJECTED" },
   { label: "Selesai", value: "DONE" },
+  { label: "Dibatalkan otomatis", value: "CANCELLED" },
   { label: "Semua", value: "ALL" },
 ];
 

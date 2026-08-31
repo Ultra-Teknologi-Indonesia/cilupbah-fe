@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/table";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { FormFooter } from "@/components/dashboard/shared/form-footer";
-import { UserSelect } from "@/components/dashboard/shared/user-select";
 import { QtyConfirmInput } from "@/components/ui/qty-confirm-input";
 import {
   useBinTransferList,
@@ -33,6 +32,7 @@ import { useLocationBinsInfinite } from "@/hooks/manajemen-rak/use-location-bins
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 const LIST_HREF = "/dashboard/transaksi-stok?tab=transfer";
 
@@ -68,33 +68,12 @@ function DestinationBinCombobox({
       filter: { is_inbound: false },
     });
 
-  const labelCacheRef = useMemo(
-    () => ({ current: {} as Record<string, string> }),
-    [],
-  );
-
   const options: ComboboxOption[] = useMemo(() => {
     const rawItems = data?.pages.flatMap((p) => p.items) ?? [];
-    for (const b of rawItems) {
-      labelCacheRef.current[b.id] = b.binFinalCode;
-    }
-
     const list: ComboboxOption[] = rawItems.map((b) => ({
       value: b.id,
       label: b.binFinalCode,
     }));
-
-    // Always pin the currently-selected value if not in current page
-    if (
-      value &&
-      !list.some((o) => o.value === value) &&
-      labelCacheRef.current[value]
-    ) {
-      list.unshift({
-        value,
-        label: labelCacheRef.current[value],
-      });
-    }
 
     // Pin the allocated (home) bin at the very top with a hint label
     if (allocatedBinId && allocatedBinCode) {
@@ -108,7 +87,7 @@ function DestinationBinCombobox({
     }
 
     return list;
-  }, [data, value, labelCacheRef, allocatedBinId, allocatedBinCode]);
+  }, [data, allocatedBinId, allocatedBinCode]);
 
   return (
     <Combobox
@@ -135,6 +114,8 @@ function DestinationBinCombobox({
 
 export function PenerimaanTransferView() {
   const router = useRouter();
+  const { can } = usePermissions();
+  const canReceiveTransfer = can("edit-pindah-bin");
 
   const [transferId, setTransferId] = useState("");
   const [notes, setNotes] = useState("");
@@ -206,6 +187,7 @@ export function PenerimaanTransferView() {
   });
 
   const canSubmit =
+    canReceiveTransfer &&
     !!transferId &&
     pendingItems.length > 0 &&
     validLines.length > 0 &&
@@ -277,7 +259,7 @@ export function PenerimaanTransferView() {
                 }
                 searchPlaceholder="Cari no. transfer…"
                 emptyText="Tidak ada transfer sedang dijalan"
-                disabled={transitLoading}
+                disabled={transitLoading || !canReceiveTransfer}
               />
             </div>
             <div className="flex flex-col gap-1.5">
@@ -302,6 +284,7 @@ export function PenerimaanTransferView() {
                 placeholder="Masukkan Keterangan"
                 rows={4}
                 className="flex-1"
+                disabled={!canReceiveTransfer}
               />
             </div>
           </div>
@@ -431,7 +414,7 @@ export function PenerimaanTransferView() {
                             onChange={(v) =>
                               updateLine(it.id, { destBinId: v ?? "" })
                             }
-                            disabled={!locationId}
+                            disabled={!canReceiveTransfer || !locationId}
                             allocatedBinId={it.destination_bin?.id ?? null}
                             allocatedBinCode={it.destination_bin?.bin_final_code ?? null}
                           />
@@ -453,6 +436,7 @@ export function PenerimaanTransferView() {
                             }
                             onEnter={() => {}}
                             placeholder="0"
+                            disabled={!canReceiveTransfer}
                             className={cn(
                               "h-9 w-24 text-right",
                               qtyOver &&

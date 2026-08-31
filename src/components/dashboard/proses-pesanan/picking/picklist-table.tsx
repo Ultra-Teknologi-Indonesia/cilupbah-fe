@@ -40,6 +40,7 @@ import { useListState } from "@/hooks/use-list-state";
 import { type Picklist } from "@/types/proses-pesanan/fulfillment";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { apiError } from "@/lib/toast";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 type PicklistFilterState = {
   status: string;
@@ -132,6 +133,10 @@ function ProgressCell({ done, total }: { done: number; total: number }) {
 }
 
 export function PicklistTable() {
+  const { can } = usePermissions();
+  const canEditPicking = can("edit-picking");
+  const canRevertPicking = can("edit-picking");
+  const canExportPicking = can("export-picking");
   const prefetchPicklist = usePrefetchPicklistDetail();
   const list = useListState<PicklistFilterState>(EMPTY_PICKLIST_FILTERS, {
     perPage: 20,
@@ -284,65 +289,71 @@ export function PicklistTable() {
         header: () => null,
         cell: ({ row }) => (
           <div className="flex items-center justify-end gap-1.5">
-            <TooltipProvider delayDuration={200}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    asChild
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label="Cetak Picklist"
-                  >
-                    <Link
-                      href={`/dashboard/document-preview/picklist/${row.original.id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+            {canExportPicking && (
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      asChild
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label="Cetak Picklist"
                     >
-                      <PrinterIcon className="size-4" />
-                    </Link>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Pratinjau & Cetak Picklist</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <TooltipProvider delayDuration={200}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label="Ubah Picker"
-                    onClick={() => setEditPicker(row.original)}
-                  >
-                    <UserCogIcon className="size-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Ubah Picker</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <TooltipProvider delayDuration={200}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label="Hapus Picklist"
-                    className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                    onClick={() => setRevertTarget(row.original)}
-                  >
-                    <Trash2Icon className="size-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  Hapus Picklist (kembalikan semua pesanan ke belum dipick)
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+                      <Link
+                        href={`/dashboard/document-preview/picklist/${row.original.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <PrinterIcon className="size-4" />
+                      </Link>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Pratinjau & Cetak Picklist</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+            {canEditPicking && (
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label="Ubah Picker"
+                      onClick={() => setEditPicker(row.original)}
+                    >
+                      <UserCogIcon className="size-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Ubah Picker</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+            {canRevertPicking && (
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label="Hapus Picklist"
+                      className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                      onClick={() => setRevertTarget(row.original)}
+                    >
+                      <Trash2Icon className="size-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Hapus Picklist (kembalikan semua pesanan ke belum dipick)
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
           </div>
         ),
       },
     ],
-    [prefetchPicklist],
+    [canEditPicking, canExportPicking, canRevertPicking, prefetchPicklist],
   );
 
   const handleRevertConfirm = () => {
@@ -433,27 +444,31 @@ export function PicklistTable() {
         />
       </div>
 
-      <UbahPickerDialog
-        open={!!editPicker}
-        onOpenChange={(o) => !o && setEditPicker(null)}
-        picklistId={editPicker?.id ?? null}
-        picklistNo={editPicker?.picklistNo ?? null}
-        locationId={editPicker?.locationId ?? null}
-        currentPickerId={editPicker?.pickerId ?? null}
-      />
+      {canEditPicking && (
+        <UbahPickerDialog
+          open={!!editPicker}
+          onOpenChange={(o) => !o && setEditPicker(null)}
+          picklistId={editPicker?.id ?? null}
+          picklistNo={editPicker?.picklistNo ?? null}
+          locationId={editPicker?.locationId ?? null}
+          currentPickerId={editPicker?.pickerId ?? null}
+        />
+      )}
 
-      <ConfirmDialog
-        open={!!revertTarget}
-        onOpenChange={(o) => {
-          if (!o) setRevertTarget(null);
-        }}
-        title="Hapus Picklist?"
-        description={`Picklist ${revertTarget?.picklistNo ?? ""} berisi ${revertTarget?.itemsCount ?? 0} item dari beberapa pesanan. Menghapusnya akan mengembalikan SEMUA pesanan anggota ke antrian belum dipick — stok yang sudah di-pick dikembalikan ke rak asal. Pesanan tidak hilang, hanya kembali ke tahap sebelumnya.`}
-        confirmLabel="Hapus Picklist"
-        variant="destructive"
-        loading={revertPicklist.isPending}
-        onConfirm={handleRevertConfirm}
-      />
+      {canRevertPicking && (
+        <ConfirmDialog
+          open={!!revertTarget}
+          onOpenChange={(o) => {
+            if (!o) setRevertTarget(null);
+          }}
+          title="Hapus Picklist?"
+          description={`Picklist ${revertTarget?.picklistNo ?? ""} berisi ${revertTarget?.itemsCount ?? 0} item dari beberapa pesanan. Menghapusnya akan mengembalikan SEMUA pesanan anggota ke antrian belum dipick — stok yang sudah di-pick dikembalikan ke rak asal. Pesanan tidak hilang, hanya kembali ke tahap sebelumnya.`}
+          confirmLabel="Hapus Picklist"
+          variant="destructive"
+          loading={revertPicklist.isPending}
+          onConfirm={handleRevertConfirm}
+        />
+      )}
     </div>
   );
 }

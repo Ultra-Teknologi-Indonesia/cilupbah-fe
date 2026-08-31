@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import type React from "react";
 import type { Route } from "./nav-main";
+import type { PermissionRequirement } from "@/lib/auth/permissions";
 
 export type NavZone = "top" | "ops" | "fin";
 
@@ -289,11 +290,117 @@ export const NAV_PERMISSION: Record<string, string | string[]> = {
 const SETTINGS_SUB_PERMISSION: Record<string, string | string[]> = {
   "/dashboard/pengaturan/pengguna": "view-user",
   "/dashboard/pengaturan/peran": ["view-role", "view-permission"],
+  "/dashboard/pengaturan/alokasi-stok": "view-posisi-stok",
   "/dashboard/pengaturan/persediaan": "view-pengaturan-persediaan",
   "/dashboard/aktivitas-impex": "view-impex",
 };
 
-type PermCheck = (perm?: string | string[]) => boolean;
+const ROUTE_PERMISSION_RULES: Array<{
+  link: string;
+  permission: PermissionRequirement;
+}> = [
+  { link: "/dashboard/laporan/hpp", permission: "view-laporan-hpp" },
+  { link: "/dashboard/laporan/retur", permission: "view-laporan-retur" },
+  { link: "/dashboard/laporan/penjualan", permission: "view-laporan-penjualan" },
+  { link: "/dashboard/laporan/persediaan", permission: "view-laporan-persediaan" },
+  { link: "/dashboard/laporan/gudang", permission: "view-laporan-gudang" },
+  { link: "/dashboard/laporan/settlement", permission: "view-pembayaran-penjualan" },
+  { link: "/dashboard/laporan/stok-minus", permission: "view-laporan-stok-minus" },
+  { link: "/dashboard/pengaturan", permission: [
+    "view-pengaturan-sistem",
+    "view-user",
+    "view-role",
+    "view-permission",
+    "view-posisi-stok",
+    "view-pengaturan-persediaan",
+    "view-impex",
+  ] },
+  { link: "/dashboard/pengaturan/alokasi-stok", permission: "view-posisi-stok" },
+  { link: "/dashboard/pengaturan/pengguna", permission: "view-user" },
+  { link: "/dashboard/pengaturan/pengguna/buat", permission: "create-user" },
+  { link: "/dashboard/pengaturan/pengguna/[id]/edit", permission: "edit-user" },
+  { link: "/dashboard/pengaturan/peran", permission: ["view-role", "view-permission"] },
+  { link: "/dashboard/pengaturan/persediaan", permission: "view-pengaturan-persediaan" },
+  { link: "/dashboard/aktivitas-impex", permission: "view-impex" },
+  { link: "/dashboard/produk/buat-bundle", permission: "create-bundle" },
+  { link: "/dashboard/produk/buat", permission: "create-produk" },
+  { link: "/dashboard/produk/import", permission: "import-produk" },
+  { link: "/dashboard/produk/upload", permission: "create-produk-naik" },
+  { link: "/dashboard/produk/naikkan", permission: "view-produk-naik" },
+  { link: "/dashboard/produk/arsip", permission: "view-produk" },
+  { link: "/dashboard/produk/download", permission: "view-produk" },
+  { link: "/dashboard/produk/[id]/upload-to-channel", permission: "create-produk-naik" },
+  { link: "/dashboard/produk/[id]/edit", permission: "edit-produk" },
+  { link: "/dashboard/produk/[id]", permission: "view-produk" },
+  { link: "/dashboard/kontak-pelanggan/tambah", permission: "create-kontak-pelanggan" },
+  { link: "/dashboard/kontak-pelanggan/[id]/edit", permission: "edit-kontak-pelanggan" },
+  { link: "/dashboard/kontak-pelanggan", permission: "view-kontak-pelanggan" },
+  { link: "/dashboard/kontak-pemasok/tambah", permission: "create-kontak-pemasok" },
+  { link: "/dashboard/kontak-pemasok/[id]/edit", permission: "edit-kontak-pemasok" },
+  { link: "/dashboard/kontak-pemasok", permission: "view-kontak-pemasok" },
+  { link: "/dashboard/lokasi/buat", permission: "create-manajemen-rak" },
+  { link: "/dashboard/lokasi/[id]/edit", permission: "edit-manajemen-rak" },
+  { link: "/dashboard/lokasi", permission: "view-manajemen-rak" },
+  { link: "/dashboard/barang-masuk/retur/buat", permission: "create-retur-penjualan" },
+  { link: "/dashboard/barang-masuk/retur", permission: "view-retur-penjualan" },
+  { link: "/dashboard/barang-masuk/penempatan", permission: "view-penempatan" },
+  { link: "/dashboard/barang-masuk/putaway", permission: "view-penempatan" },
+  { link: "/dashboard/barang-masuk/penerimaan", permission: "view-barang-masuk" },
+  { link: "/dashboard/barang-keluar/transfer/tambah", permission: "create-barang-keluar" },
+  { link: "/dashboard/barang-keluar/transfer/[id]/edit", permission: "edit-barang-keluar" },
+  { link: "/dashboard/barang-keluar", permission: "view-barang-keluar" },
+  { link: "/dashboard/proses-pesanan/picking", permission: { all: ["view-pesanan", "view-picking"] } },
+  { link: "/dashboard/proses-pesanan/packing", permission: { all: ["view-pesanan", "view-packing"] } },
+  { link: "/dashboard/proses-pesanan/shipping", permission: { all: ["view-pesanan", "view-pengiriman"] } },
+  { link: "/dashboard/proses-pesanan/pantauan", permission: "view-pesanan" },
+  { link: "/dashboard/proses-pesanan/delivered", permission: "view-pengiriman" },
+  { link: "/dashboard/proses-pesanan/done", permission: { all: ["view-pesanan", "view-pengiriman"] } },
+  { link: "/dashboard/proses-pesanan", permission: ["view-picking", "view-packing", "view-pengiriman"] },
+  { link: "/dashboard/transaksi-stok/penyesuaian", permission: "view-penyesuaian-stok" },
+  { link: "/dashboard/transaksi-stok/pindah-bin", permission: "view-pindah-bin" },
+  { link: "/dashboard/transaksi-stok/opname", permission: "view-stok-opname" },
+  { link: "/dashboard/transaksi-stok/revaluasi", permission: "view-revaluasi-stok" },
+  { link: "/dashboard/transaksi-stok/penerimaan-transfer", permission: "view-pindah-bin" },
+  { link: "/dashboard/transaksi-stok/cadang", permission: "view-posisi-stok" },
+  { link: "/dashboard/transaksi-stok", permission: ["view-penyesuaian-stok", "view-pindah-bin", "view-stok-opname"] },
+  { link: "/dashboard/transaksi-pembelian/pesanan/tambah", permission: "create-transaksi-pembelian" },
+  { link: "/dashboard/transaksi-pembelian/pesanan/[id]/edit", permission: "edit-transaksi-pembelian" },
+  { link: "/dashboard/transaksi-pembelian", permission: "view-transaksi-pembelian" },
+  { link: "/dashboard/toko-internal/tambah", permission: "create-toko-internal" },
+  { link: "/dashboard/toko-internal", permission: "view-toko-internal" },
+  { link: "/dashboard/permintaan-restock", permission: "view-permintaan-restock" },
+  { link: "/dashboard/integrasi-channel", permission: "view-integrasi-channel" },
+  { link: "/dashboard/pesanan/tambah", permission: "create-pesanan" },
+  { link: "/dashboard/pesanan/import", permission: "import-pesanan" },
+  { link: "/dashboard/pesanan/konfirmasi-pembeli", permission: "view-pesanan" },
+  { link: "/dashboard/pesanan/[id]", permission: "view-pesanan" },
+  { link: "/dashboard/pesanan", permission: "view-pesanan" },
+  { link: "/dashboard/document-preview/picklist", permission: "export-picking" },
+  { link: "/dashboard/document-preview/picklist-by-orders", permission: "view-picking" },
+  { link: "/dashboard/document-preview/inbound-receipt", permission: "export-barang-masuk" },
+  { link: "/dashboard/document-preview/shipping-label", permission: ["view-pengiriman", "view-pesanan", "view-packing", "view-picking"] },
+  { link: "/dashboard/document-preview/shipping-label-bulk-async", permission: ["view-pengiriman", "view-pesanan", "view-packing", "view-picking"] },
+  { link: "/dashboard/document-preview", permission: "view-pesanan" },
+  { link: "/dashboard/profil-saya", permission: "view-akun" },
+  { link: "/dashboard/notifikasi", permission: "view-dashboard" },
+  { link: "/dashboard/bantuan", permission: "view-dashboard" },
+];
+
+const ROUTE_PERMISSION_MATCHERS = ROUTE_PERMISSION_RULES.map((rule) => ({
+  ...rule,
+  matcher: new RegExp(
+    `^${rule.link
+      .split(/(\[[^/]+\])/g)
+      .map((part) =>
+        /^\[[^/]+\]$/.test(part)
+          ? "[^/]+"
+          : part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+      )
+      .join("")}(?:/|$)`,
+  ),
+}));
+
+type PermCheck = (perm?: PermissionRequirement) => boolean;
 
 export function filterNavGroups(
   groups: NavGroup[],
@@ -313,9 +420,12 @@ export function filterSettingsRoutes(routes: Route[], has: PermCheck): Route[] {
       route.subs
         ? {
             ...route,
-            subs: route.subs.filter((sub) =>
-              has(SETTINGS_SUB_PERMISSION[sub.link]),
-            ),
+            subs: route.subs
+              .filter((sub) => has(SETTINGS_SUB_PERMISSION[sub.link]))
+              .map((sub) => ({
+                ...sub,
+                permission: SETTINGS_SUB_PERMISSION[sub.link],
+              })),
           }
         : route,
     )
@@ -324,11 +434,11 @@ export function filterSettingsRoutes(routes: Route[], has: PermCheck): Route[] {
 
 export function permissionForPath(
   pathname: string,
-): string | string[] | undefined {
-  let best: string | string[] | undefined;
+): PermissionRequirement | undefined {
+  let best: PermissionRequirement | undefined;
   let bestLen = -1;
 
-  const consider = (link: string, perm: string | string[] | undefined) => {
+  const consider = (link: string, perm: PermissionRequirement | undefined) => {
     const matches =
       link === "/dashboard"
         ? pathname === link
@@ -354,6 +464,13 @@ export function permissionForPath(
     route.subs?.forEach((s) =>
       consider(s.link, SETTINGS_SUB_PERMISSION[s.link]),
     );
+  }
+
+  for (const rule of ROUTE_PERMISSION_MATCHERS) {
+    if (rule.matcher.test(pathname) && rule.link.length > bestLen) {
+      bestLen = rule.link.length;
+      best = rule.permission;
+    }
   }
 
   return best;

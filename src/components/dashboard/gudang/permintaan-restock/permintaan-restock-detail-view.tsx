@@ -10,7 +10,6 @@ import {
   ImageIcon,
   PackageIcon,
   PencilIcon,
-  PlusIcon,
   Trash2Icon,
   UserIcon,
   XIcon,
@@ -21,8 +20,6 @@ import { cn } from "@/lib/utils";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { CopySku } from "@/components/dashboard/shared/copy-sku";
-import { StockedProductPickerDialog } from "@/components/dashboard/transaksi-stok/stocked-product-picker-dialog";
-import type { StockedPickedProduct } from "@/components/dashboard/transaksi-stok/stocked-product-picker-dialog";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
@@ -36,7 +33,6 @@ import {
 } from "@/components/ui/table";
 import { formatDateTime, formatDateTimeFull } from "@/lib/format";
 import {
-  useAddReplenishmentItem,
   useRejectReplenishment,
   useRemoveReplenishmentItem,
   useStockReplenishmentDetail,
@@ -53,13 +49,11 @@ export function PermintaanRestockDetailView({ id }: Props) {
   const { data: req, isLoading } = useStockReplenishmentDetail(id);
   const [acceptOpen, setAcceptOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
-  const [pickerOpen, setPickerOpen] = useState(false);
   const [editItem, setEditItem] = useState<StockReplenishmentItem | null>(null);
   const [deleteItem, setDeleteItem] = useState<StockReplenishmentItem | null>(
     null,
   );
   const rejectMut = useRejectReplenishment();
-  const addItemMut = useAddReplenishmentItem();
   const removeItemMut = useRemoveReplenishmentItem();
 
   if (isLoading) {
@@ -105,15 +99,6 @@ export function PermintaanRestockDetailView({ id }: Props) {
   const items = req.items ?? [];
   const totalQty = items.reduce((acc, i) => acc + i.qty, 0);
   const editable = req.status === "PENDING";
-
-  async function handlePickItems(picked: StockedPickedProduct[]) {
-    for (const p of picked) {
-      await addItemMut.mutateAsync({
-        id: req!.id,
-        payload: { item_id: p.itemId, sku: p.sku, qty: 1 },
-      });
-    }
-  }
 
   return (
     <div className="flex flex-col gap-5">
@@ -234,15 +219,9 @@ export function PermintaanRestockDetailView({ id }: Props) {
               {items.length} SKU · {totalQty} qty
             </span>
             {editable && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPickerOpen(true)}
-                disabled={addItemMut.isPending}
-              >
-                <PlusIcon className="mr-1 size-4" />
-                Tambah SKU
-              </Button>
+              <span className="text-xs text-muted-foreground">
+                SKU baru ditambahkan dari Monitor Stok
+              </span>
             )}
           </div>
         </div>
@@ -358,16 +337,6 @@ export function PermintaanRestockDetailView({ id }: Props) {
           setRejectOpen(false);
         }}
       />
-
-      {editable && req.from_location_id && (
-        <StockedProductPickerDialog
-          open={pickerOpen}
-          onOpenChange={setPickerOpen}
-          locationId={req.from_location_id}
-          excludeIds={items.map((it) => it.item_id)}
-          onPick={handlePickItems}
-        />
-      )}
 
       <EditReplenishmentItemDialog
         requestId={req.id}

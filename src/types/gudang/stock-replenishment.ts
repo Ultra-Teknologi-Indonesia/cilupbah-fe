@@ -1,5 +1,5 @@
 export type StockReplenishmentStatus =
-  "PENDING" | "ACCEPTED" | "REJECTED" | "DONE";
+  "PENDING" | "ACCEPTED" | "REJECTED" | "DONE" | "CANCELLED";
 
 export interface StockReplenishmentItem {
   id: string;
@@ -9,6 +9,10 @@ export interface StockReplenishmentItem {
   thumbnail_url: string | null;
   qty: number;
   reason: string | null;
+  demand_qty?: number;
+  available_qty?: number;
+  in_flight_qty?: number;
+  suggested_qty?: number;
 }
 
 export interface StockReplenishment {
@@ -34,6 +38,17 @@ export interface StockReplenishment {
   items?: StockReplenishmentItem[];
   created_at?: string;
   updated_at?: string;
+  source?: "MANUAL" | "MONITOR" | "AUTO" | "MIXED";
+  batch_key?: string | null;
+  last_reconciled_at?: string | null;
+  cancelled_at?: string | null;
+  cancel_reason?: string | null;
+}
+
+export interface QueueFromMonitorPayload {
+  item_ids: string[];
+  from_location_id?: string;
+  to_location_id?: string;
 }
 
 export interface StockReplenishmentListParams {
@@ -45,13 +60,6 @@ export interface StockReplenishmentListParams {
 export interface AcceptReplenishmentPayload {
   assignee_user_id?: string | null;
   note?: string | null;
-}
-
-export interface AddReplenishmentItemPayload {
-  item_id: string;
-  sku?: string | null;
-  qty: number;
-  reason?: string | null;
 }
 
 export interface UpdateReplenishmentItemPayload {

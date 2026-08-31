@@ -7,9 +7,9 @@ import { apiError } from "@/lib/toast";
 import { StockReplenishmentService } from "@/services/gudang/stock-replenishment.service";
 import type {
   AcceptReplenishmentPayload,
-  AddReplenishmentItemPayload,
   StockReplenishmentListParams,
   UpdateReplenishmentItemPayload,
+  QueueFromMonitorPayload,
 } from "@/types/gudang/stock-replenishment";
 
 const KEYS = {
@@ -42,6 +42,24 @@ export function usePendingReplenishmentCount() {
     queryKey: KEYS.pendingCount(),
     queryFn: () => StockReplenishmentService.pendingCount(),
     refetchInterval: 60_000,
+  });
+}
+
+export function useQueueFromMonitor() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: QueueFromMonitorPayload) =>
+      StockReplenishmentService.queueFromMonitor(payload),
+    onSuccess: (result) => {
+      qc.invalidateQueries({ queryKey: ["monitor-stok"] });
+      qc.invalidateQueries({ queryKey: KEYS.all });
+      toast.success("Produk masuk ke permintaan restock", {
+        description: result.skipped_item_ids.length
+          ? `${result.queued_item_ids.length} produk ditambahkan; ${result.skipped_item_ids.length} sudah tidak perlu direstock.`
+          : undefined,
+      });
+    },
+    onError: (err) => apiError(err, "Gagal membuat permintaan restock."),
   });
 }
 
@@ -97,15 +115,6 @@ function useItemMutation<TVars extends { id: string }>(
       apiError(err, fallbackError);
     },
   });
-}
-
-export function useAddReplenishmentItem() {
-  return useItemMutation(
-    ({ id, payload }: { id: string; payload: AddReplenishmentItemPayload }) =>
-      StockReplenishmentService.addItem(id, payload),
-    "Item ditambahkan",
-    "Gagal menambahkan item.",
-  );
 }
 
 export function useUpdateReplenishmentItem() {

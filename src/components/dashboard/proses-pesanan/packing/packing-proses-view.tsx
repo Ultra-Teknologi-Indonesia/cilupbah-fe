@@ -48,6 +48,7 @@ import { playScanFeedback } from "@/lib/scan-feedback";
 import { usePrintWithDriverCall } from "@/hooks/proses-pesanan/use-driver-call";
 import { isShopeeInstantOrSameDay } from "@/lib/proses-pesanan/shopee";
 import { apiError } from "@/lib/toast";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 const LIST_HREF = "/dashboard/proses-pesanan/packing";
 
@@ -257,6 +258,9 @@ export function PackingProsesView() {
 
   const pickers = usePickers(undefined, "packer");
   const { data: me } = useMe();
+  const { can } = usePermissions();
+  const canEditPacking = can("edit-packing");
+  const canEditShipping = can("edit-pengiriman");
   const scanOrder = useScanOrder();
   const packItem = usePackItem();
   const verifyBarcode = useVerifyBarcode();
@@ -340,7 +344,8 @@ export function PackingProsesView() {
         full &&
         pl.status !== "COMPLETED" &&
         !completedRef.current.has(pl.id) &&
-        !packItem.isPending
+        !packItem.isPending &&
+        canEditPacking
       ) {
         completedRef.current.add(pl.id);
         completePacklist.mutate(pl.id, {
@@ -355,7 +360,9 @@ export function PackingProsesView() {
                 isInstant: pl.isInstant,
               })
             ) {
-              printWithDriverCall.mutate({ orderId: pl.orderId });
+              if (canEditShipping) {
+                printWithDriverCall.mutate({ orderId: pl.orderId });
+              }
             }
             const remaining = packlistIdsRef.current.filter((x) => x !== pl.id);
             setPacklistIds(remaining);
@@ -372,7 +379,14 @@ export function PackingProsesView() {
         });
       }
     });
-  }, [packlists, packItem.isPending, completePacklist, printWithDriverCall]);
+  }, [
+    packlists,
+    packItem.isPending,
+    completePacklist,
+    printWithDriverCall,
+    canEditPacking,
+    canEditShipping,
+  ]);
 
   const pickerList = React.useMemo(() => pickers.data ?? [], [pickers.data]);
   const checkerName = pickerList.find((p) => p.id === checkerId)?.name ?? null;
@@ -400,6 +414,7 @@ export function PackingProsesView() {
   };
 
   const handleScanOrder = async () => {
+    if (!canEditPacking) return;
     const code = orderScan.trim();
     if (!code) return;
     if (!checkerId) {
@@ -437,6 +452,7 @@ export function PackingProsesView() {
   };
 
   const increment = (item: PacklistItem) => {
+    if (!canEditPacking) return;
     const remaining = item.qtyOrdered - item.qtyPacked;
     if (remaining <= 0) {
       playScanFeedback("error");
@@ -457,6 +473,7 @@ export function PackingProsesView() {
   };
 
   const handleUnmatched = async (code: string) => {
+    if (!canEditPacking) return;
     for (const pl of packlists) {
       try {
         const res = await verifyBarcode.mutateAsync({
@@ -588,7 +605,7 @@ export function PackingProsesView() {
                       }}
                       placeholder="Scan atau ketik no. pesanan…"
                       className="h-11 pl-9"
-                      disabled={scanOrder.isPending}
+                      disabled={!canEditPacking || scanOrder.isPending}
                     />
                   </div>
                 </div>
@@ -603,6 +620,7 @@ export function PackingProsesView() {
                         lines={scanLines}
                         onResolve={handleResolve}
                         onUnmatched={handleUnmatched}
+                        disabled={!canEditPacking || verifyBarcode.isPending}
                         refocusKey={scanFocusKey}
                         hideManualSelect
                         scanPlaceholder="Scan SKU → qty +1…"

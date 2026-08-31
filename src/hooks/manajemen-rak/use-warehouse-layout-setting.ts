@@ -6,10 +6,11 @@ import { WarehouseSettingService } from "@/services/manajemen-rak/warehouse-sett
 
 const settingKey = ["pengaturan", "warehouse-layout-setting"] as const;
 
-export function useWarehouseLayoutSetting() {
+export function useWarehouseLayoutSetting(enabled = true) {
   return useQuery({
     queryKey: settingKey,
     queryFn: () => WarehouseSettingService.get(),
+    enabled,
     staleTime: 5 * 60 * 1000,
   });
 }

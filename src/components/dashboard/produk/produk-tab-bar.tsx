@@ -12,12 +12,14 @@ import {
 } from "lucide-react";
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 type Tab = {
   id: string;
   label: string;
   icon: typeof Package2Icon;
   href?: string;
+  permission: string;
 };
 
 const TABS: Tab[] = [
@@ -26,36 +28,42 @@ const TABS: Tab[] = [
     label: "Master",
     icon: Package2Icon,
     href: "/dashboard/produk/master",
+    permission: "view-produk",
   },
   {
     id: "upload",
     label: "Upload",
     icon: UploadCloudIcon,
     href: "/dashboard/produk/upload",
+    permission: "create-produk-naik",
   },
   {
     id: "download",
     label: "Download",
     icon: CloudDownloadIcon,
     href: "/dashboard/produk/download",
+    permission: "view-produk",
   },
   {
     id: "import",
     label: "Import",
     icon: ImportIcon,
     href: "/dashboard/produk/import",
+    permission: "import-produk",
   },
   {
     id: "arsip",
     label: "Arsip",
     icon: ArchiveIcon,
     href: "/dashboard/produk/arsip",
+    permission: "view-produk",
   },
   {
     id: "naikkan",
     label: "Naikkan Produk",
     icon: RocketIcon,
     href: "/dashboard/produk/naikkan",
+    permission: "view-produk-naik",
   },
 ];
 
@@ -73,11 +81,12 @@ export function ProdukTabBar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const active = activeId(pathname, searchParams.get("status"));
+  const { can } = usePermissions();
 
   return (
     <Tabs value={active}>
       <TabsList variant="glass" className="max-w-full overflow-x-auto">
-        {TABS.map((tab) => {
+        {TABS.filter((tab) => can(tab.permission)).map((tab) => {
           const Icon = tab.icon;
 
           if (!tab.href) {

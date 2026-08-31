@@ -12,12 +12,14 @@ import {
 } from "lucide-react";
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 type Tab = {
   id: string;
   label: string;
   icon: typeof SettingsIcon;
   href: string;
+  permission: string | string[];
 };
 
 const TABS: Tab[] = [
@@ -26,36 +28,42 @@ const TABS: Tab[] = [
     label: "Umum",
     icon: SettingsIcon,
     href: "/dashboard/pengaturan",
+    permission: "view-pengaturan-sistem",
   },
   {
     id: "pengguna",
     label: "Daftar Pengguna",
     icon: UsersIcon,
     href: "/dashboard/pengaturan/pengguna",
+    permission: "view-user",
   },
   {
     id: "peran",
     label: "Peran & Hak Akses",
     icon: ShieldCheckIcon,
     href: "/dashboard/pengaturan/peran",
+    permission: ["view-role", "view-permission"],
   },
   {
     id: "alokasi-stok",
     label: "Alokasi Stok & Channel",
     icon: BoxesIcon,
     href: "/dashboard/pengaturan/alokasi-stok",
+    permission: "view-posisi-stok",
   },
   {
     id: "persediaan",
     label: "Persediaan",
     icon: SlidersHorizontalIcon,
     href: "/dashboard/pengaturan/persediaan",
+    permission: "view-pengaturan-persediaan",
   },
   {
     id: "aktivitas-impex",
     label: "Aktivitas Import dan Export",
     icon: ArrowLeftRightIcon,
     href: "/dashboard/aktivitas-impex",
+    permission: "view-impex",
   },
 ];
 
@@ -74,11 +82,16 @@ function activeId(pathname: string): string {
 export function PengaturanTabBar() {
   const pathname = usePathname();
   const active = activeId(pathname);
+  const { can, canAny } = usePermissions();
 
   return (
     <Tabs value={active}>
       <TabsList variant="glass" className="max-w-full overflow-x-auto">
-        {TABS.map((tab) => {
+        {TABS.filter((tab) =>
+          Array.isArray(tab.permission)
+            ? canAny(tab.permission)
+            : can(tab.permission),
+        ).map((tab) => {
           const Icon = tab.icon;
           return (
             <TabsTrigger

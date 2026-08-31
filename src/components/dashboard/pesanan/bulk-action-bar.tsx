@@ -116,6 +116,9 @@ function TabBulkActions({
   const rejectReturn = useBulkRejectReturn();
   const { can } = usePermissions();
   const canEdit = can("edit-pesanan");
+  const canEditReturn = can("edit-retur-penjualan");
+  const canExportOrder = can("export-pesanan");
+  const canExportShipping = can("export-pengiriman");
 
   const placeholder = (label: string) => () =>
     toast.info(`${label} untuk ${count} pesanan akan segera tersedia`);
@@ -167,7 +170,7 @@ function TabBulkActions({
   if (tab === "in-transit") {
     return (
       <>
-        <Button
+        {canExportShipping && <Button
           variant="outline"
           size="sm"
           className="h-8 gap-1.5 text-xs"
@@ -176,7 +179,7 @@ function TabBulkActions({
         >
           <PrinterIcon className="size-3.5" />
           Cetak Resi
-        </Button>
+        </Button>}
         {canEdit && (
           <Button
             size="sm"
@@ -195,6 +198,7 @@ function TabBulkActions({
   }
 
   if (tab === "completed") {
+    if (!canExportOrder) return null;
     return (
       <Button
         variant="outline"
@@ -282,6 +286,7 @@ function TabBulkActions({
 
   if (tab === "returned") {
     if (subFilter === "accepted" || subFilter === "rejected") {
+      if (!canExportOrder) return null;
       return (
         <Button
           variant="outline"
@@ -295,7 +300,7 @@ function TabBulkActions({
         </Button>
       );
     }
-    if (!canEdit) return null;
+    if (!canEditReturn) return null;
     const returnBusy = acceptReturn.isPending || rejectReturn.isPending;
     return (
       <>

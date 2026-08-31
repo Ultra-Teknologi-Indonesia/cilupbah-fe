@@ -56,8 +56,8 @@ import {
   ResetAssignmentDialog,
   UnassignReasonDialog,
 } from "@/components/shared/channel-lock";
-import { useMe } from "@/hooks/auth/use-auth";
 import { toast } from "sonner";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 const TYPE_LABEL: Record<string, string> = {
   PURCHASE_ORDER: "Pesanan Pembelian",
@@ -110,14 +110,13 @@ export function PenerimaanDetailView({ id }: { id: string }) {
     inbound.once_received_at == null;
   const sessionLock = inbound?.edit_lock?.locked ?? false;
   const isLocked = legacyAssignmentLock || sessionLock;
-  const canEdit = !!inbound && inbound.status !== "CANCELLED" && !isLocked;
-
-  const { data: me } = useMe();
-  const roles = React.useMemo(() => me?.roles ?? [], [me]);
-  const canUnassign = roles.some((r) =>
-    ["owner", "admin", "kepala gudang", "leader inbound"].includes(r),
-  );
-  const canReset = roles.some((r) => ["owner", "admin"].includes(r));
+  const { can } = usePermissions();
+  const canEditInbound = can("edit-barang-masuk");
+  const canExportInbound = can("export-barang-masuk");
+  const canUnassign = canEditInbound;
+  const canReset = canEditInbound;
+  const canEdit =
+    canEditInbound && !!inbound && inbound.status !== "CANCELLED" && !isLocked;
 
   const [unassignOpen, setUnassignOpen] = React.useState(false);
   const [resetOpen, setResetOpen] = React.useState(false);
@@ -129,19 +128,13 @@ export function PenerimaanDetailView({ id }: { id: string }) {
 
   const canFinalize = React.useMemo(() => {
     if (!inbound) return false;
-    if (
-      !roles.some((r) =>
-        ["owner", "admin", "kepala gudang", "leader inbound"].includes(r),
-      )
-    ) {
-      return false;
-    }
+    if (!canEditInbound) return false;
     // COMPLETED dapat muncul pada data lama yang selesai otomatis. Tampilkan
     // tombol agar admin dapat menutup sesi dan menormalkannya ke RECEIVED.
     return ["DRAFT", "PARTIAL"].includes(inbound.status) ||
       (inbound.status === "COMPLETED" &&
         (inbound.edit_lock?.active_participants?.length ?? 0) > 0);
-  }, [inbound, roles]);
+  }, [inbound, canEditInbound]);
 
   const activeParticipants = inbound?.edit_lock?.active_participants ?? [];
 
@@ -232,7 +225,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
             onWithdraw={(userId) => withdrawMutation.mutate({ userId })}
           />
           <div className="flex items-center justify-end gap-2 print:hidden">
-            <Button
+            {canExportInbound && <Button
               variant="outline"
               size="sm"
               onClick={() =>
@@ -245,7 +238,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
             >
               <PrinterIcon className="mr-1.5 size-4" />
               Cetak
-            </Button>
+            </Button>}
             {canFinalize && (
               <Button
                 size="sm"

@@ -39,6 +39,7 @@ import { useUrlTab } from "@/hooks/use-url-tab";
 import { exportCsv } from "@/lib/export-csv";
 import { formatInboundExpectedDate } from "@/lib/barang-masuk/inbound-date";
 import type { Inbound } from "@/types/barang-masuk/inbound";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 type SourceTab = "semua" | "pesanan" | "transfer" | "retur";
 const SOURCE_TABS: readonly SourceTab[] = [
@@ -168,6 +169,11 @@ function handleExportList(items: Inbound[]) {
 }
 
 export function PenerimaanBarangTab() {
+  const { can } = usePermissions();
+  const canCreatePutaway = can("create-penempatan");
+  const canEditInbound = can("edit-barang-masuk");
+  const canDeleteInbound = can("delete-barang-masuk");
+  const canExportInbound = can("export-barang-masuk");
   const list = useListState<FilterState>(EMPTY_FILTERS, {
     perPage: 20,
     debounceMs: 300,
@@ -397,7 +403,7 @@ export function PenerimaanBarangTab() {
               className="flex items-center justify-end gap-2"
               onClick={(e) => e.stopPropagation()}
             >
-              {canPrintPO && (
+              {canPrintPO && canExportInbound && (
                 <Button
                   size="icon"
                   variant="ghost"
@@ -414,7 +420,7 @@ export function PenerimaanBarangTab() {
                   </Link>
                 </Button>
               )}
-              {canDelete && (
+              {canDelete && canDeleteInbound && (
                 <Button
                   size="icon"
                   variant="ghost"
@@ -430,7 +436,7 @@ export function PenerimaanBarangTab() {
                   <Trash2Icon className="size-4" />
                 </Button>
               )}
-              {isTransitReceivable(item) && (
+              {isTransitReceivable(item) && canEditInbound && (
                 <Button
                   size="sm"
                   className="h-8 gap-1.5"
@@ -443,7 +449,7 @@ export function PenerimaanBarangTab() {
                   Terima
                 </Button>
               )}
-              {isSelectable(item) && (
+              {isSelectable(item) && canCreatePutaway && (
                 <Button
                   size="sm"
                   className="h-8 gap-1.5"
@@ -493,7 +499,7 @@ export function PenerimaanBarangTab() {
         },
       },
     ],
-    [sourceTab],
+    [canCreatePutaway, canDeleteInbound, canEditInbound, canExportInbound, sourceTab],
   );
 
   const items = data?.items ?? [];
@@ -539,7 +545,7 @@ export function PenerimaanBarangTab() {
           </Tabs>
 
           <div className="flex items-center gap-2">
-            {items.length > 0 && (
+            {items.length > 0 && canExportInbound && (
               <Button
                 variant="outline"
                 size="sm"
@@ -582,13 +588,15 @@ export function PenerimaanBarangTab() {
             hideToolbar
             manualPagination
             getRowId={(row) => row.id}
-            enableRowSelection={(row) => isSelectable(row.original)}
+            enableRowSelection={(row) =>
+              (canCreatePutaway || canDeleteInbound) && isSelectable(row.original)
+            }
             bulkActions={(selected, table) => {
               const sameLocation =
                 new Set(selected.map((s) => s.location_id)).size <= 1;
               return (
                 <div className="flex items-center gap-2">
-                  <Button
+                  {canCreatePutaway && <Button
                     size="sm"
                     className="h-8 gap-1.5"
                     onClick={() => {
@@ -610,8 +618,8 @@ export function PenerimaanBarangTab() {
                   >
                     <LayersIcon className="size-4" />
                     Buat Penempatan ({selected.length})
-                  </Button>
-                  <Button
+                  </Button>}
+                  {canDeleteInbound && <Button
                     size="sm"
                     variant="destructive"
                     className="h-8 gap-1.5"
@@ -623,7 +631,7 @@ export function PenerimaanBarangTab() {
                   >
                     <Trash2Icon className="size-4" />
                     Hapus ({selected.length})
-                  </Button>
+                  </Button>}
                 </div>
               );
             }}
@@ -644,7 +652,7 @@ export function PenerimaanBarangTab() {
         </div>
       </LiquidGlass>
 
-      <BuatPenempatanManualDialog
+      {canCreatePutaway && <BuatPenempatanManualDialog
         inbounds={penempatanTargets}
         open={penempatanTargets.length > 0}
         onOpenChange={(open) => {
@@ -654,18 +662,18 @@ export function PenerimaanBarangTab() {
           resetSelectionRef.current?.();
           resetSelectionRef.current = null;
         }}
-      />
+      />}
 
-      <TerimaTransferDialog
+      {canEditInbound && <TerimaTransferDialog
         key={terimaTarget?.id ?? "none"}
         inbound={terimaTarget}
         open={!!terimaTarget}
         onOpenChange={(open) => {
           if (!open) setTerimaTarget(null);
         }}
-      />
+      />}
 
-      <ConfirmDialog
+      {canDeleteInbound && <ConfirmDialog
         open={deleteTargets.length > 0}
         onOpenChange={(open) => {
           if (!open) setDeleteTargets([]);
@@ -725,7 +733,7 @@ export function PenerimaanBarangTab() {
             },
           );
         }}
-      />
+      />}
     </>
   );
 }

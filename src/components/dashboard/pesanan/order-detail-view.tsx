@@ -86,6 +86,7 @@ import {
 } from "@/hooks/pesanan/use-order-actions";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 import { ContactBuyerDialog } from "./contact-buyer-dialog";
 import { CourierPickupDialog } from "./courier-pickup-dialog";
@@ -547,7 +548,7 @@ function CourierPickupCard({
   onEdit,
 }: {
   order: Order;
-  onEdit: () => void;
+  onEdit?: () => void;
 }) {
   const pickup = order.courier_pickup;
   const isInstant = Boolean(order.is_instant);
@@ -586,7 +587,7 @@ function CourierPickupCard({
             Identitas kurir & kode pengambilan saat pesanan diambil.
           </p>
         </div>
-        <Button
+        {onEdit && <Button
           variant="outline"
           size="sm"
           className="gap-1.5"
@@ -594,7 +595,7 @@ function CourierPickupCard({
         >
           <PencilIcon className="size-3.5" />
           {hasData ? "Ubah" : "Tambah"}
-        </Button>
+        </Button>}
       </div>
 
       {hasData ? (
@@ -665,6 +666,7 @@ function CourierPickupCard({
 
 export function OrderDetailView({ orderId }: { orderId: string }) {
   const { data, isLoading, isError, error, refetch } = useOrder(orderId);
+  const { can } = usePermissions();
   const setPaid = useSetPaid();
   const _markComplete = useMarkComplete();
   const deleteItem = useDeleteOrderItem();
@@ -683,8 +685,11 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
 
   const isMarketplace = !!order?.source && order.source !== "manual" && order.source !== "offline";
 
-  const canRequestCancel = !!order && canRequestChannelCancel(order);
-  const canManualCancel = !!order && !isMarketplace;
+  const canEditOrder = can("edit-pesanan");
+  const canExportOrder = can("export-pesanan");
+  const canExportShipping = can("export-pengiriman");
+  const canRequestCancel = !!order && canEditOrder && canRequestChannelCancel(order);
+  const canManualCancel = !!order && canEditOrder && !isMarketplace;
 
   const handlePrintInvoice = () => {
     window.open(
@@ -783,7 +788,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <DropdownMenu>
+            {canExportOrder && <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="gap-1.5">
                   <DownloadIcon className="size-4" />
@@ -801,7 +806,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                   Faktur
                 </DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu>
+            </DropdownMenu>}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -832,7 +837,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
-            {isMarketplace &&
+            {canExportShipping && isMarketplace &&
               order.shipping?.tracking_number &&
               !order.is_canceled &&
               !["shipped", "completed", "cancelled", "returned"].includes(
@@ -855,7 +860,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                   Cetak Resi
                 </Button>
               )}
-            {order.status === "pending" && (
+            {canEditOrder && order.status === "pending" && (
               <Button
                 variant="outline"
                 size="sm"
@@ -866,7 +871,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                 {order.contacted_at ? "Ubah Konfirmasi" : "Catat Konfirmasi"}
               </Button>
             )}
-            {!order.is_paid && !order.is_canceled && (
+            {canEditOrder && !order.is_paid && !order.is_canceled && (
               <Button
                 size="sm"
                 className="gap-1.5"
@@ -974,7 +979,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                 )}
               </div>
             </div>
-            {order.buyer_cancel_sync_status === "failed" && (
+            {order.buyer_cancel_sync_status === "failed" && canEditOrder && (
               <Button
                 variant="outline"
                 size="sm"
@@ -1054,7 +1059,10 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
           </LiquidGlass>
 
           {(order.customer_decision || order.contacted_at) && (
-            <ContactSummary order={order} onEdit={() => setContactOpen(true)} />
+            <ContactSummary
+              order={order}
+              onEdit={canEditOrder ? () => setContactOpen(true) : undefined}
+            />
           )}
 
           {order.has_unmapped_items && (
@@ -1185,7 +1193,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                         <TableCell className="px-3 py-2.5 text-right font-medium tabular-nums">
                           {formatCurrency(item.amount)}
                         </TableCell>
-                        {order.status === "pending" && (
+                        {order.status === "pending" && canEditOrder && (
                           <TableCell className="px-3 py-2.5 text-right">
                             <div className="flex justify-end gap-1">
                               <Button
@@ -1217,7 +1225,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
                   {order.items.length === 0 && (
                     <TableRow>
                       <TableCell
-                        colSpan={order.status === "pending" ? 7 : 6}
+                          colSpan={order.status === "pending" && canEditOrder ? 7 : 6}
                         className="py-8 text-center text-sm text-muted-foreground"
                       >
                         Tidak ada produk.
@@ -1288,7 +1296,10 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
             </LiquidGlass>
           </div>
 
-          <CourierPickupCard order={order} onEdit={() => setPickupOpen(true)} />
+          <CourierPickupCard
+            order={order}
+            onEdit={canEditOrder ? () => setPickupOpen(true) : undefined}
+          />
         </div>
 
         <div className="flex flex-col gap-4 lg:sticky lg:top-4 lg:self-start">
@@ -1374,7 +1385,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
         </div>
       </div>
 
-      <ContactBuyerDialog
+      {canEditOrder && <ContactBuyerDialog
         open={contactOpen}
         onOpenChange={setContactOpen}
         orderId={order.id}
@@ -1382,15 +1393,15 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
         defaultChannel={order.contact_channel ?? undefined}
         defaultDecision={order.customer_decision ?? undefined}
         defaultNote={order.contact_note ?? undefined}
-      />
+      />}
 
-      <CourierPickupDialog
+      {canEditOrder && <CourierPickupDialog
         open={pickupOpen}
         onOpenChange={setPickupOpen}
         orderId={order.id}
         orderNo={order.salesorder_no}
         pickup={order.courier_pickup}
-      />
+      />}
 
       <RiwayatPesananDialog
         open={riwayatOpen}
@@ -1398,14 +1409,14 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
         orderId={order.id}
       />
 
-      {order && (
+      {order && canRequestCancel && (
         <RequestCancelDialog
           open={requestCancelOpen}
           onOpenChange={setRequestCancelOpen}
           order={order}
         />
       )}
-      {order && (
+      {order && canManualCancel && (
         <ManualCancelDialog
           open={manualCancelOpen}
           onOpenChange={setManualCancelOpen}
@@ -1414,7 +1425,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
         />
       )}
 
-      {editingItem && (
+      {editingItem && canEditOrder && (
         <EditOrderItemDialog
           open={!!editingItem}
           onOpenChange={(o) => !o && setEditingItem(null)}
@@ -1423,7 +1434,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
         />
       )}
 
-      <ConfirmDialog
+      {canEditOrder && <ConfirmDialog
         open={!!deletingItemId}
         onOpenChange={(o) => !o && setDeletingItemId(null)}
         title="Hapus item pesanan?"
@@ -1438,7 +1449,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
             { onSuccess: () => setDeletingItemId(null) },
           );
         }}
-      />
+      />}
     </div>
   );
 }
@@ -1448,7 +1459,7 @@ function ContactSummary({
   onEdit,
 }: {
   order: Order;
-  onEdit: () => void;
+  onEdit?: () => void;
 }) {
   return (
     <LiquidGlass
@@ -1463,7 +1474,7 @@ function ContactSummary({
             Catatan komunikasi dengan pembeli untuk pesanan stok kosong.
           </p>
         </div>
-        <Button
+        {onEdit && <Button
           variant="outline"
           size="sm"
           className="gap-1.5"
@@ -1471,7 +1482,7 @@ function ContactSummary({
         >
           <MessageCircleIcon className="size-3.5" />
           Ubah
-        </Button>
+        </Button>}
       </div>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">

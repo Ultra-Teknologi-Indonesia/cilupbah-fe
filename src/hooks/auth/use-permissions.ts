@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 
 import { useMe } from "@/hooks/auth/use-auth";
+import { hasPermission } from "@/lib/auth/permissions";
 
 export interface PermissionChecks {
   isOwner: boolean;
@@ -33,13 +34,13 @@ export function usePermissions(): PermissionChecks {
     const granted = new Set(permissions);
 
     const can = (permission: string): boolean =>
-      isOwner || granted.has(permission);
+      hasPermission(granted, permission, isOwner);
 
     const canAny = (list: string[]): boolean =>
-      isOwner || list.some((p) => granted.has(p));
+      isOwner || list.some((p) => can(p));
 
     const canAll = (list: string[]): boolean =>
-      isOwner || list.every((p) => granted.has(p));
+      isOwner || list.every((p) => can(p));
 
     const assignedLocationIds = (me?.locations ?? []).map((l) => l.location_id);
     const isWarehouseRestricted = !isOwner && assignedLocationIds.length > 0;

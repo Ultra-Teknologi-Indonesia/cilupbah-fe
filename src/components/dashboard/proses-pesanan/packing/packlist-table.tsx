@@ -34,6 +34,7 @@ import { UbahPackerDialog } from "./ubah-packer-dialog";
 import { AmbilNoResiDialog } from "../shared/ambil-no-resi-dialog";
 import { DocActions } from "@/hooks/proses-pesanan/use-doc-actions";
 import { Checkbox } from "@/components/ui/checkbox";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 const PACKLIST_LABEL_CHANNELS = new Set(["shopee", "tiktok", "lazada"]);
 
@@ -63,6 +64,13 @@ const EMPTY_FILTERS: PageFilterState = {
 };
 
 export function PacklistTable() {
+  const { can } = usePermissions();
+  const canViewPacking = can("view-packing");
+  const canEditPacking = can("edit-packing");
+  const canDeletePackingOrder = can("delete-pesanan");
+  const canEditOrder = can("edit-pesanan");
+  const canExportShipping = can("export-pengiriman");
+  const canExportOrder = can("export-pesanan");
   const router = useRouter();
   const prefetchPacklistDetail = usePrefetchPacklistDetail();
   const list = useListState<PageFilterState>(EMPTY_FILTERS, {
@@ -181,13 +189,14 @@ export function PacklistTable() {
       {
         id: "select",
         header: () => (
-          <Checkbox
-            checked={
-              allSelected ? true : someSelected ? "indeterminate" : false
-            }
-            onCheckedChange={toggleAll}
-            aria-label="Pilih semua"
-          />
+            <Checkbox
+              checked={
+                allSelected ? true : someSelected ? "indeterminate" : false
+              }
+              onCheckedChange={toggleAll}
+              aria-label="Pilih semua"
+              disabled={!canExportShipping && !canExportOrder && !canEditOrder}
+            />
         ),
         cell: ({ row }) => {
           const el = packlistLabelEligible(row.original);
@@ -218,6 +227,7 @@ export function PacklistTable() {
                 toggleOrder(row.original.orderId as string, !!v)
               }
               aria-label="Pilih pesanan"
+              disabled={!canExportShipping && !canExportOrder && !canEditOrder}
             />
           );
         },
@@ -326,26 +336,30 @@ export function PacklistTable() {
         header: () => null,
         cell: ({ row }) => (
           <div className="flex justify-end items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                router.push(
-                  `/dashboard/proses-pesanan/packing/${row.original.id}`,
-                )
-              }
-              onMouseEnter={() => prefetchPacklist(row.original.id)}
-            >
-              Proses Packing
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setEditPacker(row.original)}
-            >
-              Ubah Packer
-            </Button>
-            {row.original.orderId && (
+            {canViewPacking && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  router.push(
+                    `/dashboard/proses-pesanan/packing/${row.original.id}`,
+                  )
+                }
+                onMouseEnter={() => prefetchPacklist(row.original.id)}
+              >
+                Proses Packing
+              </Button>
+            )}
+            {canEditPacking && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setEditPacker(row.original)}
+              >
+                Ubah Packer
+              </Button>
+            )}
+            {canDeletePackingOrder && row.original.orderId && (
               <TooltipProvider delayDuration={200}>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -368,6 +382,12 @@ export function PacklistTable() {
       },
     ],
     [
+      canDeletePackingOrder,
+      canEditPacking,
+      canEditOrder,
+      canExportOrder,
+      canExportShipping,
+      canViewPacking,
       router,
       prefetchPacklist,
       selectedIds,
@@ -411,9 +431,9 @@ export function PacklistTable() {
           <FulfillmentBulkActionBar
             selectedCount={selectedIds.size}
             onReset={() => setSelectedIds(new Set())}
-            onReadyToShip={handleReadyToShip}
-            onPrintLabel={handlePrintLabel}
-            onPrintInvoice={handlePrintInvoice}
+            onReadyToShip={canEditOrder ? handleReadyToShip : undefined}
+            onPrintLabel={canExportShipping ? handlePrintLabel : undefined}
+            onPrintInvoice={canExportOrder ? handlePrintInvoice : undefined}
           />
         </div>
         <DataTable
@@ -442,24 +462,28 @@ export function PacklistTable() {
         />
       </div>
 
-      <UbahPackerDialog
-        open={!!editPacker}
-        onOpenChange={(o) => !o && setEditPacker(null)}
-        packlistId={editPacker?.id ?? null}
-        packlistNo={editPacker?.packlistNo ?? null}
-        locationId={editPacker?.locationId ?? null}
-        currentPackerId={editPacker?.packerId ?? null}
-      />
+      {canEditPacking && (
+        <UbahPackerDialog
+          open={!!editPacker}
+          onOpenChange={(o) => !o && setEditPacker(null)}
+          packlistId={editPacker?.id ?? null}
+          packlistNo={editPacker?.packlistNo ?? null}
+          locationId={editPacker?.locationId ?? null}
+          currentPackerId={editPacker?.packerId ?? null}
+        />
+      )}
 
-      <DeleteOrderDialog
-        open={!!deleteTarget}
-        onOpenChange={(o) => !o && setDeleteTarget(null)}
-        orders={
-          deleteTarget?.orderId
-            ? [{ id: deleteTarget.orderId, no: deleteTarget.orderNo }]
-            : []
-        }
-      />
+      {canDeletePackingOrder && (
+        <DeleteOrderDialog
+          open={!!deleteTarget}
+          onOpenChange={(o) => !o && setDeleteTarget(null)}
+          orders={
+            deleteTarget?.orderId
+              ? [{ id: deleteTarget.orderId, no: deleteTarget.orderNo }]
+              : []
+          }
+        />
+      )}
 
       <AmbilNoResiDialog
         open={ambilResiOpen}

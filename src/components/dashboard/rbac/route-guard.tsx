@@ -14,12 +14,18 @@ import {
 export function RouteGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { canAny, isLoading } = usePermissions();
+  const { canAny, canAll, isLoading } = usePermissions();
   const landing = useLandingRoute();
 
   const required = permissionForPath(pathname);
+  const isKnownRoute = required !== undefined;
   const allowed =
-    !required || canAny(Array.isArray(required) ? required : [required]);
+    isKnownRoute &&
+    (Array.isArray(required)
+      ? canAny(required)
+      : typeof required === "object"
+        ? canAll(required.all)
+        : canAny([required]));
 
   useEffect(() => {
     if (!isLoading && !allowed && pathname !== landing) {
@@ -27,7 +33,7 @@ export function RouteGuard({ children }: { children: React.ReactNode }) {
     }
   }, [isLoading, allowed, pathname, landing, router]);
 
-  if (required && (isLoading || !allowed)) {
+  if (isLoading || !isKnownRoute || !allowed) {
     return (
       <div className="flex flex-col gap-6">
         <PageHeaderSkeleton />

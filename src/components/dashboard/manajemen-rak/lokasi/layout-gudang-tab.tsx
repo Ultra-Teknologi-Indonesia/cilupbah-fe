@@ -920,24 +920,25 @@ function IsiRakCell({
 }) {
   const [popoverOpen, setPopoverOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
-
-  if (!skus || skus.length === 0) {
-    return <span className="text-muted-foreground text-xs">—</span>;
-  }
+  const safeSkus = React.useMemo(() => skus ?? [], [skus]);
 
   const filteredSkus = React.useMemo(() => {
-    if (!searchQuery.trim()) return skus;
+    if (!searchQuery.trim()) return safeSkus;
     const q = searchQuery.toLowerCase();
-    return skus.filter(
+    return safeSkus.filter(
       (s) =>
         s.sku.toLowerCase().includes(q) || s.name.toLowerCase().includes(q),
     );
-  }, [skus, searchQuery]);
+  }, [safeSkus, searchQuery]);
+
+  if (safeSkus.length === 0) {
+    return <span className="text-muted-foreground text-xs">—</span>;
+  }
 
   const VISIBLE_LIMIT = 2;
-  const visibleSkus = skus.slice(0, VISIBLE_LIMIT);
-  const hasMore = skus.length > VISIBLE_LIMIT;
-  const remainingCount = skus.length - VISIBLE_LIMIT;
+  const visibleSkus = safeSkus.slice(0, VISIBLE_LIMIT);
+  const hasMore = safeSkus.length > VISIBLE_LIMIT;
+  const remainingCount = safeSkus.length - VISIBLE_LIMIT;
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -994,7 +995,7 @@ function IsiRakCell({
                   variant="secondary"
                   className="text-2xs px-2 py-0 font-bold"
                 >
-                  {skus.length} Total SKU
+                  {safeSkus.length} Total SKU
                 </Badge>
               </div>
 
@@ -1388,7 +1389,7 @@ interface LayoutGudangTabProps {
 export function LayoutGudangTab({
   disabled = false,
   locationId,
-  locationCode,
+  locationCode: _locationCode,
   isSmallWarehouse: isSmallWarehouseProp,
   initialBins,
   onApply,
@@ -1499,6 +1500,21 @@ export function LayoutGudangTab({
 
   const assignBinSku = useAssignBinSku(locationId);
 
+  const handleAssignChange = React.useCallback(
+    (binId: string, sku: PendingPutawaySku | null) => {
+      setAssignMap((prev) => {
+        const next = new Map(prev);
+        if (!sku) {
+          next.delete(binId);
+        } else {
+          next.set(binId, sku);
+        }
+        return next;
+      });
+    },
+    [],
+  );
+
   const handleDirectOrStagedAssign = React.useCallback(
     async (binId: string, binCode: string, sku: PendingPutawaySku) => {
       if (serverMode && locationId) {
@@ -1507,10 +1523,14 @@ export function LayoutGudangTab({
           toast.success(
             `SKU "${sku.sku}" berhasil ditambahkan ke rak ${binCode}.`,
           );
-        } catch (err: any) {
+        } catch (err: unknown) {
+          const message =
+            typeof err === "object" && err !== null
+              ? (err as { response?: { data?: { message?: string } }; message?: string })
+              : {};
           toast.error(
-            err?.response?.data?.message ||
-              err?.message ||
+            message.response?.data?.message ||
+              message.message ||
               "Gagal menambahkan SKU ke rak.",
           );
         }
@@ -1519,20 +1539,8 @@ export function LayoutGudangTab({
         toast.success(`SKU "${sku.sku}" ditambahkan ke rak.`);
       }
     },
-    [serverMode, locationId, assignBinSku],
+    [serverMode, locationId, assignBinSku, handleAssignChange],
   );
-
-  const handleAssignChange = (binId: string, sku: PendingPutawaySku | null) => {
-    setAssignMap((prev) => {
-      const next = new Map(prev);
-      if (!sku) {
-        next.delete(binId);
-      } else {
-        next.set(binId, sku);
-      }
-      return next;
-    });
-  };
 
   const onAssignmentsChangeRef = React.useRef(onAssignmentsChange);
   React.useEffect(() => {

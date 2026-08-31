@@ -3,6 +3,7 @@
 import * as React from "react";
 
 import { usePermissions } from "@/hooks/auth/use-permissions";
+import type { PermissionRequirement } from "@/lib/auth/permissions";
 import {
   dashboardGroups,
   settingsRoutes,
@@ -11,12 +12,16 @@ import {
 } from "./nav-data";
 
 export function useVisibleNav() {
-  const { canAny } = usePermissions();
+  const { canAny, canAll } = usePermissions();
 
   const has = React.useCallback(
-    (perm?: string | string[]) =>
-      !perm || canAny(Array.isArray(perm) ? perm : [perm]),
-    [canAny],
+    (perm?: PermissionRequirement) => {
+      if (!perm) return true;
+      if (Array.isArray(perm)) return canAny(perm);
+      if (typeof perm === "object") return canAll(perm.all);
+      return canAny([perm]);
+    },
+    [canAll, canAny],
   );
 
   const groups = React.useMemo(

@@ -68,6 +68,7 @@ import {
   type FulfillmentFilterValue,
 } from "./fulfillment-filter-bar";
 import { DeleteOrderDialog } from "./delete-order-dialog";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 export interface OrderTableActions {
   buatPicklist?: boolean;
@@ -719,6 +720,44 @@ export function FulfillmentOrdersTable({
   channelStatusOptions?: { value: string; label: string }[];
   excludeTransit?: boolean;
 }) {
+  const { can, canAny } = usePermissions();
+  const canViewOrder = can("view-pesanan");
+  const canViewPicking = can("view-picking");
+  const canViewShipping = canAny([
+    "view-pengiriman",
+    "view-pesanan",
+    "view-packing",
+    "view-picking",
+  ]);
+  const canCreatePicking = can("create-picking");
+  const canCreateShipping = can("create-pengiriman");
+  const canEditOrder = can("edit-pesanan");
+  const canDeleteOrder = can("delete-pesanan");
+  const canEditShipping = can("edit-pengiriman");
+
+  const permittedActions = React.useMemo<OrderTableActions>(
+    () => ({
+      buatPicklist: actions.buatPicklist && canCreatePicking,
+      buatPengiriman: actions.buatPengiriman && canCreateShipping,
+      cetakLabel: actions.cetakLabel && canViewShipping,
+      cetakPicklist: actions.cetakPicklist && canViewPicking,
+      cetakFaktur: actions.cetakFaktur && canViewOrder,
+      fakturLabel:
+        actions.fakturLabel && canViewOrder && canViewShipping,
+      suratJalan: actions.suratJalan && canViewOrder,
+      siapDikirim: actions.siapDikirim && canEditOrder,
+      selesaikanPesanan: actions.selesaikanPesanan && canEditOrder,
+    }),
+    [
+      actions,
+      canCreatePicking,
+      canCreateShipping,
+      canEditOrder,
+      canViewOrder,
+      canViewPicking,
+      canViewShipping,
+    ],
+  );
   const [search, setSearch] = React.useState("");
   const [debounced, setDebounced] = React.useState("");
   const [page, setPage] = React.useState(1);
@@ -786,7 +825,7 @@ export function FulfillmentOrdersTable({
   const downloadCancelXlsx = useDownloadPreManifestCancelXlsx();
   const preManifestCancelCount = usePreManifestCancelCount();
 
-  const orders = data?.items ?? [];
+  const orders = React.useMemo(() => data?.items ?? [], [data?.items]);
   const meta = data?.meta ?? {
     current_page: 1,
     last_page: 1,
@@ -800,10 +839,6 @@ export function FulfillmentOrdersTable({
   );
 
   React.useEffect(() => {
-    setRenderedCount(orders.length > 40 ? 30 : orders.length);
-  }, [orders]);
-
-  React.useEffect(() => {
     if (renderedCount < orders.length) {
       const handle = requestAnimationFrame(() => {
         setRenderedCount((prev) => Math.min(prev + 40, orders.length));
@@ -812,7 +847,10 @@ export function FulfillmentOrdersTable({
     }
   }, [renderedCount, orders.length]);
 
-  const visibleOrders = orders.slice(0, renderedCount);
+  const visibleOrders = orders.slice(
+    0,
+    orders.length > 40 ? Math.min(renderedCount, orders.length) : orders.length,
+  );
 
   const selectableOrders = orders.filter((o) => o.status !== "cancelled");
   const pageIds = selectableOrders.map((o) => o.id);
@@ -954,7 +992,7 @@ export function FulfillmentOrdersTable({
             searchPlaceholder={searchPlaceholder}
           />
           <div className="flex items-center justify-end gap-3 px-4 py-2 text-sm text-muted-foreground sm:px-5">
-            {actions.buatPengiriman && (
+            {actions.buatPengiriman && can("export-pengiriman") && (
               <UnduhBatalButton
                 count={preManifestCancelCount.data ?? 0}
                 onDownload={(range) => downloadCancelXlsx.mutate(range)}
@@ -991,7 +1029,7 @@ export function FulfillmentOrdersTable({
             />
           </div>
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            {actions.buatPengiriman && (
+            {actions.buatPengiriman && can("export-pengiriman") && (
               <UnduhBatalButton
                 count={preManifestCancelCount.data ?? 0}
                 onDownload={(range) => downloadCancelXlsx.mutate(range)}
@@ -1026,7 +1064,7 @@ export function FulfillmentOrdersTable({
           <span className="mr-1 text-sm font-medium">
             {selected.size} pesanan dipilih
           </span>
-          {actions.buatPicklist && (
+          {permittedActions.buatPicklist && (
             <Button
               size="sm"
               variant="primary"
@@ -1035,7 +1073,7 @@ export function FulfillmentOrdersTable({
               Buat Picklist
             </Button>
           )}
-          {actions.buatPengiriman && (
+          {permittedActions.buatPengiriman && (
             <Button
               size="sm"
               variant="primary"
@@ -1044,7 +1082,7 @@ export function FulfillmentOrdersTable({
               Buat Pengiriman
             </Button>
           )}
-          {actions.cetakFaktur && (
+          {permittedActions.cetakFaktur && (
             <Button
               size="sm"
               variant="outline"
@@ -1053,7 +1091,7 @@ export function FulfillmentOrdersTable({
               Cetak Faktur
             </Button>
           )}
-          {actions.cetakLabel && (
+          {permittedActions.cetakLabel && (
             <Button
               size="sm"
               variant="outline"
@@ -1072,7 +1110,7 @@ export function FulfillmentOrdersTable({
               Cetak Label
             </Button>
           )}
-          {actions.cetakPicklist && (
+          {permittedActions.cetakPicklist && (
             <Button
               size="sm"
               variant="outline"
@@ -1081,7 +1119,7 @@ export function FulfillmentOrdersTable({
               Cetak Picklist
             </Button>
           )}
-          {actions.fakturLabel && (
+          {permittedActions.fakturLabel && (
             <Button
               size="sm"
               variant="outline"
@@ -1094,7 +1132,7 @@ export function FulfillmentOrdersTable({
               Faktur & Label
             </Button>
           )}
-          {actions.suratJalan && (
+          {permittedActions.suratJalan && (
             <Button
               size="sm"
               variant="outline"
@@ -1103,7 +1141,7 @@ export function FulfillmentOrdersTable({
               Surat Jalan + Faktur
             </Button>
           )}
-          {actions.siapDikirim && (
+          {permittedActions.siapDikirim && (
             <Button
               size="sm"
               variant="primary"
@@ -1116,7 +1154,7 @@ export function FulfillmentOrdersTable({
               Siap Dikirim
             </Button>
           )}
-          {actions.selesaikanPesanan && (
+          {permittedActions.selesaikanPesanan && (
             <Button
               size="sm"
               variant="primary"
@@ -1129,15 +1167,17 @@ export function FulfillmentOrdersTable({
               Selesaikan Pesanan
             </Button>
           )}
-          <Button
-            size="sm"
-            variant="outline"
-            className="border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
-            onClick={() => setBulkDeleteOpen(true)}
-          >
-            <Trash2Icon className="size-4" />
-            Hapus
-          </Button>
+          {canDeleteOrder && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
+              onClick={() => setBulkDeleteOpen(true)}
+            >
+              <Trash2Icon className="size-4" />
+              Hapus
+            </Button>
+          )}
           <Button
             size="sm"
             variant="ghost"
@@ -1180,21 +1220,21 @@ export function FulfillmentOrdersTable({
               <OrderCard
                 key={o.id}
                 order={o}
-                actions={actions}
+                actions={permittedActions}
                 selected={selected.has(o.id)}
                 onToggle={() => toggleOne(o.id)}
                 onShip={handleShip}
                 onComplete={handleComplete}
                 onBuatPengiriman={
-                  actions.buatPengiriman
+                  permittedActions.buatPengiriman
                     ? (order) => {
                         setSinglePengirimanOrder(order);
                       }
                     : undefined
                 }
-                onRetryPickup={handleRetryPickup}
-                onDismissCancel={handleDismissCancel}
-                onDeleteOrder={setDeleteTarget}
+                onRetryPickup={canEditOrder ? handleRetryPickup : undefined}
+                onDismissCancel={canEditShipping ? handleDismissCancel : undefined}
+                onDeleteOrder={canDeleteOrder ? setDeleteTarget : undefined}
                 shipPending={readyToShip.isPending}
                 completePending={markComplete.isPending}
                 retryPickupPending={retryPickup.isPending}
@@ -1224,7 +1264,7 @@ export function FulfillmentOrdersTable({
         />
       </div>
 
-      {actions.buatPicklist && (
+      {permittedActions.buatPicklist && (
         <BuatPicklistDialog
           open={picklistOpen}
           onOpenChange={setPicklistOpen}
@@ -1236,7 +1276,7 @@ export function FulfillmentOrdersTable({
         />
       )}
 
-      {actions.buatPengiriman &&
+      {permittedActions.buatPengiriman &&
         (() => {
           const bulkSources = Array.from(
             new Set(selectedOrders.map((o) => o.source).filter(Boolean)),
@@ -1264,23 +1304,25 @@ export function FulfillmentOrdersTable({
           );
         })()}
 
-      <DeleteOrderDialog
-        open={bulkDeleteOpen || !!deleteTarget}
-        onOpenChange={(open) => {
-          if (!open) {
-            setBulkDeleteOpen(false);
-            setDeleteTarget(null);
+      {canDeleteOrder && (
+        <DeleteOrderDialog
+          open={bulkDeleteOpen || !!deleteTarget}
+          onOpenChange={(open) => {
+            if (!open) {
+              setBulkDeleteOpen(false);
+              setDeleteTarget(null);
+            }
+          }}
+          orders={
+            bulkDeleteOpen
+              ? selectedOrders.map((o) => ({ id: o.id, no: o.salesorderNo }))
+              : deleteTarget
+                ? [{ id: deleteTarget.id, no: deleteTarget.salesorderNo }]
+                : []
           }
-        }}
-        orders={
-          bulkDeleteOpen
-            ? selectedOrders.map((o) => ({ id: o.id, no: o.salesorderNo }))
-            : deleteTarget
-              ? [{ id: deleteTarget.id, no: deleteTarget.salesorderNo }]
-              : []
-        }
-        onDeleted={clearSelection}
-      />
+          onDeleted={clearSelection}
+        />
+      )}
 
       {singlePengirimanOrder && (
         <BuatPengirimanDialog

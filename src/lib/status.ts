@@ -285,6 +285,7 @@ export const STATUS_REGISTRY: Record<Domain, Record<string, StatusMeta>> = {
     ACCEPTED: { label: "Disetujui", variant: "info" },
     REJECTED: { label: "Ditolak", variant: "destructive" },
     DONE: { label: "Selesai", variant: "success" },
+    CANCELLED: { label: "Dibatalkan otomatis", variant: "muted" },
   },
 
   "impex-activity": {

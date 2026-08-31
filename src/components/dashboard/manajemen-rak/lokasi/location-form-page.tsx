@@ -33,6 +33,7 @@ import type {
   LocationPayload,
 } from "@/types/manajemen-rak/location";
 import { apiError } from "@/lib/toast";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 import { InformasiTab } from "./informasi-tab";
 import { LayoutGudangTab, type BinSkuAssignment } from "./layout-gudang-tab";
@@ -104,12 +105,17 @@ interface LocationFormPageProps {
 
 export function LocationFormPage({ mode, id }: LocationFormPageProps) {
   const router = useRouter();
+  const { can } = usePermissions();
+  const canSaveLocation = can(
+    mode === "create" ? "create-manajemen-rak" : "edit-manajemen-rak",
+  );
+  const canEditLayout = can("edit-manajemen-rak");
   const [section, setSection] = React.useState<Section>("informasi");
   const [appliedPayload, setAppliedPayload] =
     React.useState<GenerateBinsPayload | null>(null);
 
   const detail = useLocationDetail(mode === "edit" ? id : undefined);
-  const layoutSetting = useWarehouseLayoutSetting();
+  const layoutSetting = useWarehouseLayoutSetting(canEditLayout);
   const createLocation = useCreateLocation();
   const updateLocation = useUpdateLocation();
   const generateBins = useGenerateBins();
@@ -169,7 +175,7 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
           await updateLocation.mutateAsync({ id, payload });
         }
 
-        if (layoutEnabled && appliedPayload && locationId) {
+        if (layoutEnabled && canEditLayout && appliedPayload && locationId) {
           await generateBins.mutateAsync({
             locationId,
             payload: appliedPayload,
@@ -178,6 +184,7 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
 
         if (
           layoutEnabled &&
+          canEditLayout &&
           !appliedPayload &&
           locationId &&
           binsRef.current.length > 0
@@ -195,7 +202,12 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
           }
         }
 
-        if (layoutEnabled && locationId && assignmentsRef.current.length > 0) {
+        if (
+          layoutEnabled &&
+          canEditLayout &&
+          locationId &&
+          assignmentsRef.current.length > 0
+        ) {
           for (const a of assignmentsRef.current) {
             await assignBinSku.mutateAsync({
               binId: a.binId,
@@ -242,6 +254,7 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
     );
   }
 
+  const formDisabled = locked || !canSaveLocation;
   const navItems: { key: Section; label: string; show: boolean }[] = [
     { key: "informasi", label: "Informasi Lokasi", show: true },
     { key: "layout", label: "Layout Gudang", show: layoutEnabled },
@@ -292,10 +305,10 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
 
           <div className="rounded-2xl border border-border bg-card p-6">
             {section === "informasi" ? (
-              <InformasiTab disabled={locked} />
+              <InformasiTab disabled={formDisabled} />
             ) : section === "layout" ? (
               <LayoutGudangTab
-                disabled={locked}
+                disabled={formDisabled || !canEditLayout}
                 locationId={mode === "edit" ? id : undefined}
                 locationCode={detail.data?.locationCode}
                 isSmallWarehouse={
@@ -315,7 +328,7 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
               <ZonaTab
                 locationId={id}
                 bins={detail.data?.bins ?? []}
-                disabled={locked}
+                disabled={formDisabled}
               />
             )}
           </div>
@@ -325,7 +338,7 @@ export function LocationFormPage({ mode, id }: LocationFormPageProps) {
           <Button variant="outline" asChild>
             <Link href={LIST_HREF}>Batal</Link>
           </Button>
-          {!locked && (
+          {canSaveLocation && !locked && (
             <Button type="submit" variant="primary" disabled={saving}>
               {saving && <Loader2Icon className="animate-spin" />}
               Simpan

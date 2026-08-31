@@ -19,13 +19,16 @@ import {
   type StockAllocationParams,
 } from "@/hooks/channel/use-stock-allocation";
 import type { StockAllocationStore, StockSourceMode } from "@/types/channel";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 function StockAllocationRow({
   store,
   params,
+  canEdit,
 }: {
   store: StockAllocationStore;
   params: StockAllocationParams;
+  canEdit: boolean;
 }) {
   const updateMut = useUpdateStockAllocation(params);
   const { data: locData, isLoading: locLoading } = useLocations({
@@ -97,6 +100,12 @@ function StockAllocationRow({
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
+        {!canEdit ? (
+          <span className="text-sm text-muted-foreground">
+            {mode === "location" ? "Lokasi stok" : "Stok total"}
+          </span>
+        ) : (
+          <>
         <RadioGroup
           value={mode}
           onValueChange={handleModeChange}
@@ -133,12 +142,16 @@ function StockAllocationRow({
         {updateMut.isPending && (
           <Loader2Icon className="size-4 shrink-0 animate-spin text-muted-foreground" />
         )}
+          </>
+        )}
       </div>
     </div>
   );
 }
 
 export function StockAllocationList() {
+  const { can } = usePermissions();
+  const canEdit = can("edit-posisi-stok");
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
 
@@ -180,6 +193,7 @@ export function StockAllocationList() {
               key={store.storeId}
               store={store}
               params={params}
+              canEdit={canEdit}
             />
           ))}
         </div>

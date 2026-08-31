@@ -19,6 +19,7 @@ import { MonitorKronologiTable } from "@/components/dashboard/monitor-stok/monit
 import { DateRangePicker } from "@/components/ui/date-picker";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { useEnabledCategories } from "@/hooks/kategori-merek/use-kategori";
+import { useQueueFromMonitor } from "@/hooks/gudang/use-stock-replenishment";
 import {
   useMonitorList,
   useMonitorAnalytics,
@@ -267,6 +268,7 @@ export function MonitorStokView() {
   const { data: summary } = useMonitorSummary(baseFilters);
   const { data: locData } = useLocations({ perPage: 100 });
   const { data: categoryTree } = useEnabledCategories();
+  const queueMutation = useQueueFromMonitor();
 
   const active = isKronologiTab(tab)
     ? kronologiQuery
@@ -619,6 +621,16 @@ export function MonitorStokView() {
                   isFetching={listQuery.isFetching && !listQuery.isLoading}
                   locationLabel={locationLabel}
                   showRestock={tab === "menipis"}
+                  enableQueueAction={
+                    tab === "stok-kosong" && subMode === "dipesan"
+                  }
+                  isQueueing={queueMutation.isPending}
+                  onQueue={(selected, table) => {
+                    queueMutation.mutate(
+                      { item_ids: selected.map((row) => row.item_id) },
+                      { onSuccess: () => table.resetRowSelection() },
+                    );
+                  }}
                   emptyText={
                     tab === "menipis"
                       ? "Tidak ada produk menipis."

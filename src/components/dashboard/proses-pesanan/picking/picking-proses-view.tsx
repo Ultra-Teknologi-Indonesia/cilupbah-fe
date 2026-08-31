@@ -66,6 +66,7 @@ import { useUserLookup } from "@/hooks/pengaturan/use-users";
 import { playScanFeedback } from "@/lib/scan-feedback";
 import { matchesKnownBin } from "@/lib/validators/bin-code";
 import { apiError, apiSuccess } from "@/lib/toast";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 const LIST_HREF = "/dashboard/proses-pesanan/picking";
 
@@ -175,13 +176,12 @@ export function PickingProsesView({ id }: { id: string }) {
   } = usePicklistDetail(id);
 
   const { data: me } = useMe();
-  const roles = me?.roles ?? [];
-  const canUnassign = roles.some((r) =>
-    ["owner", "admin", "kepala gudang", "leader outbound"].includes(r),
-  );
-  const canReset = roles.some((r) =>
-    ["owner", "admin", "kepala gudang"].includes(r),
-  );
+  const { can } = usePermissions();
+  const canEditPicking = can("edit-picking");
+  const canDeletePicking = can("delete-picking");
+  const canDeleteOrder = can("delete-pesanan");
+  const canUnassign = canEditPicking;
+  const canReset = canDeletePicking;
 
   const [unassignOpen, setUnassignOpen] = React.useState(false);
   const [resetOpen, setResetOpen] = React.useState(false);
@@ -191,7 +191,7 @@ export function PickingProsesView({ id }: { id: string }) {
   const staffQuery = useUserLookup({
     role: "picker",
     perPage: 50,
-  });
+  }, canEditPicking || canDeletePicking);
   const staffOptions = React.useMemo(
     () =>
       (staffQuery.data?.items ?? [])
@@ -265,7 +265,7 @@ export function PickingProsesView({ id }: { id: string }) {
     [pickItem, id, itemsQuery],
   );
   const { bump: bumpPick } = useScanDeltaQueue(commitPick, {
-    onSuccess: (res, itemId) => {
+    onSuccess: (res, _itemId) => {
       if (
         res &&
         typeof res === "object" &&
@@ -305,7 +305,7 @@ export function PickingProsesView({ id }: { id: string }) {
     ? ["COMPLETED", "FAILED", "CANCELLED"].includes(pl.status)
     : false;
 
-  const editable = !!pl && !isTerminal;
+  const editable = !!pl && !isTerminal && canEditPicking;
 
   React.useEffect(() => {
     if (pl && pl.status === "COMPLETED") {
@@ -317,7 +317,7 @@ export function PickingProsesView({ id }: { id: string }) {
   const didAutoStart = React.useRef(false);
   React.useEffect(() => {
     if (!pl || didAutoStart.current) return;
-    if (pl.status === "DRAFT") {
+    if (pl.status === "DRAFT" && canEditPicking) {
       didAutoStart.current = true;
       startPicklist.mutate(id, {
         onSuccess: () =>
@@ -325,7 +325,7 @@ export function PickingProsesView({ id }: { id: string }) {
         onError: (e) => apiError(e, "Gagal memulai picking."),
       });
     }
-  }, [pl, id, startPicklist]);
+  }, [pl, id, startPicklist, canEditPicking]);
 
   const [completeDialogDismissed, setCompleteDialogDismissed] =
     React.useState(false);
@@ -648,7 +648,7 @@ export function PickingProsesView({ id }: { id: string }) {
         cell: ({ row }) => {
           const it = row.original;
           const done = it.qtyPicked >= it.qtyOrdered;
-          if (!editable) {
+          if (!editable || !canDeleteOrder) {
             return (
               <div className="flex justify-end pr-2">
                 <span className="text-xs text-muted-foreground">—</span>
@@ -684,7 +684,7 @@ export function PickingProsesView({ id }: { id: string }) {
         size: 100,
       },
     ],
-    [editable],
+    [editable, canDeleteOrder],
   );
 
   return (
@@ -929,7 +929,7 @@ export function PickingProsesView({ id }: { id: string }) {
                             {activeItem.qtyOrdered - activeItem.qtyPicked}
                           </span>
                         </div>
-                        {activeItem.orderId && (
+                        {activeItem.orderId && canDeleteOrder && (
                           <Button
                             variant="ghost"
                             size="sm"
@@ -1118,7 +1118,7 @@ export function PickingProsesView({ id }: { id: string }) {
         </DialogContent>
       </Dialog>
 
-      <DeleteOrderDialog
+      {canDeleteOrder && <DeleteOrderDialog
         open={!!deleteOrderTarget}
         onOpenChange={(open) => {
           if (!open) setDeleteOrderTarget(null);
@@ -1139,7 +1139,7 @@ export function PickingProsesView({ id }: { id: string }) {
             router.replace(LIST_HREF);
           }
         }}
-      />
+      />}
 
       <UnassignReasonDialog
         open={unassignOpen}

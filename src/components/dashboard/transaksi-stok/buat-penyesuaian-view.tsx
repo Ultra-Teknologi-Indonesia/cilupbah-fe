@@ -47,6 +47,7 @@ import {
 import { InventoryStockService } from "@/services/persediaan/inventory.service";
 import { cn } from "@/lib/utils";
 import { playScanFeedback } from "@/lib/scan-feedback";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 const LIST_HREF = "/dashboard/transaksi-stok?tab=penyesuaian";
 
@@ -232,8 +233,12 @@ export function PenyesuaianFormPage({
 }: PenyesuaianFormPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { can } = usePermissions();
 
   const isEdit = mode === "edit" && Boolean(id);
+  const canMutate = can(
+    isEdit ? "edit-penyesuaian-stok" : "create-penyesuaian-stok",
+  );
 
   // Edit queries
   const { data: editDetail, isLoading: isLoadingDetail } =
@@ -560,6 +565,7 @@ export function PenyesuaianFormPage({
     validLines.length;
 
   const canSubmit =
+    canMutate &&
     !!locationId &&
     !!transactionDate &&
     lines.length > 0 &&
@@ -750,7 +756,7 @@ export function PenyesuaianFormPage({
                 variant="outline"
                 size="sm"
                 onClick={() => setPickerOpen(true)}
-                disabled={!locationId}
+                disabled={!canMutate || !locationId}
                 className="gap-1.5"
               >
                 <PlusIcon className="size-4" /> Tambah Item
@@ -777,14 +783,16 @@ export function PenyesuaianFormPage({
                     ? "Scan barcode / SKU lalu Enter…"
                     : "Pilih lokasi gudang terlebih dahulu…"
                 }
-                disabled={!locationId || scanning}
+                disabled={!canMutate || !locationId || scanning}
                 className="h-10 pl-9 font-mono text-sm"
               />
             </div>
             <Button
               type="submit"
               variant="outline"
-              disabled={!locationId || !scanCode.trim() || scanning}
+              disabled={
+                !canMutate || !locationId || !scanCode.trim() || scanning
+              }
             >
               {scanning ? (
                 <Loader2Icon className="size-4 animate-spin" />
@@ -928,6 +936,7 @@ export function PenyesuaianFormPage({
                           variant="ghost"
                           size="icon"
                           onClick={() => removeLine(l.lineId)}
+                          disabled={!canMutate}
                           className="size-8 text-muted-foreground hover:text-destructive"
                         >
                           <Trash2Icon className="size-4" />
@@ -953,7 +962,7 @@ export function PenyesuaianFormPage({
                 variant="outline"
                 size="sm"
                 onClick={() => setPickerOpen(true)}
-                disabled={!locationId}
+                disabled={!canMutate || !locationId}
                 className="gap-1.5"
               >
                 <PlusIcon className="size-4" /> Tambah Item Lainnya
@@ -967,10 +976,10 @@ export function PenyesuaianFormPage({
         <Button variant="outline" onClick={() => router.push(backHref)}>
           Batal
         </Button>
-        <Button onClick={handleSubmit} disabled={!canSubmit || isSaving}>
+        {canMutate && <Button onClick={handleSubmit} disabled={!canSubmit || isSaving}>
           {isSaving && <Loader2Icon className="mr-2 size-4 animate-spin" />}
           {isEdit ? "Simpan Perubahan" : "Simpan Penyesuaian"}
-        </Button>
+        </Button>}
       </FormFooter>
 
       <StockedProductPickerDialog

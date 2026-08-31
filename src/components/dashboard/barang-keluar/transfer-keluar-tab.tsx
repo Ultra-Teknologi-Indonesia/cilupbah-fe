@@ -46,6 +46,7 @@ import {
 import { useMe } from "@/hooks/auth/use-auth";
 import { toast } from "sonner";
 import { apiError } from "@/lib/toast";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import type { InventoryTransfer } from "@/types/barang-masuk/inventory-transfer";
 import { formatDateTime } from "@/lib/format";
@@ -281,6 +282,11 @@ function TransferTable({
 }
 
 export function TransferKeluarTab() {
+  const { can } = usePermissions();
+  const canCreateTransfer = can("create-barang-keluar");
+  const canEditTransfer = can("edit-barang-keluar");
+  const canDeleteTransfer = can("delete-barang-keluar");
+  const canExportTransfer = can("export-barang-keluar");
   const router = useRouter();
   const [subTab, setSubTab] = useUrlTab<SubTab>("tab", "draft", {
     validValues: ["draft", "transit", "finished"],
@@ -503,7 +509,7 @@ export function TransferKeluarTab() {
       const missingBin = hasMissingBin(item);
       return (
         <div className="flex items-center gap-1">
-          <Button
+          {canExportTransfer && canCreateTransfer && <Button
             variant="ghost"
             size="icon-sm"
             onClick={() => handlePrint(item)}
@@ -520,8 +526,8 @@ export function TransferKeluarTab() {
             ) : (
               <PrinterIcon className="size-3.5" />
             )}
-          </Button>
-          <Button
+          </Button>}
+          {canEditTransfer && <Button
             variant="ghost"
             size="icon-sm"
             onClick={() => handleEdit(item)}
@@ -529,8 +535,8 @@ export function TransferKeluarTab() {
             title="Ubah transfer"
           >
             <PencilIcon className="size-3.5" />
-          </Button>
-          <Button
+          </Button>}
+          {canDeleteTransfer && <Button
             variant="ghost"
             size="icon-sm"
             onClick={() => setDeleteTarget(item)}
@@ -539,17 +545,17 @@ export function TransferKeluarTab() {
             className="text-destructive hover:bg-destructive/10 hover:text-destructive"
           >
             <Trash2Icon className="size-3.5" />
-          </Button>
+          </Button>}
         </div>
       );
     },
-    [handlePrint, handleEdit, printingId],
+    [canCreateTransfer, canDeleteTransfer, canEditTransfer, canExportTransfer, handlePrint, handleEdit, printingId],
   );
 
   const transitActions = useCallback(
     (item: InventoryTransfer) => (
       <div className="flex items-center gap-1">
-        <Button
+        {canExportTransfer && <Button
           variant="ghost"
           size="icon-sm"
           onClick={() => handleReprint(item)}
@@ -562,8 +568,8 @@ export function TransferKeluarTab() {
           ) : (
             <PrinterIcon className="size-3.5" />
           )}
-        </Button>
-        <Button
+        </Button>}
+        {canEditTransfer && <Button
           variant="ghost"
           size="icon-sm"
           onClick={() => handleEdit(item)}
@@ -571,8 +577,8 @@ export function TransferKeluarTab() {
           title="Ubah transfer (dikembalikan ke Baru Dibuat)"
         >
           <PencilIcon className="size-3.5" />
-        </Button>
-        <Button
+        </Button>}
+        {canEditTransfer && <Button
           variant="ghost"
           size="icon-sm"
           onClick={() => setDeleteTarget(item)}
@@ -581,16 +587,16 @@ export function TransferKeluarTab() {
           className="text-destructive hover:bg-destructive/10 hover:text-destructive"
         >
           <Trash2Icon className="size-3.5" />
-        </Button>
+        </Button>}
       </div>
     ),
-    [handleReprint, handleEdit, printingId],
+    [canEditTransfer, canExportTransfer, handleReprint, handleEdit, printingId],
   );
 
   const reprintActions = useCallback(
     (item: InventoryTransfer) => (
       <div className="flex items-center gap-1">
-        <Button
+        {canExportTransfer && <Button
           variant="ghost"
           size="icon-sm"
           onClick={() => handleReprint(item)}
@@ -603,8 +609,8 @@ export function TransferKeluarTab() {
           ) : (
             <PrinterIcon className="size-3.5" />
           )}
-        </Button>
-        <Button
+        </Button>}
+        {canDeleteTransfer && <Button
           variant="ghost"
           size="icon-sm"
           onClick={() => setDeleteTarget(item)}
@@ -613,10 +619,10 @@ export function TransferKeluarTab() {
           className="text-destructive hover:bg-destructive/10 hover:text-destructive"
         >
           <Trash2Icon className="size-3.5" />
-        </Button>
+        </Button>}
       </div>
     ),
-    [handleReprint, printingId],
+    [canDeleteTransfer, canExportTransfer, handleReprint, printingId],
   );
 
   const bulkActionsFor = useCallback(
@@ -627,7 +633,7 @@ export function TransferKeluarTab() {
       const ids = selected.map((i) => i.id);
       return (
         <>
-          <Button
+          {canExportTransfer && <Button
             size="sm"
             variant="outline"
             disabled={bulkPrinting}
@@ -641,8 +647,8 @@ export function TransferKeluarTab() {
               <PrinterIcon className="mr-1.5 size-4" />
             )}
             Cetak {ids.length}
-          </Button>
-          {subTab !== "finished" && (
+          </Button>}
+          {subTab !== "finished" && (canDeleteTransfer || (subTab === "transit" && canEditTransfer)) && (
             <Button
               size="sm"
               variant="destructive"
@@ -660,7 +666,14 @@ export function TransferKeluarTab() {
         </>
       );
     },
-    [bulkPrinting, handleBulkPrint, subTab],
+    [
+      bulkPrinting,
+      canDeleteTransfer,
+      canEditTransfer,
+      canExportTransfer,
+      handleBulkPrint,
+      subTab,
+    ],
   );
 
   return (
@@ -685,15 +698,15 @@ export function TransferKeluarTab() {
             </TabsList>
           </Tabs>
           <div className="flex items-center gap-2">
-            <Button
+            {canCreateTransfer && <Button
               size="sm"
               variant="outline"
               onClick={() => setImportOpen(true)}
             >
               <UploadIcon className="mr-1.5 size-4" />
               Import
-            </Button>
-            <Button
+            </Button>}
+            {canCreateTransfer && <Button
               size="sm"
               onClick={() =>
                 router.push("/dashboard/barang-keluar/transfer/tambah")
@@ -701,7 +714,7 @@ export function TransferKeluarTab() {
             >
               <PlusIcon className="mr-1.5 size-4" />
               Tambah baru
-            </Button>
+            </Button>}
           </div>
         </div>
 
@@ -762,7 +775,13 @@ export function TransferKeluarTab() {
                 ? transitActions
                 : reprintActions
           }
-          bulkActions={bulkActionsFor}
+          bulkActions={
+            canExportTransfer ||
+            canDeleteTransfer ||
+            (subTab === "transit" && canEditTransfer)
+              ? bulkActionsFor
+              : undefined
+          }
         />
       </LiquidGlass>
 

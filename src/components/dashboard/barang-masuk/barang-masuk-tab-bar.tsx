@@ -5,12 +5,14 @@ import { usePathname } from "next/navigation";
 import { Undo2Icon, PackageIcon, LayersIcon } from "lucide-react";
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 type Tab = {
   id: string;
   label: string;
   icon: typeof PackageIcon;
   href?: string;
+  permission: string;
 };
 
 const TABS: Tab[] = [
@@ -19,18 +21,21 @@ const TABS: Tab[] = [
     label: "Penerimaan Barang",
     icon: PackageIcon,
     href: "/dashboard/barang-masuk/penerimaan",
+    permission: "view-barang-masuk",
   },
   {
     id: "penempatan",
     label: "Penempatan Barang",
     icon: LayersIcon,
     href: "/dashboard/barang-masuk/penempatan",
+    permission: "view-penempatan",
   },
   {
     id: "retur",
     label: "Retur dari Channel Online",
     icon: Undo2Icon,
     href: "/dashboard/barang-masuk/retur",
+    permission: "view-retur-penjualan",
   },
 ];
 
@@ -45,11 +50,12 @@ function activeId(pathname: string): string {
 export function BarangMasukTabBar() {
   const pathname = usePathname();
   const active = activeId(pathname);
+  const { can } = usePermissions();
 
   return (
     <Tabs value={active}>
       <TabsList variant="glass" className="max-w-full overflow-x-auto">
-        {TABS.map((tab) => {
+        {TABS.filter((tab) => can(tab.permission)).map((tab) => {
           const Icon = tab.icon;
 
           if (!tab.href) {

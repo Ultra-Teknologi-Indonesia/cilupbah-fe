@@ -45,6 +45,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { apiError } from "@/lib/toast";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 type PageFilterState = {
   source: string;
@@ -67,6 +68,9 @@ function SourceBadge({ source }: { source: string | null }) {
 }
 
 export function PreManifestCancelTable() {
+  const { can } = usePermissions();
+  const canEditShipping = can("edit-pengiriman");
+  const canExportShipping = can("export-pengiriman");
   const list = useListState<PageFilterState>(EMPTY_FILTERS, {
     perPage: 20,
     debounceMs: 350,
@@ -140,7 +144,7 @@ export function PreManifestCancelTable() {
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="No. Pesanan" />
         ),
-        cell: ({ row }) => (
+        cell: ({ row }) => canEditShipping ? (
           <div className="flex flex-col gap-0.5">
             <span className="font-medium text-foreground">
               {row.original.salesorderNo}
@@ -151,7 +155,7 @@ export function PreManifestCancelTable() {
               </span>
             )}
           </div>
-        ),
+        ) : null,
       },
       {
         id: "source",
@@ -236,7 +240,7 @@ export function PreManifestCancelTable() {
         ),
       },
     ],
-    [],
+    [canEditShipping],
   );
 
   return (
@@ -258,10 +262,12 @@ export function PreManifestCancelTable() {
           sebelum diserahkan ke kurir.
         </p>
         <div className="flex items-center gap-2">
-          <ExportButton
-            onDownload={(range) => download.mutate(range ?? undefined)}
-            pending={download.isPending}
-          />
+          {canExportShipping && (
+            <ExportButton
+              onDownload={(range) => download.mutate(range ?? undefined)}
+              pending={download.isPending}
+            />
+          )}
           <button
             type="button"
             onClick={() => refetch()}
@@ -312,7 +318,7 @@ export function PreManifestCancelTable() {
         />
       </div>
 
-      <ConfirmDialog
+      {canEditShipping && <ConfirmDialog
         open={!!dismissTarget}
         onOpenChange={(o) => {
           if (!o) setDismissTarget(null);
@@ -323,9 +329,9 @@ export function PreManifestCancelTable() {
         variant="default"
         loading={dismiss.isPending}
         onConfirm={handleDismissConfirm}
-      />
+      />}
 
-      <ConfirmDialog
+      {canEditShipping && <ConfirmDialog
         open={!!undismissTarget}
         onOpenChange={(o) => {
           if (!o) setUndismissTarget(null);
@@ -336,7 +342,7 @@ export function PreManifestCancelTable() {
         variant="destructive"
         loading={undismiss.isPending}
         onConfirm={handleUndismissConfirm}
-      />
+      />}
     </div>
   );
 }

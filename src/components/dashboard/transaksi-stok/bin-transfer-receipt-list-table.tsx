@@ -20,6 +20,7 @@ import {
 } from "@/hooks/transaksi-stok/use-bin-transfer";
 import { exportCsv } from "@/lib/export-csv";
 import { formatDateTimeWib } from "@/lib/format";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 interface FilterState {
   locationId: string;
@@ -67,6 +68,9 @@ export function BinTransferReceiptListTable() {
   const { data, isLoading, isFetching } = useBinTransferReceiptList(params);
   const { data: locData } = useLocations({ perPage: 100 });
   const deleteMut = useDeleteBinTransferReceipt();
+  const { can } = usePermissions();
+  const canEditTransfer = can("edit-pindah-bin");
+  const canExportTransfer = can("export-pindah-bin");
   const [revertTarget, setRevertTarget] = useState<BinTransferReceiptListItem | null>(null);
 
   const items = useMemo(
@@ -180,22 +184,24 @@ export function BinTransferReceiptListTable() {
                   <EyeIcon className="size-3.5" />
                 </Link>
               </Button>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                onClick={() => setRevertTarget(item)}
-                aria-label="Batalkan Penerimaan"
-                title="Batalkan Penerimaan"
-                className="text-destructive hover:text-destructive"
-              >
-                <RotateCcwIcon className="size-3.5" />
-              </Button>
+              {canEditTransfer && (
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => setRevertTarget(item)}
+                  aria-label="Batalkan Penerimaan"
+                  title="Batalkan Penerimaan"
+                  className="text-destructive hover:text-destructive"
+                >
+                  <RotateCcwIcon className="size-3.5" />
+                </Button>
+              )}
             </div>
           );
         },
       },
     ],
-    [],
+    [canEditTransfer],
   );
 
   const handleExport = useCallback(() => {
@@ -235,7 +241,7 @@ export function BinTransferReceiptListTable() {
         isLoading={isLoading}
         isFetching={isFetching}
         searchPlaceholder="Cari no. penerimaan / transfer..."
-        onExport={handleExport}
+        onExport={canExportTransfer ? handleExport : undefined}
         emptyIcon={InboxIcon}
         emptyTitle="Belum ada penerimaan transfer"
         emptyDescription="Penerimaan transfer barang yang sudah diselesaikan akan tampil di sini."

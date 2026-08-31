@@ -63,6 +63,7 @@ import type { DateRange } from "react-day-picker";
 import { formatDateTime } from "@/lib/format";
 import { ChannelLogo } from "@/components/dashboard/integrasi-channel/channel-logo";
 import type { ChannelCode } from "@/types/channel";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 type ReturSubTab = "unprocessed" | "rejected" | "accepted" | "completed";
 
@@ -141,6 +142,10 @@ function getChannelCode(item: SalesReturn): ChannelCode {
 }
 
 export function ReturChannelTab() {
+  const { can } = usePermissions();
+  const canEditReturn = can("edit-retur-penjualan");
+  const canCreateReturn = can("create-retur-penjualan");
+  const canExportReturn = can("export-retur-penjualan");
   const [subTab, setSubTab] = useUrlTab<ReturSubTab>("tab", "unprocessed", {
     validValues: ["unprocessed", "rejected", "accepted", "completed"],
   });
@@ -300,7 +305,7 @@ export function ReturChannelTab() {
                   </span>
                 )}
               </div>
-              {item.source === "marketplace" && (
+              {canEditReturn && item.source === "marketplace" && (
                 <button
                   type="button"
                   title="Sinkron resi dari marketplace"
@@ -345,7 +350,7 @@ export function ReturChannelTab() {
                   </div>
                 )}
               </div>
-              <button
+              {canEditReturn && <button
                 type="button"
                 title="Sinkron keputusan marketplace"
                 disabled={isSyncing}
@@ -355,7 +360,7 @@ export function ReturChannelTab() {
                 <RefreshCwIcon
                   className={cn("size-3.5", isSyncing && "animate-spin")}
                 />
-              </button>
+              </button>}
             </div>
           );
         },
@@ -455,7 +460,7 @@ export function ReturChannelTab() {
       },
     ];
 
-    if (isUnprocessed) {
+    if (isUnprocessed && canEditReturn) {
       cols.push({
         id: "actions",
         header: () => <div className="text-right">Aksi</div>,
@@ -490,7 +495,7 @@ export function ReturChannelTab() {
           );
         },
       });
-    } else if (subTab === "accepted") {
+    } else if (subTab === "accepted" && canEditReturn) {
       cols.push({
         id: "actions",
         header: () => <div className="text-right">Aksi</div>,
@@ -516,7 +521,7 @@ export function ReturChannelTab() {
     }
 
     return cols;
-  }, [isUnprocessed, subTab, syncTrackingMutation, syncDetailMutation]);
+  }, [isUnprocessed, subTab, syncTrackingMutation, syncDetailMutation, canEditReturn]);
 
   const items = data?.items ?? [];
   const meta = data?.meta ?? {
@@ -583,7 +588,7 @@ export function ReturChannelTab() {
             </TabsList>
           </Tabs>
           <div className="flex items-center gap-2">
-            <Button
+            {canExportReturn && <Button
               size="sm"
               variant="outline"
               className="gap-1.5"
@@ -591,13 +596,13 @@ export function ReturChannelTab() {
             >
               <DownloadIcon className="size-4" />
               Unduh Excel
-            </Button>
-            <Button size="sm" asChild className="gap-1.5">
+            </Button>}
+            {canCreateReturn && <Button size="sm" asChild className="gap-1.5">
               <Link href="/dashboard/barang-masuk/retur/buat">
                 <PlusIcon className="size-4" />
                 Buat Retur
               </Link>
-            </Button>
+            </Button>}
           </div>
         </div>
 

@@ -21,10 +21,10 @@ export function Can({
 }: CanProps): React.ReactNode {
   const { can, canAny, canAll } = usePermissions();
 
-  if (!permission) return children;
+  if (!permission) return fallback;
 
   const perms = Array.isArray(permission) ? permission : [permission];
-  if (perms.length === 0) return children;
+  if (perms.length === 0) return fallback;
 
   const allowed =
     perms.length === 1

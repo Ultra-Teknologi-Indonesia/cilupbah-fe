@@ -8,6 +8,16 @@ import {
   STAGE_CONFIG,
   type FulfillmentStage,
 } from "@/types/proses-pesanan/fulfillment";
+import { usePermissions } from "@/hooks/auth/use-permissions";
+
+const STAGE_PERMISSION: Record<FulfillmentStage, string> = {
+  pantauan: "view-picking",
+  picking: "view-picking",
+  packing: "view-packing",
+  shipping: "view-pengiriman",
+  delivered: "view-pengiriman",
+  done: "view-pengiriman",
+};
 
 function activeStage(pathname: string): FulfillmentStage {
   for (const { key } of STAGE_CONFIG) {
@@ -19,11 +29,12 @@ function activeStage(pathname: string): FulfillmentStage {
 export function StageTabs() {
   const pathname = usePathname();
   const active = activeStage(pathname);
+  const { can } = usePermissions();
 
   return (
     <Tabs value={active}>
       <TabsList variant="glass" className="max-w-full overflow-x-auto">
-        {STAGE_CONFIG.map(({ key, label }) => (
+        {STAGE_CONFIG.filter(({ key }) => can(STAGE_PERMISSION[key])).map(({ key, label }) => (
           <TabsTrigger key={key} value={key} asChild>
             <Link href={`/dashboard/proses-pesanan/${key}`}>{label}</Link>
           </TabsTrigger>

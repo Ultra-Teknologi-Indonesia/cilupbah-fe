@@ -30,6 +30,7 @@ import {
 } from "@/hooks/transaksi-stok/use-stock-adjustments";
 import { exportCsv } from "@/lib/export-csv";
 import { formatDateTimeFull } from "@/lib/format";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -44,6 +45,10 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 
 export function PenyesuaianDetail({ id }: { id: string }) {
   const router = useRouter();
+  const { can } = usePermissions();
+  const canEdit = can("edit-penyesuaian-stok");
+  const canDelete = can("delete-penyesuaian-stok");
+  const canExport = can("export-penyesuaian-stok");
   const { data: adj, isLoading } = useStockAdjustmentDetail(id);
 
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
@@ -63,7 +68,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const handleExport = () => {
-    if (!adj || !itemsData?.items?.length) return;
+    if (!canExport || !adj || !itemsData?.items?.length) return;
     exportCsv(
       `koreksi-stok-${adj.adjustment_no}.csv`,
       [
@@ -222,7 +227,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            <Button
+            {canExport && <Button
               variant="outline"
               size="sm"
               onClick={handleExport}
@@ -230,8 +235,8 @@ export function PenyesuaianDetail({ id }: { id: string }) {
             >
               <DownloadIcon className="mr-1.5 size-3.5" />
               Export CSV
-            </Button>
-            <Button
+            </Button>}
+            {canEdit && <Button
               variant="outline"
               size="sm"
               onClick={() =>
@@ -242,8 +247,8 @@ export function PenyesuaianDetail({ id }: { id: string }) {
             >
               <PencilIcon className="mr-1.5 size-3.5" />
               Ubah
-            </Button>
-            <Button
+            </Button>}
+            {canDelete && <Button
               variant="destructive"
               size="sm"
               onClick={() => setDeleteOpen(true)}
@@ -251,7 +256,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
             >
               <Trash2Icon className="mr-1.5 size-3.5" />
               Hapus
-            </Button>
+            </Button>}
           </div>
         }
       />
@@ -302,7 +307,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
         </div>
       </LiquidGlass>
 
-      <ConfirmDialog
+      {canDelete && <ConfirmDialog
         open={deleteOpen}
         onOpenChange={(open) => {
           if (!open) setDeleteOpen(false);
@@ -320,7 +325,7 @@ export function PenyesuaianDetail({ id }: { id: string }) {
             },
           });
         }}
-      />
+      />}
     </div>
   );
 }

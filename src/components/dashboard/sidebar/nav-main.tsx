@@ -16,6 +16,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useState } from "react";
 import { findActiveNavLink } from "./nav-data";
+import { usePermissions } from "@/hooks/auth/use-permissions";
+import type { PermissionRequirement } from "@/lib/auth/permissions";
 
 export type SubRoute = {
   title: string;
@@ -23,7 +25,7 @@ export type SubRoute = {
   badge?: string | number;
   comingSoon?: boolean;
 
-  permission?: string | string[];
+  permission?: PermissionRequirement;
   subs?: {
     title: string;
     link: string;
@@ -39,7 +41,7 @@ export type Route = {
   match?: string[];
   comingSoon?: boolean;
 
-  permission?: string | string[];
+  permission?: PermissionRequirement;
   subs?: SubRoute[];
 };
 
@@ -49,6 +51,14 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
   const [openCollapsible, setOpenCollapsible] = useState<string | null>(null);
   const pathname = usePathname();
   const shouldReduceMotion = useReducedMotion();
+  const { can, canAny, canAll } = usePermissions();
+
+  const requirementAllowed = (requirement?: PermissionRequirement) => {
+    if (!requirement) return true;
+    if (Array.isArray(requirement)) return canAny(requirement);
+    if (typeof requirement === "object") return canAll(requirement.all);
+    return can(requirement);
+  };
 
   const [prevPathname, setPrevPathname] = useState(pathname);
   if (prevPathname !== pathname) {
@@ -88,6 +98,9 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
   return (
     <SidebarMenu className="group-data-[collapsible=icon]:items-center">
       {routes.map((route) => {
+        const routeAllowed = requirementAllowed(route.permission);
+        if (!routeAllowed) return null;
+
         const isActive = isRouteActive(route);
         const isOpen = !isCollapsed && openCollapsible === route.id;
         const hasSubRoutes = !!route.subs?.length;
@@ -149,7 +162,13 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
                       }
                     >
                       <SidebarMenuSub className="my-1 ml-3.5 border-sidebar-border">
-                        {route.subs?.map((subRoute) => (
+                        {route.subs?.map((subRoute) => {
+                          const subAllowed = requirementAllowed(
+                            subRoute.permission,
+                          );
+                          if (!subAllowed) return null;
+
+                          return (
                           <div key={`${route.id}-${subRoute.title}`}>
                             <SidebarMenuSubItem className="h-auto">
                               <SidebarMenuSubButton asChild>
@@ -199,7 +218,8 @@ export default function DashboardNavigation({ routes }: { routes: Route[] }) {
                               </div>
                             )}
                           </div>
-                        ))}
+                          );
+                        })}
                       </SidebarMenuSub>
                     </motion.div>
                   )}

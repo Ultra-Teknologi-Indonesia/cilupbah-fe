@@ -53,6 +53,7 @@ import {
   type SyncStoreColumn,
 } from "@/hooks/persediaan/use-inventory-sync";
 import { useSyncStock } from "@/hooks/master-produk/use-sync-stock";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 type Mode = "sync" | "produk";
 
@@ -145,12 +146,14 @@ function StoreColumnHeader({
   onBulk,
   onSyncStock,
   pending,
+  canEdit,
 }: {
   store: SyncStoreColumn;
   mode: Mode;
   onBulk: (channelShopId: string, syncEnabled: boolean) => void;
   onSyncStock: (store: SyncStoreColumn) => void;
   pending: boolean;
+  canEdit: boolean;
 }) {
   return (
     <div className="flex flex-col items-center gap-1.5 px-1">
@@ -162,7 +165,7 @@ function StoreColumnHeader({
       <span className="line-clamp-2 text-center text-2xs font-medium leading-tight text-foreground">
         {store.shopName}
       </span>
-      {mode === "sync" && (
+      {mode === "sync" && canEdit && (
         <Popover modal={true}>
           <PopoverTrigger asChild>
             <button
@@ -212,6 +215,8 @@ export function SyncStokHargaView({
 }: {
   embedded?: boolean;
 } = {}) {
+  const { can } = usePermissions();
+  const canEdit = can("edit-pengaturan-persediaan");
   const [mode, setMode] = useState<Mode>("sync");
   const [hiddenStores, setHiddenStores] = useState<string[]>([]);
 
@@ -338,7 +343,7 @@ export function SyncStokHargaView({
 
   return (
     <div className="flex flex-col gap-4">
-      <GlobalSyncToggle />
+      {canEdit && <GlobalSyncToggle />}
 
       <LiquidGlass
         radius={20}
@@ -353,7 +358,7 @@ export function SyncStokHargaView({
           leading={embedded ? undefined : modeTabs}
           trailing={
             <div className="flex items-center gap-2">
-              {mode === "sync" && (
+              {canEdit && mode === "sync" && (
                 <Popover modal={true}>
                   <PopoverTrigger asChild>
                     <Button
@@ -460,6 +465,7 @@ export function SyncStokHargaView({
                             onBulk={handleBulk}
                             onSyncStock={handleSyncStock}
                             pending={bulkToggle.isPending}
+                            canEdit={canEdit}
                           />
                         </TableHead>
                       ))}
@@ -538,7 +544,7 @@ export function SyncStokHargaView({
                                   <span className="text-sm text-muted-foreground/50">
                                     —
                                   </span>
-                                ) : mode === "sync" ? (
+                                ) : mode === "sync" && canEdit ? (
                                   <Switch
                                     size="sm"
                                     checked={cell.syncEnabled}
@@ -553,7 +559,13 @@ export function SyncStokHargaView({
                                     aria-label={`Sync ${row.itemCode} di ${store.shopName}`}
                                   />
                                 ) : (
+                                  mode === "sync" ? (
+                                    <span className="text-2xs text-muted-foreground">
+                                      {cell.syncEnabled ? "Aktif" : "Nonaktif"}
+                                    </span>
+                                  ) : (
                                   <CheckIcon className="mx-auto size-4 text-success" />
+                                  )
                                 )}
                               </TableCell>
                             );

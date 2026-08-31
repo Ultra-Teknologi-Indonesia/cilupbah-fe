@@ -27,11 +27,18 @@ import {
 import { useListState } from "@/hooks/use-list-state";
 import type { Location } from "@/types/manajemen-rak/location";
 import { apiError } from "@/lib/toast";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 import { LocationTable } from "./location-table";
 import { DeleteLocationDialog } from "./delete-location-dialog";
 
 export function LocationListView() {
+  const { can } = usePermissions();
+  const canCreateLocation = can("create-manajemen-rak");
+  const canEditLocation = can("edit-manajemen-rak");
+  const canDeleteLocation = can("delete-manajemen-rak");
+  const canViewSystemSettings = can("view-pengaturan-sistem");
+  const canEditSystemSettings = can("edit-pengaturan-sistem");
   const list = useListState<Record<string, never>>(
     {},
     { perPage: 20, debounceMs: 350, namespace: "lokasi" },
@@ -45,7 +52,7 @@ export function LocationListView() {
     perPage: list.perPage,
     excludeTransit: false,
   });
-  const setting = useWarehouseLayoutSetting();
+  const setting = useWarehouseLayoutSetting(canViewSystemSettings);
   const saveSetting = useSaveWarehouseLayoutSetting();
   const deleteLocation = useDeleteLocation();
   const toggleActive = useToggleLocationActive();
@@ -106,12 +113,16 @@ export function LocationListView() {
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <Switch
-              checked={setting.data?.useWarehouseLayout ?? false}
-              disabled={setting.isLoading || saveSetting.isPending}
-              onCheckedChange={handleToggleLayout}
-              aria-label="Gunakan layout gudang"
-            />
+            {canViewSystemSettings && (
+              <Switch
+                checked={setting.data?.useWarehouseLayout ?? false}
+                disabled={
+                  !canEditSystemSettings || setting.isLoading || saveSetting.isPending
+                }
+                onCheckedChange={handleToggleLayout}
+                aria-label="Gunakan layout gudang"
+              />
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -124,12 +135,14 @@ export function LocationListView() {
                 className="pl-9"
               />
             </div>
-            <Button variant="primary" asChild>
-              <Link href="/dashboard/lokasi/buat">
-                <PlusIcon />
-                Buat Lokasi
-              </Link>
-            </Button>
+            {canCreateLocation && (
+              <Button variant="primary" asChild>
+                <Link href="/dashboard/lokasi/buat">
+                  <PlusIcon />
+                  Buat Lokasi
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
 
@@ -155,6 +168,8 @@ export function LocationListView() {
             togglingId={togglingId}
             onToggleActive={handleToggleActive}
             onDelete={(loc) => setDeleteTarget(loc)}
+            canEdit={canEditLocation}
+            canDelete={canDeleteLocation}
           />
         )}
 
