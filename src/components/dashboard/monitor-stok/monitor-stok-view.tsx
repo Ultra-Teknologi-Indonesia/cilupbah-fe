@@ -16,6 +16,7 @@ import {
 } from "@/components/dashboard/monitor-stok/monitor-analytics-table";
 import { MonitorSyncFailedTable } from "@/components/dashboard/monitor-stok/monitor-sync-failed-table";
 import { MonitorKronologiTable } from "@/components/dashboard/monitor-stok/monitor-kronologi-table";
+import { MonitorStockExportMenu } from "@/components/dashboard/monitor-stok/monitor-stock-export-menu";
 import { DateRangePicker } from "@/components/ui/date-picker";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import { useEnabledCategories } from "@/hooks/kategori-merek/use-kategori";
@@ -345,6 +346,22 @@ export function MonitorStokView() {
 
   const totalBadge = tab === "stok-kosong" ? subTotal(subMode) : meta.total;
 
+  const exportMenu = (
+    <MonitorStockExportMenu
+      tab={tab}
+      subMode={subMode}
+      kronologiView={kronologiView}
+      search={debouncedSearch}
+      locationId={locationId}
+      categoryId={categoryId}
+      period={period}
+      kronologiSource={kronologiSource}
+      kronologiDirection={kronologiDirection}
+      dateFrom={kronologiDateFrom}
+      dateTo={kronologiDateTo}
+    />
+  );
+
   return (
     <div className="flex flex-col gap-4">
       <Tabs
@@ -438,6 +455,7 @@ export function MonitorStokView() {
               hasFilter={false}
               activeCount={0}
               gridCols={3}
+              trailing={exportMenu}
             >
               <div />
               <div />
@@ -469,6 +487,7 @@ export function MonitorStokView() {
               align="end"
               hasFilter={false}
               activeCount={0}
+              trailing={exportMenu}
             />
 
             <div className="flex flex-wrap items-end gap-3 px-4 pt-3 sm:px-5">
@@ -593,6 +612,7 @@ export function MonitorStokView() {
               hasFilter={hasFilter}
               activeCount={activeCount}
               gridCols={2}
+              trailing={exportMenu}
             >
               <Combobox
                 options={locationOptions}

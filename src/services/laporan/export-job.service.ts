@@ -1,4 +1,4 @@
-import { fetchBlob, fetchClient } from "@/lib/api-client";
+import { fetchBlob, fetchBlobRaw, fetchClient } from "@/lib/api-client";
 import type { ApiResponse } from "@/types/api.types";
 import type { ExportJobStatus } from "@/types/laporan/export-job";
 
@@ -15,4 +15,7 @@ export const ExportJobService = {
 
   download: (id: string, filename: string): Promise<void> =>
     fetchBlob(`/reports/exports/${id}/download`, filename, XLSX_MIME),
+
+  downloadBlob: (id: string, mimeType: string): Promise<Blob> =>
+    fetchBlobRaw(`/reports/exports/${id}/download`, mimeType),
 };

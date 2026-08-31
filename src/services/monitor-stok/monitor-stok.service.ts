@@ -12,6 +12,7 @@ import type {
   KronologiParams,
   KronologiRow,
   MovementFilterOptions,
+  MonitorStockExportParams,
 } from "@/types/monitor-stok/monitor";
 
 function toQuery(
@@ -47,6 +48,14 @@ function analyticsQuery(params: MonitorAnalyticsParams): string {
 }
 
 export const MonitorStockService = {
+  exportAsync: async (params: MonitorStockExportParams): Promise<string> => {
+    const res = await fetchClient<ApiResponse<{ export_id: string }>>(
+      `/inventory/monitor/export/async`,
+      { method: "POST", data: params },
+    );
+    return res.data.export_id;
+  },
+
   outOfStock: (mode: OutOfStockMode, params: MonitorListParams = {}) =>
     listFrom(`/inventory/monitor/out-of-stock?${toQuery(params, { mode })}`),
 

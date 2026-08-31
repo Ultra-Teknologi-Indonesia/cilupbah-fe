@@ -12,6 +12,7 @@ import { OutboundTransferService } from "@/services/barang-keluar/outbound-trans
 import { PurchaseOrderService } from "@/services/transaksi-pembelian/purchase-order.service";
 import { ReportService } from "@/services/laporan/report.service";
 import { LaporanGudangService } from "@/services/laporan/laporan-gudang.service";
+import { ExportJobService } from "@/services/laporan/export-job.service";
 import type {
   OrderPerformanceJenis,
   OrderPerformanceMode,
@@ -113,7 +114,8 @@ export type DocumentTypeKey =
   | "laporan-performa-penempatan"
   | "laporan-performa-pesanan"
   | "laporan-picklist"
-  | "laporan-penyesuaian";
+  | "laporan-penyesuaian"
+  | "monitor-stock-export";
 
 const HARGA_LABEL: Record<BarcodeHarga, string> = {
   tanpa_harga: "Tanpa Harga",
@@ -688,6 +690,34 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       const [start, end] = id.split("_");
       return `Daftar-Penyesuaian-${start}_${end}.pdf`;
     },
+  },
+
+  "monitor-stock-export": {
+    title: "Export Monitor Stok",
+    subtitle: (_id, meta) => (meta?.file_name as string | undefined) ?? "Monitor Stok",
+    fetchPdf: async (id, _query, onProgress) => {
+      const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+      for (let attempt = 0; attempt < 240; attempt += 1) {
+        const job = await ExportJobService.status(decodeURIComponent(id));
+        if (job.status === "ready") {
+          const blob = await ExportJobService.downloadBlob(
+            decodeURIComponent(id),
+            "application/pdf",
+          );
+          return { blob, meta: { file_name: job.file_name } };
+        }
+        if (job.status === "failed") {
+          throw new Error(job.error ?? "Gagal membuat PDF Monitor Stok.");
+        }
+        onProgress?.("Menyiapkan PDF di server…");
+        await wait(1500);
+      }
+
+      throw new Error("Pembuatan PDF terlalu lama. Silakan coba lagi.");
+    },
+    backUrl: () => "/dashboard/monitor-stok",
+    filename: (_id, meta) => (meta?.file_name as string | undefined) ?? "monitor-stok.pdf",
   },
 };
 

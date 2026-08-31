@@ -94,6 +94,23 @@ export type MonitorTab =
   | "gagal-sync"
   | "kronologi";
 
+export type MonitorStockExportFormat = "xlsx" | "pdf";
+
+export interface MonitorStockExportParams {
+  format: MonitorStockExportFormat;
+  tab: MonitorTab;
+  mode?: OutOfStockMode;
+  kronologi_view?: KronologiView;
+  search?: string;
+  location_id?: string;
+  category_id?: string;
+  period?: number;
+  kron_source?: string;
+  kron_direction?: "in" | "out";
+  date_from?: string;
+  date_to?: string;
+}
+
 export type KronologiView = "clean" | "attention" | "all";
 
 export interface KronologiRow {
