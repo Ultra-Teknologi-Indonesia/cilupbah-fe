@@ -692,11 +692,10 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
   const canExportShipping = can("export-pengiriman");
   const canRequestCancel = !!order && canEditOrder && canRequestChannelCancel(order);
   const canManualCancel = !!order && canEditOrder && !isMarketplace;
-  const canCreateInstantShipment = Boolean(
+  const canCreateShipment = Boolean(
     order &&
       can("create-pengiriman") &&
       order.status === "packed" &&
-      order.is_instant &&
       !order.is_canceled &&
       !order.scheduled_shipment,
   );
@@ -798,7 +797,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
         ]}
         actions={
           <div className="flex items-center gap-2">
-            {canCreateInstantShipment && (
+            {canCreateShipment && (
               <Button
                 variant="primary"
                 size="sm"
@@ -1424,7 +1423,7 @@ export function OrderDetailView({ orderId }: { orderId: string }) {
         pickup={order.courier_pickup}
       />}
 
-      {canCreateInstantShipment && (
+      {canCreateShipment && (
         <BuatPengirimanDialog
           open={pengirimanOpen}
           onOpenChange={setPengirimanOpen}

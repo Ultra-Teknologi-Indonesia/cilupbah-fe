@@ -60,10 +60,6 @@ function isInternalManualOrder(order: Order): boolean {
   return order.is_manual === true && !hasChannelIdentity;
 }
 
-function isShipmentCreationEligible(order: Order): boolean {
-  return isInternalManualOrder(order) || Boolean(order.is_instant);
-}
-
 type CardFilterState = {
   shipping_provider: string;
   courier_code: string;
@@ -270,9 +266,6 @@ export function FulfillmentCardList({
   const createShipmentDisabled = React.useMemo(() => {
     if (!shipmentCreationEnabled || selectedOrders.length === 0)
       return undefined;
-    if (selectedOrders.some((m) => !isShipmentCreationEligible(m.ui))) {
-      return "Buat Pengiriman hanya untuk pesanan instant atau internal/manual";
-    }
     const internalCount = selectedOrders.filter((m) =>
       isInternalManualOrder(m.ui),
     ).length;
@@ -282,12 +275,6 @@ export function FulfillmentCardList({
     const marketplaceOrders = selectedOrders.filter(
       (m) => !isInternalManualOrder(m.ui),
     );
-    if (
-      marketplaceOrders.length > 0 &&
-      marketplaceOrders.some((m) => !m.ui.is_instant)
-    ) {
-      return "Pesanan marketplace reguler tidak dapat dibuatkan pengiriman dari sini";
-    }
     if (
       marketplaceOrders.length > 0 &&
       marketplaceOrders.some((m) => !m.raw.shippingProvider?.trim())
