@@ -127,6 +127,7 @@ export type HandoverMethod = "dropoff" | "pickup";
 
 export interface StockAllocationStore {
   storeId: string;
+  channelCode: ChannelCode;
   channelName: string;
   storeName: string;
   fullStoreName: string;
@@ -138,6 +139,7 @@ export interface StockAllocationStore {
 
 export interface RawStockAllocationStore {
   store_id: string;
+  channel_code: string;
   channel_name: string;
   store_name: string;
   full_store_name: string;

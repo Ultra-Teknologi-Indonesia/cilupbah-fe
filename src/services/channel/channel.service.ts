@@ -26,6 +26,7 @@ function mapStockAllocationStore(
 ): StockAllocationStore {
   return {
     storeId: raw.store_id,
+    channelCode: raw.channel_code as ChannelCode,
     channelName: raw.channel_name,
     storeName: raw.store_name,
     fullStoreName: raw.full_store_name,

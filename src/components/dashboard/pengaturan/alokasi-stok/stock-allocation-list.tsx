@@ -92,7 +92,7 @@ function StockAllocationRow({
     <div className="flex flex-wrap items-center justify-between gap-3 py-3">
       <div className="flex min-w-0 items-center gap-2.5">
         <ChannelLogo
-          code={store.channelName.toLowerCase()}
+          code={store.channelCode}
           name={store.channelName}
           className="size-8 rounded-xl"
         />
