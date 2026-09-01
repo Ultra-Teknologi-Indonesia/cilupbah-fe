@@ -140,8 +140,8 @@ export function RackImportDialog({ open, onOpenChange }: Props) {
         <DialogHeader>
           <DialogTitle>Import Alokasi Rak</DialogTitle>
           <DialogDescription>
-            Unggah file (tanpa batas jumlah baris). Sistem memvalidasi tiap
-            baris di latar belakang, lalu Anda tinjau sebelum diterapkan.
+            Unggah file berisi SKU, lokasi, dan rak. Sistem memvalidasi tiap
+            baris, lalu menyimpan alokasi rak tanpa memindahkan stok.
           </DialogDescription>
         </DialogHeader>
 
@@ -163,7 +163,7 @@ export function RackImportDialog({ open, onOpenChange }: Props) {
           />
         ) : confirming ? (
           <ProgressStep
-            title="Menempatkan ke rak…"
+            title="Menyimpan alokasi rak…"
             subtitle={`${batch?.processedRows ?? 0} dari ${batch?.placeRows ?? 0} SKU diproses.`}
             percent={batch?.progressPercent ?? 0}
           />

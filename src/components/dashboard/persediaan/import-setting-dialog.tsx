@@ -58,7 +58,7 @@ interface Props {
 function StatusPill({ status }: { status: string }) {
   const map: Record<string, { label: string; className: string }> = {
     update: { label: "Akan diperbarui", className: "text-primary" },
-    place: { label: "Akan ditempatkan", className: "text-success" },
+    place: { label: "Alokasi akan disimpan", className: "text-success" },
     manual_move: { label: "Perlu Pindah Bin", className: "text-warning" },
     already: { label: "Sudah sesuai", className: "text-muted-foreground" },
     error: { label: "Error", className: "text-destructive" },

@@ -66,7 +66,7 @@ const IMPORT_ITEMS: { type: ImportSettingType; label: string; desc: string }[] =
     {
       type: "rack-allocation",
       label: "Import Alokasi Rak",
-      desc: "Tempatkan SKU ke rak dari file.",
+      desc: "Simpan alokasi SKU ke rak tanpa memindahkan stok.",
     },
   ];
 
