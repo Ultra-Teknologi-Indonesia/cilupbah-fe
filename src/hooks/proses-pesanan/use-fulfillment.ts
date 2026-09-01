@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { apiError } from "@/lib/toast";
 import { invalidateStockViews } from "@/lib/stock-cache";
 import { notifyOrderActivityChanged } from "@/lib/pesanan/order-activity-event";
+import { useAsyncExport } from "@/hooks/laporan/use-async-export";
 
 import {
   OutboundService,
@@ -98,6 +99,10 @@ export function useOutboundMonitoring(enabled = true) {
     refetchInterval: 60_000,
     enabled,
   });
+}
+
+export function useExportProcessOrdersCsv() {
+  return useAsyncExport(() => OutboundService.exportProcessOrdersCsv());
 }
 
 export function usePickers(locationId?: string, role?: string, enabled = true) {

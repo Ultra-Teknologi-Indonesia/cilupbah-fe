@@ -1,4 +1,5 @@
 import { fetchBlobPost, fetchBlobRaw, fetchClient } from "@/lib/api-client";
+import { ExportJobService } from "@/services/laporan/export-job.service";
 import type { ApiPaginated, ApiResponse } from "@/types/api.types";
 import type {
   Courier,
@@ -521,6 +522,15 @@ export const OutboundService = {
         waitingShip: p.waiting_ship,
       })),
     };
+  },
+
+  exportProcessOrdersCsv: async (): Promise<string> => {
+    const res = await fetchClient<ApiResponse<{ export_id: string }>>(
+      "/outbound/orders/export/async",
+      { method: "POST" },
+    );
+
+    return res.data.export_id;
   },
 
   picklists: async (
@@ -1328,11 +1338,36 @@ export const OutboundService = {
     return res.data;
   },
 
-  picklistPdf: async (picklistId: string): Promise<Blob> => {
-    return fetchBlobRaw(
+  picklistPdf: async (
+    picklistId: string,
+    onProgress?: (message: string) => void,
+  ): Promise<Blob> => {
+    const res = await fetchClient<ApiResponse<{ export_id: string }>>(
       `/outbound/picklists/${encodeURIComponent(picklistId)}/pdf`,
-      "application/pdf",
     );
+    const result = await ExportJobService.waitForBlob(
+      res.data.export_id,
+      "application/pdf",
+      onProgress,
+    );
+
+    return result.blob;
+  },
+
+  picklistExcel: async (
+    picklistId: string,
+    onProgress?: (message: string) => void,
+  ): Promise<Blob> => {
+    const res = await fetchClient<ApiResponse<{ export_id: string }>>(
+      `/outbound/picklists/${encodeURIComponent(picklistId)}/xlsx`,
+    );
+    const result = await ExportJobService.waitForBlob(
+      res.data.export_id,
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      onProgress,
+    );
+
+    return result.blob;
   },
 
   invoicePdf: async (orderId: string): Promise<Blob> => {

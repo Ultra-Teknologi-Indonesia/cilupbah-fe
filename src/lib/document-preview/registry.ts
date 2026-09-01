@@ -128,13 +128,18 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
     title: "Dokumen Picklist",
     subtitle: (id, meta) =>
       (meta?.picklist_no as string | undefined) ?? `PICK-${id.slice(0, 8)}…`,
-    fetchPdf: async (id) => {
-      const blob = await OutboundService.picklistPdf(id);
+    fetchPdf: async (id, _query, onProgress) => {
+      const blob = await OutboundService.picklistPdf(id, onProgress);
       return { blob };
     },
     backUrl: () => "/dashboard/proses-pesanan/picking",
     filename: (id, meta) =>
       `${(meta?.picklist_no as string | undefined) ?? `PICK-${id}`}.pdf`,
+    excel: {
+      fetch: (id) => OutboundService.picklistExcel(id),
+      filename: (id, meta) =>
+        `${(meta?.picklist_no as string | undefined) ?? `PICK-${id}`}.xlsx`,
+    },
   },
 
   "picklist-by-orders": {

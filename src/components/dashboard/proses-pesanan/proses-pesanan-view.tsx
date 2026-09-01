@@ -7,6 +7,7 @@ import {
   PlusIcon,
   ScanBarcodeIcon,
   FileTextIcon,
+  DownloadIcon,
 } from "lucide-react";
 
 function InvoiceLinkCell({
@@ -40,6 +41,7 @@ import {
   usePackingCounts,
   usePickingCounts,
   useShippingCounts,
+  useExportProcessOrdersCsv,
 } from "@/hooks/proses-pesanan/use-fulfillment";
 import {
   STAGE_CONFIG,
@@ -87,6 +89,7 @@ function FulfillmentBoard({ stage }: { stage: FulfillmentStage }) {
   const packingCounts = usePackingCounts();
   const shippingCounts = useShippingCounts();
   const { can } = usePermissions();
+  const exportProcessOrders = useExportProcessOrdersCsv();
 
   const countsMap =
     stage === "picking"
@@ -288,6 +291,25 @@ function FulfillmentBoard({ stage }: { stage: FulfillmentStage }) {
               id="proses-pesanan-filter-portal"
               className="flex flex-wrap items-center gap-2"
             />
+            {can("export-pesanan") && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 gap-2"
+                onClick={() => exportProcessOrders.mutate(undefined)}
+                disabled={exportProcessOrders.isPending}
+                title="Export semua pesanan dari seluruh status proses"
+              >
+                <DownloadIcon
+                  className={
+                    exportProcessOrders.isPending
+                      ? "size-4 animate-pulse"
+                      : "size-4"
+                  }
+                />
+                Export Pesanan
+              </Button>
+            )}
             {showAdHocPickingButton && (
               <Button asChild variant="primary" size="sm" className="h-9">
                 <Link href="/dashboard/proses-pesanan/picking/proses-pesanan">

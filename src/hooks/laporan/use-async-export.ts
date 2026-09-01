@@ -35,6 +35,9 @@ export function useAsyncExport<TArgs = void>(
             await ExportJobService.download(
               exportId,
               job.file_name ?? "export.xlsx",
+              job.file_name?.toLowerCase().endsWith(".csv")
+                ? "text/csv;charset=utf-8"
+                : undefined,
             );
             toast.success("Berkas export selesai diunduh.", { id: toastId });
             return;
