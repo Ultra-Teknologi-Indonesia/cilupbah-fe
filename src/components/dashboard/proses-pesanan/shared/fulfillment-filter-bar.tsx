@@ -255,17 +255,28 @@ export function FulfillmentFilterBar({
     setOpen(false);
   }
 
-  function courierChange(v: string | null) {
+  function courierChange(values: string[]) {
+    const serialized = values.join(",");
     if (courierMode === "courier_code") {
-      patch({ courier_code: v ?? undefined });
+      patch({ courier_code: serialized || undefined });
     } else {
-      patch({ shipping_provider: v ?? undefined });
+      patch({ shipping_provider: serialized || undefined });
     }
   }
-  const courierValue =
-    courierMode === "courier_code"
-      ? (value.courier_code ?? null)
-      : (value.shipping_provider ?? null);
+
+  const courierValue = React.useMemo(() => {
+    const raw =
+      courierMode === "courier_code"
+        ? value.courier_code
+        : value.shipping_provider;
+
+    return raw
+      ? raw
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean)
+      : [];
+  }, [courierMode, value.courier_code, value.shipping_provider]);
 
   const useChannelStatus = Boolean(channelStatusOptions?.length);
   const statusList = useChannelStatus
@@ -378,6 +389,7 @@ export function FulfillmentFilterBar({
               {includes("courier") && (
                 <FieldWrapper label="Kurir">
                   <Combobox
+                    multiple
                     options={courierOptions}
                     value={courierValue}
                     onChange={courierChange}

@@ -73,6 +73,9 @@ export function CompletedShipmentTable() {
       page: list.page,
       per_page: list.perPage,
       courier_code: list.filters.courier_code || undefined,
+      courier_codes: list.filters.courier_code
+        ? list.filters.courier_code.split(",").filter(Boolean)
+        : [],
       date_from: list.filters.date_from || undefined,
       date_to: list.filters.date_to || undefined,
       type: "all",
