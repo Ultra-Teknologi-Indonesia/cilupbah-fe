@@ -24,6 +24,7 @@ export type {
   DownloadFailures,
   DownloadFailureReason,
   DownloadFailureSample,
+  ChannelDownloadAction,
 } from "@/services/master-produk/download.service";
 
 export const downloadTrxKey = (params: DownloadTransactionParams) =>

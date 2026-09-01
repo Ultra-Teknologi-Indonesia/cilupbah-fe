@@ -3,6 +3,7 @@ import type { ApiPaginated, ApiResponse } from "@/types/api.types";
 import type { HistoryError } from "@/services/master-produk/upload.service";
 
 export type DownloadState = "queued" | "downloading" | "done" | "failed";
+export type ChannelDownloadAction = "download" | "none";
 
 export interface DownloadTransaction {
   trxId: string;
@@ -153,6 +154,8 @@ export interface ChannelSearchItem {
   channelCode: string;
   channelName?: string | null;
   alreadyDownloaded: boolean;
+  downloadAction: ChannelDownloadAction;
+  masterStatus?: "missing" | "active" | "deleted" | null;
   mappingStatus?: string | null;
   masterProductId?: string | null;
   masterProductName?: string | null;
@@ -170,6 +173,8 @@ interface RawChannelSearchItem {
   channel_code: string;
   channel_name?: string | null;
   already_downloaded?: boolean;
+  download_action?: ChannelDownloadAction;
+  master_status?: "missing" | "active" | "deleted" | null;
   mapping_status?: string | null;
   master_product_id?: string | null;
   master_product_name?: string | null;
@@ -195,6 +200,9 @@ function mapSearchItem(raw: RawChannelSearchItem): ChannelSearchItem {
     channelCode: raw.channel_code,
     channelName: raw.channel_name,
     alreadyDownloaded: raw.already_downloaded ?? false,
+    downloadAction:
+      raw.download_action ?? (raw.already_downloaded ? "none" : "download"),
+    masterStatus: raw.master_status,
     mappingStatus: raw.mapping_status,
     masterProductId: raw.master_product_id,
     masterProductName: raw.master_product_name,

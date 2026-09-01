@@ -269,7 +269,10 @@ export function DownloadSatuanDialog({
 
   const bulkDownload = async () => {
     for (const item of selectedItems) {
-      if (downloaded[channelSearchRowId(item)] || item.alreadyDownloaded)
+      if (
+        downloaded[channelSearchRowId(item)] ||
+        item.alreadyDownloaded
+      )
         continue;
       await runDownload(item);
     }
@@ -399,7 +402,7 @@ export function DownloadSatuanDialog({
                   ) : (
                     <CloudDownloadIcon className="size-3.5" />
                   )}
-                  Download Terpilih
+                  Proses Terpilih
                 </Button>
               </div>
             )}
@@ -473,7 +476,9 @@ export function DownloadSatuanDialog({
                                 Terhubung ke Master
                               </span>
                             )}
-                            {!item.alreadyDownloaded && item.masterProductId && (
+                            {item.downloadAction === "download" &&
+                              item.masterProductId &&
+                              item.masterStatus !== "deleted" && (
                               <span className="shrink-0 rounded bg-amber-500/10 px-1.5 py-0.5 text-3xs font-medium text-amber-700 dark:text-amber-400">
                                 Mapping perlu disinkronkan
                               </span>
@@ -507,7 +512,7 @@ export function DownloadSatuanDialog({
                           ) : (
                             <CloudDownloadIcon className="size-3.5" />
                           )}
-                          {isDone ? "Terunduh" : "Download"}
+                          {isDone ? "Sudah di Master" : "Download"}
                         </Button>
                       </li>
                     );
