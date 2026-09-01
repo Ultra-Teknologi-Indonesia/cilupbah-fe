@@ -2,6 +2,7 @@
 
 import * as React from "react";
 
+import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { ProdukSettingsTable } from "./produk-settings-table";
@@ -15,10 +16,18 @@ export function InventorySettingsView() {
   return (
     <div className="flex flex-col gap-4">
       <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
-        <TabsList variant="line" className="h-auto">
-          <TabsTrigger value="produk">Produk</TabsTrigger>
-          <TabsTrigger value="sync">Sync Stok dan Harga</TabsTrigger>
-        </TabsList>
+        <LiquidGlass
+          radius={20}
+          intensity="subtle"
+          className="bg-white/30 dark:bg-white/[0.04]"
+        >
+          <div className="overflow-x-auto border-b border-border/60 px-4 pt-3 sm:px-5">
+            <TabsList variant="line" className="h-auto">
+              <TabsTrigger value="produk">Produk</TabsTrigger>
+              <TabsTrigger value="sync">Sync Stok dan Harga</TabsTrigger>
+            </TabsList>
+          </div>
+        </LiquidGlass>
       </Tabs>
 
       {tab === "produk" ? (
