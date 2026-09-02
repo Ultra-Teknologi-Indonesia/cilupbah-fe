@@ -29,7 +29,6 @@ import {
   useSubmitDraft,
   useShipTransfer,
   useDeleteTransfer,
-  useRevertToDraft,
 } from "@/hooks/barang-keluar/use-outbound-transfers";
 import { useMe } from "@/hooks/auth/use-auth";
 import { useState, useCallback } from "react";
@@ -52,7 +51,6 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const deleteMutation = useDeleteTransfer();
-  const revertMutation = useRevertToDraft();
   const [printing, setPrinting] = useState(false);
 
   const openPreview = useCallback(() => {
@@ -151,16 +149,14 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
                 Ubah
               </Button>
             )}
-            {isEditable && (
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => setDeleteOpen(true)}
-              >
-                <Trash2Icon className="mr-1.5 size-4" />
-                Hapus
-              </Button>
-            )}
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setDeleteOpen(true)}
+            >
+              <Trash2Icon className="mr-1.5 size-4" />
+              Hapus
+            </Button>
           </>
         }
       />
@@ -332,33 +328,18 @@ export function TransferOutDetailView({ transferId }: { transferId: string }) {
       <ConfirmDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title={isInTransit ? "Kembalikan ke Baru Dibuat" : "Hapus Transfer"}
-        description={
-          isInTransit
-            ? `Transfer ${transfer.transfer_number} sedang dijalan. Menghapus akan membatalkan pengiriman dan mengembalikannya ke Baru Dibuat (stok dikembalikan ke rak asal).`
-            : `Hapus transfer ${transfer.transfer_number}? Stok yang sudah dialokasikan akan dikembalikan. Aksi ini tidak bisa dibatalkan.`
-        }
-        confirmLabel={isInTransit ? "Kembalikan" : "Hapus"}
+        title="Hapus Transfer"
+        description={`Hapus transfer ${transfer.transfer_number}? Aktivitas stok yang dibuat oleh transfer ini akan dibersihkan dan saldo dikembalikan ke kondisi sebelum transfer. Aksi ini tidak bisa dibatalkan.`}
+        confirmLabel="Hapus"
         variant="destructive"
-        loading={
-          isInTransit ? revertMutation.isPending : deleteMutation.isPending
-        }
+        loading={deleteMutation.isPending}
         onConfirm={() => {
-          if (isInTransit) {
-            revertMutation.mutate(transfer.id, {
-              onSuccess: () => {
-                setDeleteOpen(false);
-                toast.success("Transfer dikembalikan ke Baru Dibuat");
-              },
-            });
-          } else {
-            deleteMutation.mutate(transfer.id, {
-              onSuccess: () => {
-                setDeleteOpen(false);
-                router.push(LIST_HREF);
-              },
-            });
-          }
+          deleteMutation.mutate(transfer.id, {
+            onSuccess: () => {
+              setDeleteOpen(false);
+              router.push(LIST_HREF);
+            },
+          });
         }}
       />
 

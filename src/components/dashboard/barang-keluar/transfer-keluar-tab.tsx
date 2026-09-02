@@ -40,7 +40,6 @@ import {
   useShipTransfer,
   useSubmitDraft,
   useDeleteTransfer,
-  useRevertToDraft,
   useBulkDeleteTransfer,
 } from "@/hooks/barang-keluar/use-outbound-transfers";
 import { useMe } from "@/hooks/auth/use-auth";
@@ -303,9 +302,6 @@ export function TransferKeluarTab() {
     null,
   );
   const deleteMutation = useDeleteTransfer();
-  const revertMutation = useRevertToDraft();
-  const isRevertTarget = deleteTarget?.status === "IN_TRANSIT";
-  const isReceivedTarget = deleteTarget?.status === "RECEIVED";
 
   const [bulkDeleteState, setBulkDeleteState] = useState<{
     ids: string[];
@@ -578,19 +574,19 @@ export function TransferKeluarTab() {
         >
           <PencilIcon className="size-3.5" />
         </Button>}
-        {canEditTransfer && <Button
+        {canDeleteTransfer && <Button
           variant="ghost"
           size="icon-sm"
           onClick={() => setDeleteTarget(item)}
-          aria-label="Kembalikan ke Baru Dibuat"
-          title="Kembalikan ke Baru Dibuat"
+          aria-label="Hapus transfer"
+          title="Hapus transfer"
           className="text-destructive hover:bg-destructive/10 hover:text-destructive"
         >
           <Trash2Icon className="size-3.5" />
         </Button>}
       </div>
     ),
-    [canEditTransfer, canExportTransfer, handleReprint, handleEdit, printingId],
+    [canDeleteTransfer, canEditTransfer, canExportTransfer, handleReprint, handleEdit, printingId],
   );
 
   const reprintActions = useCallback(
@@ -648,7 +644,7 @@ export function TransferKeluarTab() {
             )}
             Cetak {ids.length}
           </Button>}
-          {subTab !== "finished" && (canDeleteTransfer || (subTab === "transit" && canEditTransfer)) && (
+          {canDeleteTransfer && (
             <Button
               size="sm"
               variant="destructive"
@@ -660,7 +656,7 @@ export function TransferKeluarTab() {
               }
             >
               <Trash2Icon className="mr-1.5 size-4" />
-              {subTab === "transit" ? "Kembalikan" : "Hapus"} {ids.length}
+              Hapus {ids.length}
             </Button>
           )}
         </>
@@ -669,10 +665,8 @@ export function TransferKeluarTab() {
     [
       bulkPrinting,
       canDeleteTransfer,
-      canEditTransfer,
       canExportTransfer,
       handleBulkPrint,
-      subTab,
     ],
   );
 
@@ -790,50 +784,25 @@ export function TransferKeluarTab() {
         onOpenChange={(open) => {
           if (!open) setDeleteTarget(null);
         }}
-        title={isRevertTarget ? "Kembalikan ke Baru Dibuat" : "Hapus Transfer"}
-        description={
-          isRevertTarget
-            ? `Transfer ${deleteTarget?.transfer_number ?? ""} sedang dijalan. Menghapus akan membatalkan pengiriman dan mengembalikannya ke Baru Dibuat (stok dikembalikan ke rak asal).`
-            : isReceivedTarget
-              ? `Transfer ${deleteTarget?.transfer_number ?? ""} sudah diterima di gudang tujuan. Menghapus akan membatalkan penerimaan, menarik kembali stok dari gudang tujuan, dan mengembalikannya ke gudang asal. Aksi ini tidak bisa dibatalkan.`
-              : `Hapus transfer ${deleteTarget?.transfer_number ?? ""}? Stok yang sudah dialokasikan akan dikembalikan. Aksi ini tidak bisa dibatalkan.`
-        }
-        confirmLabel={isRevertTarget ? "Kembalikan" : "Hapus"}
+        title="Hapus Transfer"
+        description={`Hapus transfer ${deleteTarget?.transfer_number ?? ""}? Aktivitas stok yang dibuat oleh transfer ini akan dibersihkan dan saldo dikembalikan ke kondisi sebelum transfer. Aksi ini tidak bisa dibatalkan.`}
+        confirmLabel="Hapus"
         variant="destructive"
-        loading={
-          isRevertTarget ? revertMutation.isPending : deleteMutation.isPending
-        }
+        loading={deleteMutation.isPending}
         onConfirm={() => {
           if (!deleteTarget) return;
-          if (isRevertTarget) {
-            revertMutation.mutate(deleteTarget.id, {
-              onSuccess: () => {
-                setDeleteTarget(null);
-                toast.success("Transfer dikembalikan ke Baru Dibuat");
-              },
-            });
-          } else {
-            deleteMutation.mutate(deleteTarget.id, {
-              onSuccess: () => setDeleteTarget(null),
-            });
-          }
+          deleteMutation.mutate(deleteTarget.id, {
+            onSuccess: () => setDeleteTarget(null),
+          });
         }}
       />
 
       <ConfirmDialog
         open={!!bulkDeleteState}
         onOpenChange={(v) => !v && setBulkDeleteState(null)}
-        title={
-          subTab === "transit"
-            ? "Kembalikan Transfer Terpilih"
-            : "Hapus Transfer Terpilih"
-        }
-        description={
-          subTab === "transit"
-            ? `Kembalikan ${bulkDeleteState?.ids.length ?? 0} transfer ke Baru Dibuat? Pengiriman dibatalkan dan stok dikembalikan ke rak asal.`
-            : `Hapus ${bulkDeleteState?.ids.length ?? 0} transfer? Stok yang sudah dialokasikan akan dikembalikan. Aksi ini tidak bisa dibatalkan.`
-        }
-        confirmLabel={subTab === "transit" ? "Kembalikan" : "Hapus"}
+        title="Hapus Transfer Terpilih"
+        description={`Hapus ${bulkDeleteState?.ids.length ?? 0} transfer? Aktivitas stok yang dibuat oleh transfer ini akan dibersihkan dan saldo dikembalikan ke kondisi sebelum transfer. Aksi ini tidak bisa dibatalkan.`}
+        confirmLabel="Hapus"
         variant="destructive"
         loading={bulkDeleteMutation.isPending}
         onConfirm={() => {

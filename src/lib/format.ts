@@ -24,6 +24,16 @@ const dateTime = new Intl.DateTimeFormat("id-ID", {
   timeZone: "Asia/Jakarta",
 });
 
+const dateTimeWithSeconds = new Intl.DateTimeFormat("id-ID", {
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  timeZone: "Asia/Jakarta",
+});
+
 const timeOnly = new Intl.DateTimeFormat("id-ID", {
   hour: "2-digit",
   minute: "2-digit",
@@ -75,6 +85,23 @@ export function formatDateTime(
 ): string {
   const date = toDate(d);
   return date ? dateTime.format(date) : "—";
+}
+
+/** Formats an ISO timestamp as `02 Sep 2026, 10:28:01` in WIB. */
+export function formatDateTimeWithSeconds(
+  d: string | number | Date | null | undefined,
+): string {
+  const date = toDate(d);
+  if (!date) return "—";
+
+  const parts = Object.fromEntries(
+    dateTimeWithSeconds.formatToParts(date).map(({ type, value }) => [
+      type,
+      value,
+    ]),
+  );
+
+  return `${parts.day} ${parts.month} ${parts.year}, ${parts.hour}:${parts.minute}:${parts.second}`;
 }
 
 /** Formats an ISO timestamp in the application's business timezone. */

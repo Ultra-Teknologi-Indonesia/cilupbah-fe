@@ -101,6 +101,7 @@ import {
   formatDateTimeWib,
   formatDateLong,
   formatDateTime,
+  formatDateTimeWithSeconds,
 } from "@/lib/format";
 
 function SummaryRow({
@@ -335,7 +336,7 @@ function StepKeterangan({
           tone === "success" ? "text-success" : "text-destructive",
         )}
       >
-        {formatDateTime(entry.created_at)}
+        {formatDateTimeWithSeconds(entry.created_at)}
       </span>
       <span className="whitespace-nowrap text-muted-foreground">
         {entry.actor_name ?? entry.actor_email}
@@ -406,7 +407,7 @@ function StatusStepper({
                   {entry && (
                     <TooltipContent>
                       <div className="text-xs">
-                        <div>{formatDateTime(entry.created_at)}</div>
+                        <div>{formatDateTimeWithSeconds(entry.created_at)}</div>
                         <div className="text-muted-foreground">
                           {entry.actor_name ?? entry.actor_email}
                         </div>
@@ -446,7 +447,9 @@ function StatusStepper({
                 {cancelEntry && (
                   <TooltipContent>
                     <div className="text-xs">
-                      <div>{formatDateTime(cancelEntry.created_at)}</div>
+                      <div>
+                        {formatDateTimeWithSeconds(cancelEntry.created_at)}
+                      </div>
                       <div className="text-muted-foreground">
                         {cancelEntry.actor_name ?? cancelEntry.actor_email}
                       </div>
