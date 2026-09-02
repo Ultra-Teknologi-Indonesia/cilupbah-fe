@@ -638,6 +638,15 @@ function MovementsSection({ itemId }: { itemId: string }) {
     Boolean,
   ).length;
   const hasActiveFilter = activeCount > 0;
+  const selectedLocationName = locationId
+    ? locationOptions.find((option) => option.value === locationId)?.label
+    : null;
+  const currentStockTitle = selectedLocationName
+    ? `Total stok di ${selectedLocationName}`
+    : "Total stok seluruh lokasi";
+  const currentStockDescription = selectedLocationName
+    ? "Gabungan stok dari seluruh rak di lokasi ini."
+    : "Gabungan stok dari seluruh rak di semua lokasi.";
   const currentSnapshot = movements.length > 0
     ? {
         balance: movements[0].current_balance ?? 0,
@@ -785,9 +794,9 @@ function MovementsSection({ itemId }: { itemId: string }) {
       {currentSnapshot && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/15 bg-primary/[0.04] px-4 py-3">
           <div>
-            <p className="text-xs font-semibold text-foreground">Stok saat ini</p>
+            <p className="text-xs font-semibold text-foreground">{currentStockTitle}</p>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Angka terkini dari persediaan rak, tidak terpengaruh oleh baris yang disembunyikan.
+              {currentStockDescription}
             </p>
           </div>
           <div className="flex items-baseline gap-4 font-mono tabular-nums">
@@ -828,7 +837,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
               Qty
             </TableHead>
             <TableHead className="px-3 py-2.5 text-right text-xs uppercase tracking-wider text-muted-foreground">
-              Saldo setelah aktivitas
+              Saldo pada rak setelah aktivitas
             </TableHead>
             <TableHead className="w-[24rem] min-w-[18rem] px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">
               Keterangan
