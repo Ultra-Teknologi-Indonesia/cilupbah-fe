@@ -506,26 +506,37 @@ export const OutboundService = {
     );
     const raw = res.data;
     const s = raw?.summary;
+    const periods = (raw?.periods ?? []).map((p) => ({
+      dayTerm: p.day_term,
+      readyToProcess: p.ready_to_process,
+      pick: p.pick,
+      pending: p.pending,
+      pack: p.pack,
+      readyToShip: p.ready_to_ship,
+      waitingShip: p.waiting_ship,
+    }));
+
+    const readyToProcessToday =
+      s?.ready_to_process_today ??
+      periods.find((period) => period.dayTerm === 0)?.readyToProcess ??
+      0;
+    const pendingFromTwoDaysAgo =
+      s?.pending_from_two_days_ago ??
+      periods.find((period) => period.dayTerm === 2)?.readyToProcess ??
+      0;
+
     return {
       summary: {
         today: s?.today ?? 0,
         yest: s?.yest ?? 0,
         mtd: s?.mtd ?? 0,
         prevMonth: s?.prev_month ?? 0,
-        readyToPick: s?.ready_to_pick ?? 0,
-        readyToPick2days: s?.ready_to_pick_2days ?? 0,
+        readyToProcessToday,
+        pendingFromTwoDaysAgo,
         pickedToday: s?.picked_today ?? 0,
         pickedYest: s?.picked_yest ?? 0,
       },
-      periods: (raw?.periods ?? []).map((p) => ({
-        dayTerm: p.day_term,
-        readyToProcess: p.ready_to_process,
-        pick: p.pick,
-        pending: p.pending,
-        pack: p.pack,
-        readyToShip: p.ready_to_ship,
-        waitingShip: p.waiting_ship,
-      })),
+      periods,
     };
   },
 

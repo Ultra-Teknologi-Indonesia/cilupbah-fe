@@ -244,13 +244,13 @@ function buildKpis(summary: OutboundMonitoringSummary): KpiCardProps[] {
       isLoading: false,
     },
     {
-      label: "Pending hari ini",
-      value: summary.readyToPick,
+      label: "Siap Diproses Hari Ini",
+      value: summary.readyToProcessToday,
       icon: HourglassIcon,
       tone: "warning",
       delta: null,
-      comparisonLabel: "Pending dari 2 hari lalu",
-      comparisonValue: summary.readyToPick2days,
+      comparisonLabel: "Pending Dari 2 Hari Lalu",
+      comparisonValue: summary.pendingFromTwoDaysAgo,
       isLoading: false,
     },
     {
@@ -271,8 +271,8 @@ const EMPTY_SUMMARY: OutboundMonitoringSummary = {
   yest: 0,
   mtd: 0,
   prevMonth: 0,
-  readyToPick: 0,
-  readyToPick2days: 0,
+  readyToProcessToday: 0,
+  pendingFromTwoDaysAgo: 0,
   pickedToday: 0,
   pickedYest: 0,
 };
