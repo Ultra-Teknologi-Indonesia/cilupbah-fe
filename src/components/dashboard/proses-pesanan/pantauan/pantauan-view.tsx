@@ -110,31 +110,34 @@ function KpiCard({
           </span>
         </div>
 
-        <div className="flex items-center justify-between gap-2 border-t border-border/60 pt-2.5">
-          <span className="truncate text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 border-t border-border/60 pt-2.5">
+          <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
             {comparisonLabel}
           </span>
           {isLoading ? (
             <Skeleton className="h-4 w-14" />
-          ) : delta ? (
-            <span
-              className={cn(
-                "inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-xs font-semibold tabular-nums",
-                delta.dir === "up" && "bg-success/10 text-success",
-                delta.dir === "down" && "bg-destructive/10 text-destructive",
-                delta.dir === "flat" && "bg-muted text-muted-foreground",
-              )}
-            >
-              {delta.dir === "up" ? (
-                <TrendingUpIcon className="size-3.5" />
-              ) : delta.dir === "down" ? (
-                <TrendingDownIcon className="size-3.5" />
-              ) : null}
-              {formatPct(delta.pct)}
-            </span>
           ) : (
-            <span className="text-xs tabular-nums text-muted-foreground">
-              {formatNumber(comparisonValue)}
+            <span className="inline-flex shrink-0 items-center gap-1.5 text-xs tabular-nums">
+              <span className="font-semibold text-foreground">
+                {formatNumber(comparisonValue)}
+              </span>
+              {delta ? (
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 font-semibold",
+                    delta.dir === "up" && "bg-success/10 text-success",
+                    delta.dir === "down" && "bg-destructive/10 text-destructive",
+                    delta.dir === "flat" && "bg-muted text-muted-foreground",
+                  )}
+                >
+                  {delta.dir === "up" ? (
+                    <TrendingUpIcon className="size-3.5" />
+                  ) : delta.dir === "down" ? (
+                    <TrendingDownIcon className="size-3.5" />
+                  ) : null}
+                  {formatPct(delta.pct)}
+                </span>
+              ) : null}
             </span>
           )}
         </div>
