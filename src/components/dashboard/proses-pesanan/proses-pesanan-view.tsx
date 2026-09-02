@@ -101,6 +101,10 @@ function FulfillmentBoard({ stage }: { stage: FulfillmentStage }) {
           : undefined;
 
   const stageLabel = STAGE_CONFIG.find((s) => s.key === stage)?.label ?? "";
+  const canExportActiveQueue =
+    can("export-pesanan") &&
+    (stage === "picking" || stage === "packing" || stage === "shipping") &&
+    sub !== null;
 
   function renderContent() {
     if (stage === "picking") {
@@ -291,14 +295,17 @@ function FulfillmentBoard({ stage }: { stage: FulfillmentStage }) {
               id="proses-pesanan-filter-portal"
               className="flex flex-wrap items-center gap-2"
             />
-            {can("export-pesanan") && (
+            {canExportActiveQueue && (
               <Button
                 variant="outline"
                 size="sm"
                 className="h-9 gap-2"
-                onClick={() => exportProcessOrders.mutate(undefined)}
+                onClick={() => {
+                  if (sub === null) return;
+                  exportProcessOrders.mutate({ stage, sub });
+                }}
                 disabled={exportProcessOrders.isPending}
-                title="Export semua pesanan dari seluruh status proses"
+                title={`Export pesanan aktif pada ${stageLabel} - ${sub}`}
               >
                 <DownloadIcon
                   className={
@@ -307,7 +314,7 @@ function FulfillmentBoard({ stage }: { stage: FulfillmentStage }) {
                       : "size-4"
                   }
                 />
-                Export Pesanan
+                Export Step Ini
               </Button>
             )}
             {showAdHocPickingButton && (

@@ -18,6 +18,7 @@ import { useAsyncExport } from "@/hooks/laporan/use-async-export";
 import {
   OutboundService,
   type CreateShipmentPayload,
+  type ProcessOrdersExportScope,
 } from "@/services/proses-pesanan/outbound.service";
 import type {
   FulfillmentListParams,
@@ -102,7 +103,9 @@ export function useOutboundMonitoring(enabled = true) {
 }
 
 export function useExportProcessOrdersCsv() {
-  return useAsyncExport(() => OutboundService.exportProcessOrdersCsv());
+  return useAsyncExport((scope: ProcessOrdersExportScope) =>
+    OutboundService.exportProcessOrdersCsv(scope),
+  );
 }
 
 export function usePickers(locationId?: string, role?: string, enabled = true) {

@@ -47,6 +47,11 @@ export interface CreateShipmentPayload {
   notes?: string | null;
 }
 
+export type ProcessOrdersExportScope = {
+  stage: "picking" | "packing" | "shipping";
+  sub: string;
+};
+
 type Meta = ApiPaginated<unknown>["meta"];
 
 export interface ListResult<T> {
@@ -524,10 +529,12 @@ export const OutboundService = {
     };
   },
 
-  exportProcessOrdersCsv: async (): Promise<string> => {
+  exportProcessOrdersCsv: async (
+    scope: ProcessOrdersExportScope,
+  ): Promise<string> => {
     const res = await fetchClient<ApiResponse<{ export_id: string }>>(
       "/outbound/orders/export/async",
-      { method: "POST" },
+      { method: "POST", data: scope },
     );
 
     return res.data.export_id;
