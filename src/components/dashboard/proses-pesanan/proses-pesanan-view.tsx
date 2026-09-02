@@ -314,7 +314,7 @@ function FulfillmentBoard({ stage }: { stage: FulfillmentStage }) {
                       : "size-4"
                   }
                 />
-                Export Step Ini
+                Export Pesanan
               </Button>
             )}
             {showAdHocPickingButton && (
