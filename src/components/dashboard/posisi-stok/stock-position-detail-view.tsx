@@ -609,7 +609,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
       view,
       page,
       per_page: perPage,
-      sort: "-transaction_date",
+      sort: "workflow",
     }),
     [
       itemId,

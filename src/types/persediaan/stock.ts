@@ -68,6 +68,11 @@ export interface StockMovement {
   source: string;
   source_category: string;
   source_label: string;
+  workflow: {
+    type: "transfer";
+    label: string;
+    order: number;
+  } | null;
   is_variance: boolean;
   direction: "in" | "out" | "none";
   qty: number;
