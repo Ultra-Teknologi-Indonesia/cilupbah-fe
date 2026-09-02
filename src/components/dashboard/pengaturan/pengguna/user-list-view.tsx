@@ -41,6 +41,15 @@ function formatRoles(roles: string[]): string {
   return `${first} dan ${roles.length - 1} peran lainnya`;
 }
 
+function formatLocations(locations: User["locations"]): string {
+  if (locations.length === 0) return "Semua gudang";
+
+  const names = locations.map((location) => location.locationName);
+  if (names.length <= 2) return names.join(", ");
+
+  return `${names.slice(0, 2).join(", ")} dan ${names.length - 2} lokasi lainnya`;
+}
+
 function formatDate(iso: string | null): string {
   if (!iso) return "-";
   try {
@@ -168,6 +177,26 @@ export function UserListView() {
             {formatRoles(row.original.roles)}
           </span>
         ),
+      },
+      {
+        id: "locations",
+        header: "Lokasi",
+        cell: ({ row }) => {
+          const locations = row.original.locations;
+          const fullLocationNames =
+            locations.length > 0
+              ? locations.map((location) => location.locationName).join(", ")
+              : "Semua gudang";
+
+          return (
+            <span
+              className="block max-w-[260px] truncate text-foreground"
+              title={fullLocationNames}
+            >
+              {formatLocations(locations)}
+            </span>
+          );
+        },
       },
       {
         accessorKey: "lastLoginAt",
