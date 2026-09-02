@@ -131,14 +131,16 @@ async function proxyRequest(
       "content-type",
       "content-disposition",
       "cache-control",
+      "content-length",
     ]) {
       const value = response.headers.get(header);
       if (value) passthroughHeaders.set(header, value);
     }
 
-    const resBuffer = await response.arrayBuffer();
-
-    return new NextResponse(resBuffer, {
+    // Keep the upstream body as a stream. This is important for large files
+    // such as QR PDFs: buffering the entire response in the Next.js process
+    // can cause unnecessary memory pressure and 5xx responses.
+    return new NextResponse(response.body, {
       status: response.status,
       statusText: response.statusText,
       headers: passthroughHeaders,
