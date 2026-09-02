@@ -38,7 +38,9 @@ export function MobileSessionPanel({
 
   if (!participants || participants.length === 0) return null;
 
-  const active = participants.filter((p) => p.status === "ACTIVE");
+  const active = participants.filter(
+    (p) => p.status === "ACTIVE" && p.user_id !== null,
+  );
   const done = participants.filter((p) => p.status === "DONE");
   const withdrawn = participants.filter((p) => p.status === "WITHDRAWN");
   const locked = editLock?.locked ?? active.length > 0;
@@ -85,9 +87,11 @@ export function MobileSessionPanel({
             key={p.id}
             participant={p}
             canWithdraw={canWithdraw}
-            onWithdraw={() =>
-              setConfirmTarget({ userId: p.user_id, name: p.name })
-            }
+            onWithdraw={() => {
+              if (p.user_id) {
+                setConfirmTarget({ userId: p.user_id, name: p.name });
+              }
+            }}
           />
         ))}
         {done.map((p) => (

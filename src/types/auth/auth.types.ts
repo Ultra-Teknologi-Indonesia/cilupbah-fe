@@ -58,7 +58,10 @@ export interface UserSession {
 
 export interface LoginHistoryEntry {
   id: string;
-  user_id: string;
+  user_id: string | null;
+  user_id_snapshot?: string | null;
+  user_name?: string | null;
+  user_email?: string | null;
   agent_device: string | null;
   agent_os: string | null;
   agent_browser: string | null;
@@ -76,7 +79,10 @@ export interface LoginHistoryEntry {
 export interface UserHistoryEntry {
   id: string;
   actor: { id: string; name: string; email: string } | null;
-  target_user_id: string;
+  target_user_id: string | null;
+  target_user_id_snapshot?: string | null;
+  target_user_name?: string | null;
+  target_user_email?: string | null;
   action: string;
   message: string;
   created_at: string;

@@ -726,7 +726,7 @@ export function PenerimaanDetailView({ id }: { id: string }) {
             <ul className="mt-2 flex flex-wrap gap-1.5">
               {activeParticipants.map((p) => (
                 <li
-                  key={p.user_id}
+                  key={`${p.user_id}-${p.name}`}
                   className="rounded-full border border-warning/40 bg-background px-2 py-0.5 text-2xs text-foreground"
                 >
                   {p.name}

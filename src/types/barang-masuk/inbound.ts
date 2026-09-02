@@ -32,7 +32,9 @@ export interface InboundReceipt {
   batch_no: string | null;
   serial_no: string | null;
   condition: string | null;
-  received_by_user_id: string;
+  received_by_user_id: string | null;
+  received_by_name?: string | null;
+  received_by_email?: string | null;
   received_date: string;
   bin?: { id: string; bin_final_code?: string; code?: string };
   received_by_user?: { id: string; name: string } | null;
@@ -82,8 +84,10 @@ export type InboundParticipantStatus = "ACTIVE" | "DONE" | "WITHDRAWN";
 
 export interface InboundParticipant {
   id: string;
-  user_id: string;
+  user_id: string | null;
+  user_id_snapshot?: string | null;
   name: string;
+  email?: string | null;
   role: string;
   status: InboundParticipantStatus;
   joined_at: string | null;
