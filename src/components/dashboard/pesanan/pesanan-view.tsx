@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { ImportIcon, Loader2Icon, PlusIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ import { ExportOrdersDialog } from "./export-orders-dialog";
 const TAB_KEYS = TAB_CONFIG.map((t) => t.key as OrderTab);
 
 export function PesananView() {
+  const searchParams = useSearchParams();
   const [tab, setTabUrl] = useUrlTab<OrderTab>("tab", "ready-to-process", {
     validValues: TAB_KEYS,
     clearKeys: ["page", "sub"],
@@ -69,7 +71,10 @@ export function PesananView() {
     { _: "" },
     { perPage: 20, debounceMs: 350 },
   );
-  const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
+  const [filters, setFilters] = useState<FilterState>(() => ({
+    ...EMPTY_FILTERS,
+    location_id: searchParams.get("location_id") ?? "",
+  }));
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const clearSelection = useCallback(() => setSelectedIds(new Set()), []);

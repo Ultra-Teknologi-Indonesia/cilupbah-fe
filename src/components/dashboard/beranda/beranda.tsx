@@ -45,7 +45,7 @@ export function Beranda() {
     <div className="flex flex-col gap-6">
       <PageTitle
         title="Dashboard"
-        description="Ringkasan operasional dan penjualan beserta antrian yang perlu ditindak."
+        description="Pantau pesanan dan pekerjaan gudang yang perlu ditindak."
         actions={
           <DashboardControls
             period={period}
@@ -77,6 +77,7 @@ export function Beranda() {
             icon={PackageCheckIcon}
             emptyMessage="Semua pesanan yang siap sudah diproses."
             viewAllHref="/dashboard/pesanan?tab=ready-to-process"
+            locationId={locationId}
           />
           <ActionQueueTable
             queue="pending-cancel"
@@ -84,6 +85,7 @@ export function Beranda() {
             icon={XCircleIcon}
             emptyMessage="Tidak ada permintaan pembatalan."
             viewAllHref="/dashboard/pesanan?tab=cancellation"
+            locationId={locationId}
           />
           <ActionQueueTable
             queue="empty-stock"
@@ -91,6 +93,7 @@ export function Beranda() {
             icon={PackageXIcon}
             emptyMessage="Tidak ada pesanan dengan stok kurang."
             viewAllHref="/dashboard/pesanan?tab=empty-stock"
+            locationId={locationId}
           />
           <ActionQueueTable
             queue="failed-pick"
@@ -98,6 +101,7 @@ export function Beranda() {
             icon={AlertTriangleIcon}
             emptyMessage="Tidak ada pesanan gagal picking."
             viewAllHref="/dashboard/pesanan?tab=failed-pick"
+            locationId={locationId}
           />
         </div>
       </section>

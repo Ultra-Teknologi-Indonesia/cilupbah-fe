@@ -26,6 +26,7 @@ export const DashboardService = {
     const sp = new URLSearchParams();
     if (params.page) sp.set("page", String(params.page));
     if (params.per_page) sp.set("per_page", String(params.per_page));
+    if (params.location_id) sp.set("location_id", params.location_id);
 
     const qs = sp.toString();
     const res = await fetchClient<ApiPaginated<DashboardQueueRow>>(

@@ -1,16 +1,17 @@
 "use client";
 
 import {
-  BoxesIcon,
+  AlertTriangleIcon,
+  PackageCheckIcon,
   PackageXIcon,
   ShoppingCartIcon,
   TrendingDownIcon,
   TruckIcon,
   Undo2Icon,
-  WalletIcon,
+  XCircleIcon,
 } from "lucide-react";
 
-import { formatCurrency, formatNumber } from "@/lib/format";
+import { formatNumber } from "@/lib/format";
 import type { DashboardSummary } from "@/types/dashboard/dashboard";
 import { StatCard, type StatCardProps } from "./stat-card";
 
@@ -23,18 +24,18 @@ interface KpiRowProps {
 export function KpiRow({ summary, isLoading, periodLabel }: KpiRowProps) {
   const primary: StatCardProps[] = [
     {
-      label: `Omzet · ${periodLabel}`,
-      value: formatCurrency(summary?.revenue),
-      icon: WalletIcon,
+      label: `Pesanan masuk · ${periodLabel}`,
+      value: formatNumber(summary?.orders_total),
+      icon: ShoppingCartIcon,
       tone: "success",
       emphasis: "hero",
       className: "sm:col-span-2",
     },
     {
-      label: "Total pesanan",
-      value: formatNumber(summary?.orders_total),
-      hint: periodLabel,
-      icon: ShoppingCartIcon,
+      label: "Siap diproses",
+      value: formatNumber(summary?.ready_to_process),
+      hint: "Menunggu pekerjaan gudang",
+      icon: PackageCheckIcon,
       emphasis: "lg",
     },
     {
@@ -47,13 +48,6 @@ export function KpiRow({ summary, isLoading, periodLabel }: KpiRowProps) {
 
   const health: StatCardProps[] = [
     {
-      label: "Nilai stok",
-      value: formatCurrency(summary?.stock_value),
-      hint: "Total persediaan tersimpan",
-      icon: BoxesIcon,
-      href: "/dashboard/monitor-stok",
-    },
-    {
       label: "Stok menipis",
       value: formatNumber(summary?.stock_menipis),
       hint: "Mendekati batas minimum",
@@ -62,19 +56,41 @@ export function KpiRow({ summary, isLoading, periodLabel }: KpiRowProps) {
       href: "/dashboard/monitor-stok",
     },
     {
+      label: "Pesanan terkendala stok",
+      value: formatNumber(summary?.empty_stock),
+      hint: "Perlu tindak lanjut",
+      icon: PackageXIcon,
+      tone: "warning",
+      href: "/dashboard/pesanan?tab=empty-stock",
+    },
+    {
+      label: "Gagal picking",
+      value: formatNumber(summary?.failed_pick),
+      hint: "Perlu diperiksa",
+      icon: AlertTriangleIcon,
+      tone: "destructive",
+      href: "/dashboard/pesanan?tab=failed-pick",
+    },
+    {
+      label: "Pembatalan menunggu",
+      value: formatNumber(summary?.pending_cancel),
+      hint: "Menunggu keputusan",
+      icon: XCircleIcon,
+      tone: "warning",
+      href: "/dashboard/pesanan?tab=cancellation",
+    },
+    {
       label: "Stok habis",
       value: formatNumber(summary?.stock_habis),
       hint: "Tanpa stok tersedia",
       icon: PackageXIcon,
-      tone: "destructive",
+      tone: "warning",
       href: "/dashboard/monitor-stok",
     },
     {
-      label: "Retur pending",
+      label: "Retur perlu diproses",
       value: formatNumber(summary?.returns_pending),
-      hint: summary
-        ? `Refund ${formatCurrency(summary.returns_refund)}`
-        : undefined,
+      hint: "Menunggu tindakan gudang",
       icon: Undo2Icon,
       tone: "warning",
     },
@@ -90,7 +106,7 @@ export function KpiRow({ summary, isLoading, periodLabel }: KpiRowProps) {
 
       <div className="flex flex-col gap-3">
         <h2 className="text-sm font-semibold text-muted-foreground">
-          Kesehatan stok &amp; retur
+          Kesehatan operasional
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {health.map((card) => (

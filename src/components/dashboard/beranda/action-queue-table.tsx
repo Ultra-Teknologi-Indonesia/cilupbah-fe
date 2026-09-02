@@ -7,7 +7,7 @@ import type { LucideIcon } from "lucide-react";
 import { ArrowRightIcon, Loader2Icon, PackageCheckIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { formatCurrency, formatDateTimeWib } from "@/lib/format";
+import { formatDateTimeWib } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -36,6 +36,7 @@ interface ActionQueueTableProps {
   emptyMessage: string;
 
   viewAllHref?: string;
+  locationId?: string;
 }
 
 const PER_PAGE = 10;
@@ -46,6 +47,7 @@ export function ActionQueueTable({
   icon: Icon,
   emptyMessage,
   viewAllHref,
+  locationId,
 }: ActionQueueTableProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -54,12 +56,16 @@ export function ActionQueueTable({
   const { data, isLoading } = useDashboardQueue(queue, {
     page: 1,
     per_page: PER_PAGE,
+    location_id: locationId || undefined,
   });
 
   const items = data?.items ?? [];
   const total = data?.meta?.total ?? 0;
 
   const isProcessQueue = queue === "ready-to-process";
+  const scopedViewAllHref = viewAllHref
+    ? `${viewAllHref}${locationId ? `&location_id=${encodeURIComponent(locationId)}` : ""}`
+    : undefined;
 
   const handleProcessAll = () =>
     moveToReady.mutate(
@@ -99,9 +105,9 @@ export function ActionQueueTable({
               Proses semua
             </Button>
           ) : null}
-          {viewAllHref ? (
+          {scopedViewAllHref ? (
             <Button variant="ghost" size="sm" className="text-xs" asChild>
-              <Link href={viewAllHref}>
+              <Link href={scopedViewAllHref}>
                 Lihat semua
                 <ArrowRightIcon className="size-3.5" />
               </Link>
@@ -124,13 +130,12 @@ export function ActionQueueTable({
         />
       ) : (
         <ScrollArea orientation="both" viewportClassName="max-h-[19rem]">
-          <Table scrollContainer={false}>
+          <Table className="min-w-[38rem]" scrollContainer={false}>
             <TableHeader className="[&_tr]:border-b-0">
               <TableRow className="sticky top-0 z-10 bg-muted/80 backdrop-blur-sm hover:bg-muted/80">
                 <TableHead className="h-10">No. Pesanan</TableHead>
                 <TableHead className="h-10">Channel</TableHead>
                 <TableHead className="h-10">Pelanggan</TableHead>
-                <TableHead className="h-10 text-right">Total</TableHead>
                 <TableHead className="h-10">Tanggal</TableHead>
                 <TableHead className="h-10 text-right">Aksi</TableHead>
               </TableRow>
@@ -186,9 +191,6 @@ function QueueRow({
       </TableCell>
       <TableCell className={cn(!row.customer_name && "text-muted-foreground")}>
         {row.customer_name || "—"}
-      </TableCell>
-      <TableCell className="text-right font-medium tabular-nums">
-        {formatCurrency(row.grand_total)}
       </TableCell>
       <TableCell className="text-muted-foreground">
         {formatDateTimeWib(row.transaction_date)}

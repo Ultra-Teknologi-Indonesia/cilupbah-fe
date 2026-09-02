@@ -43,7 +43,7 @@ export function DashboardControls({
     locations.find((l) => l.id === locationId)?.locationName ?? "Semua lokasi";
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm" className="gap-1.5">

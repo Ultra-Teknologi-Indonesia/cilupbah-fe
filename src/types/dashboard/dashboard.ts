@@ -1,5 +1,4 @@
 export interface DashboardSummary {
-  revenue: number;
   orders_total: number;
   orders_by_status: Record<string, number>;
   orders_by_channel: Record<string, number>;
@@ -11,9 +10,7 @@ export interface DashboardSummary {
   in_transit: number;
   stock_habis: number;
   stock_menipis: number;
-  stock_value: number;
   returns_pending: number;
-  returns_refund: number;
 }
 
 export interface DashboardSummaryParams {
@@ -30,11 +27,11 @@ export interface DashboardQueueRow {
   salesorder_no: string | null;
   source: string | null;
   customer_name: string | null;
-  grand_total: number;
   transaction_date: string | null;
 }
 
 export interface DashboardQueueParams {
   page?: number;
   per_page?: number;
+  location_id?: string;
 }
