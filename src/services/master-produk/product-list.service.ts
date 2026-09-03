@@ -1,5 +1,5 @@
 import { fetchClient } from "@/lib/api-client";
-import type { ApiPaginated } from "@/types/api.types";
+import type { ApiPaginated, ApiResponse } from "@/types/api.types";
 import type { Product, RawMasterItem } from "@/types/master-produk";
 
 export interface MasterProductsParams {
@@ -21,6 +21,18 @@ export interface MasterProductsParams {
 export interface MasterProductsResult {
   items: Product[];
   meta: ApiPaginated<RawMasterItem>["meta"];
+}
+
+export interface ProductCatalogExportParams {
+  search?: string;
+  status?: string;
+  categoryId?: string;
+  type?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  channel?: string;
+  sort?: string;
+  productIds?: string[];
 }
 
 function mapMasterItem(raw: RawMasterItem): Product {
@@ -66,6 +78,30 @@ function mapMasterItem(raw: RawMasterItem): Product {
 }
 
 export const ProductListService = {
+  exportCatalog: async (
+    params: ProductCatalogExportParams = {},
+  ): Promise<string> => {
+    const res = await fetchClient<ApiResponse<{ export_id: string }>>(
+      "/products/master/export",
+      {
+        method: "POST",
+        data: {
+          search: params.search || undefined,
+          status: params.status || undefined,
+          category_id: params.categoryId || undefined,
+          type: params.type || undefined,
+          min_price: params.minPrice,
+          max_price: params.maxPrice,
+          channel: params.channel || undefined,
+          sort: params.sort || undefined,
+          product_ids: params.productIds?.length ? params.productIds : undefined,
+        },
+      },
+    );
+
+    return res.data.export_id;
+  },
+
   getMasterProducts: async (
     params: MasterProductsParams = {},
   ): Promise<MasterProductsResult> => {

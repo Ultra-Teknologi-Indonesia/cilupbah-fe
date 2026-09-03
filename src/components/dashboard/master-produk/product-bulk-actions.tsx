@@ -10,8 +10,6 @@ import {
   RefreshCwIcon,
   Trash2Icon,
 } from "lucide-react";
-import { toast } from "sonner";
-
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -26,6 +24,7 @@ import {
   useBulkUnmergeMasters,
 } from "@/hooks/master-produk/use-product-merge";
 import { usePermissions } from "@/hooks/auth/use-permissions";
+import { Can } from "@/components/auth/can";
 import { MergeApplyDialog } from "@/components/dashboard/master-produk/gabung/merge-apply-dialog";
 import type { Product } from "@/types/master-produk";
 
@@ -38,11 +37,13 @@ export function ProductBulkActions({
   table,
   total = 0,
   syncFilters,
+  onExport,
 }: {
   selected: Product[];
   table: Table<Product>;
   total?: number;
   syncFilters?: SyncStockFilters;
+  onExport?: (productIds: string[]) => void;
 }) {
   const [archiveOpen, setArchiveOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
@@ -123,19 +124,20 @@ export function ProductBulkActions({
         </Button>
       )}
 
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => {
-          toast("Mengekspor produk terpilih", {
-            description: `${selected.length} produk`,
-          });
-          table.resetRowSelection();
-        }}
-      >
-        <DownloadIcon className="size-4" />
-        Ekspor
-      </Button>
+      <Can permission="export-produk">
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={!onExport}
+          onClick={() => {
+            onExport?.(ids);
+            table.resetRowSelection();
+          }}
+        >
+          <DownloadIcon className="size-4" />
+          Ekspor Katalog
+        </Button>
+      </Can>
       <Button
         variant="outline"
         size="sm"

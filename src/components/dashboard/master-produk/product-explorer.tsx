@@ -11,6 +11,7 @@ import {
   PackageIcon,
   LayersIcon,
   Loader2Icon,
+  DownloadIcon,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -36,6 +37,11 @@ import { FilterToolbar } from "./filter-toolbar";
 import { ImportDialog } from "./import/import-dialog";
 import { ProductTable } from "./product-table";
 import { ProductCardView } from "./product-card-view";
+import { useAsyncExport } from "@/hooks/laporan/use-async-export";
+import {
+  ProductListService,
+  type ProductCatalogExportParams,
+} from "@/services/master-produk/product-list.service";
 
 type View = "card" | "table";
 type Query = ReturnType<typeof useProductListQuery>;
@@ -47,6 +53,9 @@ export function ProductExplorer({ query }: { query: Query }) {
     null,
   );
   const { data: categoryTree = [] } = useCategoryTree();
+  const catalogExport = useAsyncExport<ProductCatalogExportParams>((params) =>
+    ProductListService.exportCatalog(params),
+  );
 
   const items = query.result.data?.items ?? [];
   const total = query.result.data?.meta?.total ?? 0;
@@ -57,7 +66,31 @@ export function ProductExplorer({ query }: { query: Query }) {
     ...(query.search ? { search: query.search } : {}),
     ...(query.status ? { status: query.status } : {}),
     ...(query.category?.id ? { category_id: query.category.id } : {}),
+    ...(query.type ? { type: query.type } : {}),
   };
+
+  const catalogFilters = React.useMemo<ProductCatalogExportParams>(
+    () => ({
+      search: query.search || undefined,
+      status: query.status || undefined,
+      categoryId: query.category?.id || undefined,
+      type: query.type || undefined,
+      sort: query.sorting[0]
+        ? `${query.sorting[0].desc ? "-" : ""}${query.sorting[0].id === "itemName" ? "name" : "updated_at"}`
+        : undefined,
+    }),
+    [query.search, query.status, query.category, query.type, query.sorting],
+  );
+
+  const exportCatalog = React.useCallback(
+    (productIds: string[] = []) => {
+      catalogExport.mutate({
+        ...catalogFilters,
+        productIds: productIds.length ? productIds : undefined,
+      });
+    },
+    [catalogExport, catalogFilters],
+  );
 
   const viewProps = {
     items,
@@ -69,6 +102,7 @@ export function ProductExplorer({ query }: { query: Query }) {
     pagination: query.pagination,
     onPaginationChange: query.setPagination,
     syncFilters,
+    onExport: exportCatalog,
   };
 
   const toggleBtn = (
@@ -118,6 +152,22 @@ export function ProductExplorer({ query }: { query: Query }) {
               {toggleBtn("card", "Tampilan kartu", LayoutGridIcon)}
               {toggleBtn("table", "Tampilan tabel", TableIcon)}
             </div>
+            <Can permission="export-produk">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 gap-2"
+                disabled={catalogExport.isPending}
+                onClick={() => exportCatalog()}
+              >
+                {catalogExport.isPending ? (
+                  <Loader2Icon className="size-4 animate-spin" />
+                ) : (
+                  <DownloadIcon className="size-4" />
+                )}
+                <span className="hidden sm:inline">Ekspor Katalog</span>
+              </Button>
+            </Can>
             <Can permission="import-produk">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

@@ -20,6 +20,7 @@ export interface ProductListViewProps {
   pagination: PaginationState;
   onPaginationChange: (pagination: PaginationState) => void;
   syncFilters?: SyncStockFilters;
+  onExport?: (productIds: string[]) => void;
 }
 
 export function ProductTable({
@@ -32,6 +33,7 @@ export function ProductTable({
   pagination,
   onPaginationChange,
   syncFilters,
+  onExport,
 }: ProductListViewProps) {
   return (
     <DataTable
@@ -56,6 +58,7 @@ export function ProductTable({
           table={table}
           total={total}
           syncFilters={syncFilters}
+          onExport={onExport}
         />
       )}
       tableContainerClassName="border-0 bg-transparent backdrop-blur-none [&_[data-slot=table-header]]:bg-transparent"

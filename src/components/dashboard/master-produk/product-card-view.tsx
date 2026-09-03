@@ -27,6 +27,8 @@ export function ProductCardView({
   onSortingChange,
   pagination,
   onPaginationChange,
+  syncFilters,
+  onExport,
 }: ProductListViewProps) {
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 
@@ -89,7 +91,13 @@ export function ProductCardView({
         <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-muted/40 px-4 py-2.5 text-sm">
           <span className="font-medium">{selectedRows.length} dipilih</span>
           <div className="ml-auto flex items-center gap-2">
-            <ProductBulkActions selected={selectedRows} table={table} />
+            <ProductBulkActions
+              selected={selectedRows}
+              table={table}
+              total={total}
+              syncFilters={syncFilters}
+              onExport={onExport}
+            />
           </div>
         </div>
       )}
