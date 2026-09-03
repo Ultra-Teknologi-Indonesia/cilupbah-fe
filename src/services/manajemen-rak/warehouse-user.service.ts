@@ -1,4 +1,5 @@
 import { fetchClient } from "@/lib/api-client";
+import type { ApiPaginated } from "@/types/api.types";
 import type { WarehouseUser } from "@/types/manajemen-rak/location";
 
 type RawUser = {
@@ -7,13 +8,11 @@ type RawUser = {
   last_login: string | null;
   is_owner: boolean;
 };
-type LookupResponse = { data: RawUser[]; totalCount: number };
-
 export const WarehouseUserService = {
   list: async (q?: string): Promise<WarehouseUser[]> => {
-    const params = new URLSearchParams({ pageSize: "200", page: "1" });
+    const params = new URLSearchParams({ per_page: "200", page: "1" });
     if (q) params.set("q", q);
-    const res = await fetchClient<LookupResponse>(
+    const res = await fetchClient<ApiPaginated<RawUser>>(
       `/users/lookup?${params.toString()}`,
     );
     return (res.data ?? []).map((u) => ({

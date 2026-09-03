@@ -186,8 +186,10 @@ export function useDownloadProduct() {
       shopId: string;
       externalProductId: string;
     }) => DownloadService.downloadProduct(params),
-    onSuccess: () => {
-      toast.success("Produk diunduh dari channel");
+    onSuccess: (transaction) => {
+      toast.success("Download produk diantrekan", {
+        description: `Pantau progresnya pada transaksi ${transaction.trxNo}.`,
+      });
       qc.invalidateQueries({
         queryKey: ["master-produk", "download-transactions"],
       });

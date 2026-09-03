@@ -185,6 +185,7 @@ export function DownloadSatuanDialog({
   const [downloaded, setDownloaded] = React.useState<Record<string, boolean>>(
     {},
   );
+  const [queued, setQueued] = React.useState<Record<string, boolean>>({});
   const [pending, setPending] = React.useState<Record<string, boolean>>({});
 
   const [prevOpen, setPrevOpen] = React.useState(open);
@@ -197,6 +198,7 @@ export function DownloadSatuanDialog({
       setStarted(false);
       setRowSel({});
       setDownloaded({});
+      setQueued({});
       setPending({});
     }
   }
@@ -257,7 +259,7 @@ export function DownloadSatuanDialog({
         shopId: item.shopId,
         externalProductId: item.externalProductId,
       });
-      setDownloaded((d) => ({ ...d, [id]: true }));
+      setQueued((q) => ({ ...q, [id]: true }));
     } catch {
     } finally {
       setPending((p) => ({ ...p, [id]: false }));
@@ -271,6 +273,7 @@ export function DownloadSatuanDialog({
     for (const item of selectedItems) {
       if (
         downloaded[channelSearchRowId(item)] ||
+        queued[channelSearchRowId(item)] ||
         item.alreadyDownloaded
       )
         continue;
@@ -433,6 +436,7 @@ export function DownloadSatuanDialog({
                   {items.map((item) => {
                     const id = channelSearchRowId(item);
                     const isDone = downloaded[id] || item.alreadyDownloaded;
+                    const isQueued = queued[id];
                     return (
                       <li
                         key={id}
@@ -440,7 +444,7 @@ export function DownloadSatuanDialog({
                       >
                         <Checkbox
                           checked={!!rowSel[id]}
-                          disabled={isDone}
+                          disabled={isDone || isQueued}
                           onCheckedChange={(v) =>
                             setRowSel((prev) => ({ ...prev, [id]: !!v }))
                           }
@@ -503,7 +507,7 @@ export function DownloadSatuanDialog({
                           variant={isDone ? "outline" : "primary"}
                           className="h-8 shrink-0 gap-1.5"
                           onClick={() => runDownload(item)}
-                          disabled={isDone || pending[id]}
+                          disabled={isDone || isQueued || pending[id]}
                         >
                           {pending[id] ? (
                             <Loader2Icon className="size-3.5 animate-spin" />
@@ -512,7 +516,11 @@ export function DownloadSatuanDialog({
                           ) : (
                             <CloudDownloadIcon className="size-3.5" />
                           )}
-                          {isDone ? "Sudah di Master" : "Download"}
+                          {isDone
+                            ? "Sudah di Master"
+                            : isQueued
+                              ? "Dalam proses"
+                              : "Download"}
                         </Button>
                       </li>
                     );

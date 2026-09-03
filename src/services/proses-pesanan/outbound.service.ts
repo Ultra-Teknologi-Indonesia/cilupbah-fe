@@ -465,38 +465,17 @@ function mapShipResult(raw: RawReadyToShipResult): ReadyToShipResult {
   };
 }
 
-interface RawPaginator<T> {
-  data: T[];
-  current_page: number;
-  last_page: number;
-  per_page: number;
-  total: number;
-}
-
-function paginatorMeta<T>(
-  p: RawPaginator<T> | undefined,
-  perPage?: number,
-): Meta {
-  return {
-    current_page: p?.current_page ?? 1,
-    last_page: p?.last_page ?? 1,
-    per_page: p?.per_page ?? perPage ?? 20,
-    total: p?.total ?? 0,
-  };
-}
-
 export const OutboundService = {
   ordersByStage: async (
     stage: string,
     params: FulfillmentListParams,
   ): Promise<ListResult<FulfillmentOrder>> => {
-    const res = await fetchClient<{
-      success?: boolean;
-      data: RawPaginator<RawFulfillmentOrder>;
-    }>(`/outbound/orders/${stage}?${buildQuery(params)}`);
+    const res = await fetchClient<ApiPaginated<RawFulfillmentOrder>>(
+      `/outbound/orders/${stage}?${buildQuery(params)}`,
+    );
     return {
-      items: (res.data?.data ?? []).map(mapOrder),
-      meta: paginatorMeta(res.data, params.per_page),
+      items: (res.data ?? []).map(mapOrder),
+      meta: res.meta ?? FALLBACK_META,
     };
   },
 
@@ -567,26 +546,24 @@ export const OutboundService = {
   packlists: async (
     params: FulfillmentListParams,
   ): Promise<ListResult<Packlist>> => {
-    const res = await fetchClient<{
-      success?: boolean;
-      data: RawPaginator<RawPacklist>;
-    }>(`/outbound/packlists?${buildQuery(params)}`);
+    const res = await fetchClient<ApiPaginated<RawPacklist>>(
+      `/outbound/packlists?${buildQuery(params)}`,
+    );
     return {
-      items: (res.data?.data ?? []).map(mapPacklist),
-      meta: paginatorMeta(res.data, params.per_page),
+      items: (res.data ?? []).map(mapPacklist),
+      meta: res.meta ?? FALLBACK_META,
     };
   },
 
   shipments: async (
     params: FulfillmentListParams,
   ): Promise<ListResult<Shipment>> => {
-    const res = await fetchClient<{
-      success?: boolean;
-      data: RawPaginator<RawShipment>;
-    }>(`/outbound/shipments?${buildQuery(params)}`);
+    const res = await fetchClient<ApiPaginated<RawShipment>>(
+      `/outbound/shipments?${buildQuery(params)}`,
+    );
     return {
-      items: (res.data?.data ?? []).map(mapShipment),
-      meta: paginatorMeta(res.data, params.per_page),
+      items: (res.data ?? []).map(mapShipment),
+      meta: res.meta ?? FALLBACK_META,
     };
   },
 
@@ -598,29 +575,12 @@ export const OutboundService = {
   ): Promise<ListResult<CompletedShipmentOrderRow>> => {
     const type = encodeURIComponent(params.type ?? "all");
     const couriers = (params.courier_codes ?? []).join(",") || "all";
-    const res = await fetchClient<{
-      success?: boolean;
-      data: {
-        data: RawCompletedShipmentOrderRow[];
-        meta: {
-          current_page: number;
-          per_page: number;
-          last_page: number;
-          total: number;
-        };
-      };
-    }>(
+    const res = await fetchClient<ApiPaginated<RawCompletedShipmentOrderRow>>(
       `/outbound/shipments/completed/${type}/${encodeURIComponent(couriers)}?${buildQuery(params)}`,
     );
-    const payload = res.data;
     return {
-      items: (payload?.data ?? []).map(mapCompletedShipmentOrderRow),
-      meta: payload?.meta ?? {
-        current_page: 1,
-        per_page: params.per_page ?? 20,
-        last_page: 1,
-        total: 0,
-      },
+      items: (res.data ?? []).map(mapCompletedShipmentOrderRow),
+      meta: res.meta ?? FALLBACK_META,
     };
   },
 
@@ -1436,15 +1396,12 @@ export const OutboundService = {
     id: string,
     params: FulfillmentListParams,
   ): Promise<ListResult<ShipmentOrderItem>> => {
-    const res = await fetchClient<{
-      success?: boolean;
-      data: RawPaginator<RawShipmentOrder>;
-    }>(
+    const res = await fetchClient<ApiPaginated<RawShipmentOrder>>(
       `/outbound/shipments/${encodeURIComponent(id)}/orders?${buildQuery(params)}`,
     );
     return {
-      items: (res.data?.data ?? []).map(mapShipmentOrderItem),
-      meta: paginatorMeta(res.data, params.per_page),
+      items: (res.data ?? []).map(mapShipmentOrderItem),
+      meta: res.meta ?? FALLBACK_META,
     };
   },
 

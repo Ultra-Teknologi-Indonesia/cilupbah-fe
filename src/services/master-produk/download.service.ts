@@ -8,6 +8,7 @@ export type ChannelDownloadAction = "download" | "none";
 export interface DownloadTransaction {
   trxId: string;
   trxNo: string;
+  externalProductId: string | null;
   executedBy: string;
   storeName: string | null;
   storeId: string | null;
@@ -30,6 +31,7 @@ export interface DownloadTransaction {
 interface RawDownloadTransaction {
   trx_id: string;
   trx_no: string;
+  external_product_id?: string | null;
   executed_by: string;
   store_name: string | null;
   store_id: string | null;
@@ -62,6 +64,7 @@ function mapTransaction(raw: RawDownloadTransaction): DownloadTransaction {
   return {
     trxId: raw.trx_id,
     trxNo: raw.trx_no,
+    externalProductId: raw.external_product_id ?? null,
     executedBy: raw.executed_by,
     storeName: raw.store_name,
     storeId: raw.store_id,
@@ -424,14 +427,19 @@ export const DownloadService = {
     channel: string;
     shopId: string;
     externalProductId: string;
-  }): Promise<void> => {
-    await fetchClient(`/${params.channel}/download-product`, {
+  }): Promise<DownloadTransaction> => {
+    const res = await fetchClient<ApiResponse<RawDownloadTransaction>>(
+      `/${params.channel}/download-product`,
+      {
       method: "POST",
       data: {
         shop_id: params.shopId,
         external_product_id: params.externalProductId,
       },
-    });
+      },
+    );
+
+    return mapTransaction(res.data);
   },
 
   getFailures: async (id: string): Promise<DownloadFailures> => {
