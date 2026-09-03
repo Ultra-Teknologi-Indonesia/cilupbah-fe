@@ -10,6 +10,8 @@ interface LocationComboboxProps {
   onChange: (value: string) => void;
   placeholder?: string;
   className?: string;
+  disabled?: boolean;
+  autoSelectSingle?: boolean;
 }
 
 export function LocationCombobox({
@@ -17,6 +19,8 @@ export function LocationCombobox({
   onChange,
   placeholder = "Pilih lokasi…",
   className,
+  disabled = false,
+  autoSelectSingle = true,
 }: LocationComboboxProps) {
   const { data, isLoading } = useLocations({ perPage: 100 });
 
@@ -28,6 +32,14 @@ export function LocationCombobox({
     [data],
   );
 
+  React.useEffect(() => {
+    if (!autoSelectSingle || isLoading || value || options.length !== 1) {
+      return;
+    }
+
+    onChange(options[0].value);
+  }, [autoSelectSingle, isLoading, onChange, options, value]);
+
   return (
     <Combobox
       options={options}
@@ -38,6 +50,7 @@ export function LocationCombobox({
       searchPlaceholder="Cari lokasi…"
       emptyText="Lokasi tidak ditemukan."
       className={className}
+      disabled={disabled}
     />
   );
 }

@@ -19,7 +19,6 @@ function mapUser(raw: RawUser): User {
     email: raw.email,
     roles: raw.roles,
     permissions: raw.permissions ?? [],
-    directPermissions: raw.direct_permissions ?? [],
     nik: raw.nik,
     warehouseId: raw.warehouse_id,
     locations: (raw.locations ?? []).map((l) => ({
@@ -98,7 +97,6 @@ export const UserService = {
         email: u.email,
         roles: u.roles ?? [],
         permissions: [],
-        directPermissions: [],
         nik: null,
         warehouseId: null,
         locations: [],

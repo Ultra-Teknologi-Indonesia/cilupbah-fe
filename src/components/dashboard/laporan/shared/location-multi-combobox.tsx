@@ -10,6 +10,7 @@ interface LocationMultiComboboxProps {
   onChange: (value: string[]) => void;
   className?: string;
   disabled?: boolean;
+  autoSelectSingle?: boolean;
 }
 
 export function LocationMultiCombobox({
@@ -17,6 +18,7 @@ export function LocationMultiCombobox({
   onChange,
   className,
   disabled = false,
+  autoSelectSingle = true,
 }: LocationMultiComboboxProps) {
   const { data, isLoading } = useLocations({ perPage: 100 });
 
@@ -27,6 +29,14 @@ export function LocationMultiCombobox({
         .map((l) => ({ value: l.id, label: l.locationName })),
     [data],
   );
+
+  React.useEffect(() => {
+    if (!autoSelectSingle || isLoading || value.length > 0 || options.length !== 1) {
+      return;
+    }
+
+    onChange([options[0].value]);
+  }, [autoSelectSingle, isLoading, onChange, options, value.length]);
 
   return (
     <Combobox

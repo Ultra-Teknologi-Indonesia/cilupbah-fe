@@ -5,7 +5,6 @@ import {
   ChevronDownIcon,
   ChevronsDownUpIcon,
   ChevronsUpDownIcon,
-  LockIcon,
   SearchIcon,
 } from "lucide-react";
 
@@ -47,8 +46,6 @@ interface PermissionMatrixProps {
   value: string[];
   onChange: (next: string[]) => void;
 
-  baseline?: string[];
-
   disabled?: boolean;
 }
 
@@ -63,11 +60,9 @@ export function PermissionMatrix({
   catalog,
   value,
   onChange,
-  baseline,
   disabled = false,
 }: PermissionMatrixProps) {
   const valueSet = React.useMemo(() => new Set(value), [value]);
-  const baseSet = React.useMemo(() => new Set(baseline ?? []), [baseline]);
   const [query, setQuery] = React.useState("");
   const [openGroups, setOpenGroups] = React.useState<Set<string>>(new Set());
 
@@ -92,8 +87,8 @@ export function PermissionMatrix({
     return { viewOf, viewPerms, siblingsOf };
   }, [catalog]);
 
-  const isChecked = (perm: string) => valueSet.has(perm) || baseSet.has(perm);
-  const isLocked = (perm: string) => disabled || baseSet.has(perm);
+  const isChecked = (perm: string) => valueSet.has(perm);
+  const isLocked = (_perm?: string) => disabled;
 
   const toggleMany = (perms: string[], on: boolean) => {
     const next = new Set(value);
@@ -279,11 +274,6 @@ export function PermissionMatrix({
                                     return (
                                       <label
                                         key={extra.permission}
-                                        title={
-                                          baseSet.has(extra.permission)
-                                            ? "Diberikan oleh peran"
-                                            : undefined
-                                        }
                                         className={cn(
                                           "flex items-center gap-1.5 text-xs text-muted-foreground",
                                           locked
@@ -308,21 +298,13 @@ export function PermissionMatrix({
 
                             {ACTION_COLUMNS.map((col) => {
                               const perm = actionByKey.get(col.action);
-                              const fromRole = perm ? baseSet.has(perm) : false;
                               return (
                                 <TableCell
                                   key={col.action}
                                   className="px-1 py-2.5 text-center"
                                 >
                                   {perm ? (
-                                    <span
-                                      className="inline-flex"
-                                      title={
-                                        fromRole
-                                          ? "Diberikan oleh peran"
-                                          : undefined
-                                      }
-                                    >
+                                    <span className="inline-flex">
                                       <Checkbox
                                         checked={isChecked(perm)}
                                         disabled={isLocked(perm)}
@@ -357,13 +339,6 @@ export function PermissionMatrix({
             </Collapsible>
           );
         })
-      )}
-
-      {baseSet.size > 0 && (
-        <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <LockIcon className="size-3" />
-          Centang abu-abu berasal dari peran dan diatur di halaman Peran.
-        </p>
       )}
     </div>
   );

@@ -177,7 +177,8 @@ export function UserFormPage({ userId }: UserFormPageProps) {
   const { can } = usePermissions();
 
   const [activeTab, setActiveTab] = React.useState("informasi");
-  const [directPerms, setDirectPerms] = React.useState<string[]>([]);
+  const [selectedPerms, setSelectedPerms] = React.useState<string[]>([]);
+  const previousRoleNames = React.useRef<string[]>([]);
 
   const isOwnerUser = (user?.roles ?? []).includes("owner");
   const canManageUser = isEdit ? can("edit-user") : can("create-user");
@@ -212,7 +213,8 @@ export function UserFormPage({ userId }: UserFormPageProps) {
 
   React.useEffect(() => {
     if (user && isEdit) {
-      setDirectPerms(user.directPermissions ?? []);
+      setSelectedPerms(user.permissions ?? []);
+      previousRoleNames.current = user.roles.filter((role) => role !== "owner");
     }
   }, [user, isEdit]);
 
@@ -238,7 +240,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
       payload.password_confirmation = values.password_confirmation;
     }
     if (!isOwnerUser) {
-      payload.permissions = directPerms;
+      payload.permissions = selectedPerms;
       payload.location_ids = values.location_ids;
     }
 
@@ -265,14 +267,54 @@ export function UserFormPage({ userId }: UserFormPageProps) {
   }
 
   const selectedRoles = form.watch("roles");
-  const rolePermsBaseline = React.useMemo(() => {
-    const chosen = new Set(selectedRoles ?? []);
-    const set = new Set<string>();
-    for (const r of roles ?? []) {
-      if (chosen.has(r.name)) (r.permissions ?? []).forEach((p) => set.add(p));
+
+  React.useEffect(() => {
+    if (!roles || (isEdit && !user)) {
+      return;
     }
-    return [...set];
-  }, [roles, selectedRoles]);
+
+    const currentRoleNames = selectedRoles ?? [];
+    const previousRoleSet = new Set(previousRoleNames.current);
+    const currentRoleSet = new Set(currentRoleNames);
+
+    if (
+      currentRoleNames.length === previousRoleNames.current.length &&
+      currentRoleNames.every((role) => previousRoleSet.has(role))
+    ) {
+      return;
+    }
+
+    const permissionsForRoles = (roleNames: Set<string>) =>
+      new Set(
+        roles
+          .filter((role) => roleNames.has(role.name))
+          .flatMap((role) => role.permissions ?? []),
+      );
+
+    const previousRolePermissions = permissionsForRoles(previousRoleSet);
+    const currentRolePermissions = permissionsForRoles(currentRoleSet);
+
+    setSelectedPerms((current) => {
+      const currentPermissionSet = new Set(current);
+      const deniedByUser = [...previousRolePermissions].filter(
+        (permission) => !currentPermissionSet.has(permission),
+      );
+      const explicitUserPermissions = [...currentPermissionSet].filter(
+        (permission) => !previousRolePermissions.has(permission),
+      );
+
+      return [
+        ...new Set([
+          ...[...currentRolePermissions].filter(
+            (permission) => !deniedByUser.includes(permission),
+          ),
+          ...explicitUserPermissions,
+        ]),
+      ];
+    });
+
+    previousRoleNames.current = currentRoleNames;
+  }, [isEdit, roles, selectedRoles, user]);
 
   if (isEdit && userLoading) {
     return <FormSkeleton />;
@@ -406,6 +448,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                                 })
                               }
                               disabled={isReadOnly}
+                              autoSelectSingle={false}
                             />
                             <p className="text-xs text-muted-foreground">
                               Kosongkan untuk memberi akses ke semua gudang.
@@ -604,16 +647,15 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                   ) : (
                     <div className="space-y-3">
                       <p className="text-sm text-muted-foreground">
-                        Centang abu-abu otomatis mengikuti peran yang dipilih
-                        dan diatur di halaman Peran. Tambahkan centang lain
-                        untuk memberi hak akses khusus di luar peran.
+                        Daftar ini adalah hak akses akhir pengguna. Hak akses
+                        dari peran tetap menjadi bawaan, tetapi setiap centang
+                        dapat diubah khusus untuk pengguna ini.
                       </p>
                       {catalog ? (
                         <PermissionMatrix
                           catalog={catalog}
-                          value={directPerms}
-                          onChange={setDirectPerms}
-                          baseline={rolePermsBaseline}
+                          value={selectedPerms}
+                          onChange={setSelectedPerms}
                           disabled={isReadOnly}
                         />
                       ) : (

@@ -99,7 +99,6 @@ export interface MyProfile {
   email: string;
   roles: string[];
   permissions: string[];
-  direct_permissions: string[];
   nik: string | null;
   phone: string | null;
   warehouse_id: string | null;

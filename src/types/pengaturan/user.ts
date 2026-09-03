@@ -10,7 +10,6 @@ export type RawUser = {
   email: string;
   roles: string[];
   permissions: string[];
-  direct_permissions?: string[];
   nik: string | null;
   warehouse_id: string | null;
   locations: RawUserLocation[];
@@ -36,8 +35,6 @@ export type User = {
   roles: string[];
 
   permissions: string[];
-
-  directPermissions: string[];
   nik: string | null;
   warehouseId: string | null;
   locations: UserLocation[];
