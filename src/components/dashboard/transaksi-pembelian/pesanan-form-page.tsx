@@ -711,6 +711,7 @@ export function PesananFormPage({ mode, id }: Props) {
         onOpenChange={setPickerOpen}
         onPick={handlePickProducts}
         excludeIds={existingItemIds}
+        excludeBundles
       />
     </div>
   );

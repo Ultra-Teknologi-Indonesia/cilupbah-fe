@@ -44,6 +44,7 @@ interface ProductPickerDialogProps {
   onOpenChange: (open: boolean) => void;
   onPick: (products: PickedProduct[]) => void;
   excludeIds?: string[];
+  excludeBundles?: boolean;
 
   initialSearch?: string;
 }
@@ -83,6 +84,7 @@ export function ProductPickerDialog({
   onOpenChange,
   onPick,
   excludeIds = [],
+  excludeBundles = false,
   initialSearch,
 }: ProductPickerDialogProps) {
   const [searchInput, setSearchInput] = React.useState(
@@ -119,6 +121,7 @@ export function ProductPickerDialog({
       search: search || undefined,
       page,
       perPage,
+      excludeBundles,
     },
     { enabled: open },
   );
@@ -140,6 +143,8 @@ export function ProductPickerDialog({
     }[] = [];
 
     for (const p of data?.items ?? []) {
+      if (excludeBundles && p.isBundle) continue;
+
       const filteredVariants = p.variants.filter(
         (v) => !excludeIds.includes(v.itemId),
       );
@@ -160,7 +165,7 @@ export function ProductPickerDialog({
       });
     }
     return result;
-  }, [data, excludeIds]);
+  }, [data, excludeBundles, excludeIds]);
 
   const showSkeleton = isLoading || (isFetching && products.length === 0);
   const isRefreshing = isFetching && !isLoading && products.length > 0;

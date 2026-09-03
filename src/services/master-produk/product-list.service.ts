@@ -12,6 +12,7 @@ export interface MasterProductsParams {
   maxPrice?: number;
 
   channel?: string;
+  excludeBundles?: boolean;
   sort?: string;
   page?: number;
   perPage?: number;
@@ -117,6 +118,7 @@ export const ProductListService = {
     if (params.search) q.set("search", params.search);
     if (params.status) q.set("status", params.status);
     if (params.categoryId) q.set("filter[category_id]", params.categoryId);
+    if (params.excludeBundles) q.set("exclude_bundles", "1");
     q.set("page", String(params.page ?? 1));
     q.set("per_page", String(params.perPage ?? 20));
 
