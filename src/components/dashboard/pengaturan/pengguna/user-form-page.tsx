@@ -32,6 +32,7 @@ import { Combobox } from "@/components/ui/combobox";
 import { LocationMultiCombobox } from "@/components/dashboard/laporan/shared/location-multi-combobox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PermissionMatrix } from "@/components/dashboard/pengaturan/permission-matrix";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 import {
   useRoles,
   useCreateUser,
@@ -173,11 +174,14 @@ export function UserFormPage({ userId }: UserFormPageProps) {
   const { data: catalog } = usePermissionCatalog();
   const createUser = useCreateUser();
   const updateUser = useUpdateUser();
+  const { can } = usePermissions();
 
   const [activeTab, setActiveTab] = React.useState("informasi");
   const [directPerms, setDirectPerms] = React.useState<string[]>([]);
 
   const isOwnerUser = (user?.roles ?? []).includes("owner");
+  const canManageUser = isEdit ? can("edit-user") : can("create-user");
+  const isReadOnly = !canManageUser;
 
   const form = useForm<FormValues>({
     resolver: zodResolver(
@@ -221,6 +225,8 @@ export function UserFormPage({ userId }: UserFormPageProps) {
   const isPending = createUser.isPending || updateUser.isPending;
 
   function onSubmit(values: FormValues) {
+    if (isReadOnly) return;
+
     const payload: UserFormPayload = {
       name: values.name,
       email: values.email,
@@ -303,6 +309,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                           <FormControl>
                             <Input
                               placeholder="Masukkan nama lengkap"
+                              disabled={isReadOnly}
                               {...field}
                             />
                           </FormControl>
@@ -323,6 +330,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                             <Input
                               type="email"
                               placeholder="email@example.com"
+                              disabled={isReadOnly}
                               {...field}
                             />
                           </FormControl>
@@ -340,6 +348,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                           <FormControl>
                             <Input
                               placeholder="Nomor Induk Karyawan"
+                              disabled={isReadOnly}
                               {...field}
                             />
                           </FormControl>
@@ -374,7 +383,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                             }
                             searchPlaceholder="Cari peran…"
                             emptyText="Peran tidak ditemukan."
-                            disabled={rolesLoading}
+                            disabled={rolesLoading || isReadOnly}
                             maxVisible={2}
                           />
                           <FormMessage />
@@ -396,6 +405,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                                   shouldValidate: true,
                                 })
                               }
+                              disabled={isReadOnly}
                             />
                             <p className="text-xs text-muted-foreground">
                               Kosongkan untuk memberi akses ke semua gudang.
@@ -427,6 +437,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                                     : "Masukkan password"
                                 }
                                 className="pr-24"
+                                disabled={isReadOnly}
                                 {...field}
                               />
                               <div className="absolute inset-y-0 right-0 flex items-center gap-0.5 pr-1.5">
@@ -440,6 +451,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                                       : "Tampilkan kata sandi"
                                   }
                                   className="size-7 rounded-md text-muted-foreground"
+                                  disabled={isReadOnly}
                                   onClick={() => setShowPassword((v) => !v)}
                                 >
                                   {showPassword ? (
@@ -454,6 +466,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                                   size="icon"
                                   aria-label="Buat kata sandi otomatis"
                                   className="size-7 rounded-md text-muted-foreground"
+                                  disabled={isReadOnly}
                                   onClick={async () => {
                                     const pwd = generatePassword();
                                     form.setValue("password", pwd, {
@@ -547,6 +560,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                                 type={showConfirmPassword ? "text" : "password"}
                                 placeholder="Ulangi password"
                                 className="pr-10"
+                                disabled={isReadOnly}
                                 {...field}
                               />
                               <div className="absolute inset-y-0 right-0 flex items-center pr-1.5">
@@ -560,6 +574,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                                       : "Tampilkan kata sandi"
                                   }
                                   className="size-7 rounded-md text-muted-foreground"
+                                  disabled={isReadOnly}
                                   onClick={() =>
                                     setShowConfirmPassword((v) => !v)
                                   }
@@ -599,6 +614,7 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                           value={directPerms}
                           onChange={setDirectPerms}
                           baseline={rolePermsBaseline}
+                          disabled={isReadOnly}
                         />
                       ) : (
                         <div className="flex items-center justify-center py-10 text-muted-foreground">
@@ -610,6 +626,12 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                 </TabsContent>
               </Tabs>
 
+              {isReadOnly && (
+                <p className="text-sm text-muted-foreground">
+                  Anda hanya memiliki akses untuk melihat pengguna, perubahan
+                  memerlukan permission {isEdit ? "edit-user" : "create-user"}.
+                </p>
+              )}
               <div className="flex justify-end gap-2 pt-4">
                 <Button
                   type="button"
@@ -617,14 +639,16 @@ export function UserFormPage({ userId }: UserFormPageProps) {
                   onClick={() => router.back()}
                   disabled={isPending}
                 >
-                  Batal
+                  {isReadOnly ? "Kembali" : "Batal"}
                 </Button>
-                <Button type="submit" disabled={isPending}>
-                  {isPending && (
-                    <Loader2Icon className="mr-2 size-4 animate-spin" />
-                  )}
-                  {isEdit ? "Simpan" : "Tambah"}
-                </Button>
+                {!isReadOnly && (
+                  <Button type="submit" disabled={isPending}>
+                    {isPending && (
+                      <Loader2Icon className="mr-2 size-4 animate-spin" />
+                    )}
+                    {isEdit ? "Simpan" : "Tambah"}
+                  </Button>
+                )}
               </div>
             </form>
           </Form>

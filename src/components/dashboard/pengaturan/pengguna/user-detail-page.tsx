@@ -35,6 +35,7 @@ import {
   useLoginHistory,
 } from "@/hooks/pengaturan/use-users";
 import { apiError } from "@/lib/toast";
+import { usePermissions } from "@/hooks/auth/use-permissions";
 
 function formatDate(iso: string | null): string {
   if (!iso) return "-";
@@ -65,6 +66,7 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
   const router = useRouter();
   const { data: user, isLoading, isError } = useUserDetail(userId);
   const deleteUser = useDeleteUser();
+  const { can } = usePermissions();
   const [showDelete, setShowDelete] = React.useState(false);
   const [historyPage, setHistoryPage] = React.useState(1);
   const pageSize = 10;
@@ -98,6 +100,8 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
   }
 
   const isOwner = user.roles.includes("owner");
+  const canEdit = can("edit-user");
+  const canDelete = can("delete-user");
 
   return (
     <div className="flex flex-col gap-4">
@@ -106,7 +110,7 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Informasi Pengguna</h2>
             <div className="flex gap-2">
-              {!isOwner && (
+              {!isOwner && canDelete && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -117,15 +121,17 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
                   Hapus
                 </Button>
               )}
-              <Button
-                size="sm"
-                onClick={() =>
-                  router.push(`/dashboard/pengaturan/pengguna/${userId}/edit`)
-                }
-              >
-                <PencilIcon className="mr-1 size-4" />
-                Edit
-              </Button>
+              {canEdit && (
+                <Button
+                  size="sm"
+                  onClick={() =>
+                    router.push(`/dashboard/pengaturan/pengguna/${userId}/edit`)
+                  }
+                >
+                  <PencilIcon className="mr-1 size-4" />
+                  Edit
+                </Button>
+              )}
             </div>
           </div>
 

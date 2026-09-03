@@ -125,6 +125,8 @@ export function PermissionMatrix({
 
   const allChecked = (perms: string[]) =>
     perms.length > 0 && perms.every(isChecked);
+  const allLocked = (perms: string[]) =>
+    perms.length > 0 && perms.every(isLocked);
   const countChecked = (perms: string[]) =>
     perms.filter((p) => isChecked(p)).length;
 
@@ -215,7 +217,7 @@ export function PermissionMatrix({
               >
                 <Checkbox
                   checked={gAll}
-                  disabled={disabled}
+                  disabled={allLocked(gPerms)}
                   onCheckedChange={() => toggleMany(gPerms, !gAll)}
                   aria-label={`Pilih semua ${group.label}`}
                 />
@@ -338,7 +340,7 @@ export function PermissionMatrix({
                             <TableCell className="px-1 py-2.5 text-center">
                               <Checkbox
                                 checked={rAll}
-                                disabled={disabled}
+                                disabled={allLocked(rPerms)}
                                 onCheckedChange={() =>
                                   toggleMany(rPerms, !rAll)
                                 }

@@ -9,12 +9,14 @@ interface LocationMultiComboboxProps {
   value: string[];
   onChange: (value: string[]) => void;
   className?: string;
+  disabled?: boolean;
 }
 
 export function LocationMultiCombobox({
   value,
   onChange,
   className,
+  disabled = false,
 }: LocationMultiComboboxProps) {
   const { data, isLoading } = useLocations({ perPage: 100 });
 
@@ -38,6 +40,7 @@ export function LocationMultiCombobox({
       searchPlaceholder="Cari lokasi…"
       emptyText="Lokasi tidak ditemukan."
       className={className}
+      disabled={disabled}
     />
   );
 }
