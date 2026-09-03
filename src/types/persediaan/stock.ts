@@ -51,6 +51,13 @@ export interface StockItem {
 
 export type MovementView = "clean" | "attention" | "all";
 
+export interface StockMovementEffect {
+  type: "reservation_release" | "physical_restore";
+  label: string;
+  quantity_label: "tersedia" | "fisik";
+  description: string;
+}
+
 export interface StockMovement {
   id: string;
   item_id: string;
@@ -68,6 +75,7 @@ export interface StockMovement {
   source: string;
   source_category: string;
   source_label: string;
+  stock_effect?: StockMovementEffect | null;
   workflow: {
     type: "transfer";
     label: string;

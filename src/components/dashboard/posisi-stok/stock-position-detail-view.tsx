@@ -283,17 +283,51 @@ function SourceBadge({
   );
 }
 
-function QtyCell({ qty }: { qty: number }) {
+function QtyCell({
+  qty,
+  effect,
+}: {
+  qty: number;
+  effect?: StockMovement["stock_effect"];
+}) {
   const isPositive = qty > 0;
   return (
-    <span
-      className={cn(
-        "font-mono text-sm font-semibold tabular-nums",
-        isPositive ? "text-success" : "text-destructive",
+    <span className="inline-flex flex-col items-end gap-0.5">
+      <span
+        className={cn(
+          "font-mono text-sm font-semibold tabular-nums",
+          isPositive ? "text-success" : "text-destructive",
+        )}
+        aria-label={`Perubahan qty ${isPositive ? `plus ${qty}` : qty}`}
+      >
+        {isPositive ? `+${qty}` : qty}
+      </span>
+      {effect && (
+        <span className="text-2xs font-medium text-muted-foreground">
+          {effect.quantity_label}
+        </span>
       )}
-    >
-      {isPositive ? `+${qty}` : qty}
     </span>
+  );
+}
+
+function MovementEffectNote({
+  effect,
+}: {
+  effect: NonNullable<StockMovement["stock_effect"]>;
+}) {
+  return (
+    <div
+      className="max-w-[24rem] rounded-lg border border-primary/15 bg-primary/[0.04] px-2.5 py-2"
+      title={effect.description}
+    >
+      <p className="font-medium leading-relaxed text-foreground">
+        {effect.label}
+      </p>
+      <p className="mt-1 leading-relaxed text-muted-foreground">
+        {effect.description}
+      </p>
+    </div>
   );
 }
 
@@ -809,6 +843,14 @@ function MovementsSection({ itemId }: { itemId: string }) {
           </div>
         </div>
       )}
+      <div
+        role="note"
+        className="rounded-xl border border-border/60 bg-muted/20 px-4 py-2.5 text-xs text-muted-foreground"
+      >
+        <span className="font-semibold text-foreground">Cara membaca:</span>{" "}
+        pembatalan sebelum pengambilan dapat menambah stok tersedia karena
+        cadangan dilepas, tanpa menambah stok fisik.
+      </div>
       <Table>
         <TableHeader>
           <TableRow className="border-b border-border/60 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -836,7 +878,10 @@ function MovementsSection({ itemId }: { itemId: string }) {
             <TableHead className="px-3 py-2.5 text-right text-xs uppercase tracking-wider text-muted-foreground">
               Qty
             </TableHead>
-            <TableHead className="px-3 py-2.5 text-right text-xs uppercase tracking-wider text-muted-foreground">
+            <TableHead
+              className="px-3 py-2.5 text-right text-xs uppercase tracking-wider text-muted-foreground"
+              title="Saldo stok fisik pada rak setelah aktivitas. Pelepasan cadangan tidak mengubah saldo ini."
+            >
               Saldo pada rak setelah aktivitas
             </TableHead>
             <TableHead className="w-[24rem] min-w-[18rem] px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground">
@@ -935,7 +980,7 @@ function MovementsSection({ itemId }: { itemId: string }) {
                     />
                   </TableCell>
                   <TableCell className="px-3 py-2.5 text-right">
-                    <QtyCell qty={m.qty} />
+                    <QtyCell qty={m.qty} effect={m.stock_effect} />
                   </TableCell>
                   <TableCell className="px-3 py-2.5 text-right font-mono text-sm font-semibold tabular-nums">
                     {m.placed_balance ?? m.balance}
@@ -943,6 +988,8 @@ function MovementsSection({ itemId }: { itemId: string }) {
                   <TableCell className="w-[24rem] min-w-[18rem] px-3 py-2.5 align-top text-xs text-muted-foreground">
                     {m.note ? (
                       <MovementNote note={m.note} />
+                    ) : m.stock_effect ? (
+                      <MovementEffectNote effect={m.stock_effect} />
                     ) : (
                       <span className="text-muted-foreground">—</span>
                     )}
