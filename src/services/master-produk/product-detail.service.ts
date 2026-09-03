@@ -143,6 +143,7 @@ export interface BulkResult {
   success: number;
   failed: number;
   errors: string[];
+  batch_id?: string;
 }
 
 export const ProductDetailService = {

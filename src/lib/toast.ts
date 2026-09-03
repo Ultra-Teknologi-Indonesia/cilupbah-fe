@@ -4,6 +4,7 @@ type ApiErrorBody = {
   status?: number;
   title?: string | null;
   message?: string | null;
+  request_id?: string | null;
   errors?: Record<string, string[] | string> | null;
 };
 
@@ -51,7 +52,13 @@ export function getApiErrorPresentation(
   }
 
   if (status !== undefined && status >= 500) {
-    return { title: SERVER_ERROR_TITLE, description: SERVER_ERROR_DESCRIPTION };
+    const requestId = body.request_id?.trim();
+    return {
+      title: SERVER_ERROR_TITLE,
+      description: requestId
+        ? `${SERVER_ERROR_DESCRIPTION} Kode laporan: ${requestId}`
+        : SERVER_ERROR_DESCRIPTION,
+    };
   }
 
   const beTitle = body.title?.trim() || undefined;

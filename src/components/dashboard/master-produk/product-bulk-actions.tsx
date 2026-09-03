@@ -224,7 +224,7 @@ export function ProductBulkActions({
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         title="Hapus Produk"
-        description={`${selected.length} produk akan dihapus permanen. Produk dengan stok tidak bisa dihapus.`}
+        description={`${selected.length} produk akan dihapus. Sistem akan memeriksa semuanya terlebih dahulu, dan jika ada satu yang tidak memenuhi syarat maka tidak ada produk yang dihapus.`}
         confirmLabel="Hapus"
         variant="destructive"
         loading={bulkDelete.isPending}

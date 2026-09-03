@@ -34,4 +34,17 @@ describe("API error presentation", () => {
       description: "Silakan laporkan ke admin/developer terkait masalah ini.",
     });
   });
+
+  it("shows the support reference for a tracked 500 response", () => {
+    expect(
+      getApiErrorPresentation({
+        status: 500,
+        request_id: "8c4f1e2a-7a2c-4c9d-91f5-1f0e8f7c3a10",
+      }),
+    ).toEqual({
+      title: "Terjadi kesalahan server",
+      description:
+        "Silakan laporkan ke admin/developer terkait masalah ini. Kode laporan: 8c4f1e2a-7a2c-4c9d-91f5-1f0e8f7c3a10",
+    });
+  });
 });
