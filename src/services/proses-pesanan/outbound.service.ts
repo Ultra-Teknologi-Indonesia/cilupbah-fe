@@ -516,7 +516,8 @@ export const OutboundService = {
       waitingShip: p.waiting_ship,
     }));
 
-    const readyToProcessToday =
+    const readyToProcess =
+      s?.ready_to_process ??
       s?.ready_to_process_today ??
       periods.find((period) => period.dayTerm === 0)?.readyToProcess ??
       0;
@@ -531,7 +532,7 @@ export const OutboundService = {
         yest: s?.yest ?? 0,
         mtd: s?.mtd ?? 0,
         prevMonth: s?.prev_month ?? 0,
-        readyToProcessToday,
+        readyToProcess,
         pendingFromTwoDaysAgo,
         pickedToday: s?.picked_today ?? 0,
         pickedYest: s?.picked_yest ?? 0,

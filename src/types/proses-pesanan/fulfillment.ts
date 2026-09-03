@@ -74,6 +74,7 @@ export interface RawOutboundMonitoringSummary {
   ready_to_pick?: number;
   ready_to_pick_2days?: number;
   ready_to_process_today?: number;
+  ready_to_process?: number;
   pending_from_two_days_ago?: number;
   picked_today: number;
   picked_yest: number;
@@ -99,7 +100,7 @@ export interface OutboundMonitoringSummary {
   yest: number;
   mtd: number;
   prevMonth: number;
-  readyToProcessToday: number;
+  readyToProcess: number;
   pendingFromTwoDaysAgo: number;
   pickedToday: number;
   pickedYest: number;
