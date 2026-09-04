@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Download, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { useAsyncExport } from "@/hooks/laporan/use-async-export";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
@@ -24,14 +25,14 @@ export function ExportCancelDialog() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [postPackOnly, setPostPackOnly] = useState(true);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const exportMutation = useAsyncExport(OrderService.exportCancelled);
+  const loading = exportMutation.isPending;
 
   const onSubmit = async () => {
-    setLoading(true);
     setError(null);
     try {
-      await OrderService.exportCancelled({
+      await exportMutation.mutateAsync({
         date_from: dateFrom || undefined,
         date_to: dateTo || undefined,
         post_pack_only: postPackOnly,
@@ -41,8 +42,6 @@ export function ExportCancelDialog() {
       setError(
         e instanceof Error ? e.message : "Gagal mengunduh data pesanan cancel.",
       );
-    } finally {
-      setLoading(false);
     }
   };
 

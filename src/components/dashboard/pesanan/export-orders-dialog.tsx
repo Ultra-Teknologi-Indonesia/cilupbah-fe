@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import { Download, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { useAsyncExport } from "@/hooks/laporan/use-async-export";
 import { DatePicker } from "@/components/ui/date-picker";
 import {
   Dialog,
@@ -28,14 +29,14 @@ export function ExportOrdersDialog({ tab }: Props) {
   const [open, setOpen] = useState(false);
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const exportMutation = useAsyncExport(OrderService.exportOrders);
+  const loading = exportMutation.isPending;
 
   const onSubmit = async () => {
-    setLoading(true);
     setError(null);
     try {
-      await OrderService.exportOrders({
+      await exportMutation.mutateAsync({
         tab: tab && tab !== "all" ? tab : undefined,
         date_from: dateFrom ? format(dateFrom, "yyyy-MM-dd") : undefined,
         date_to: dateTo ? format(dateTo, "yyyy-MM-dd") : undefined,
@@ -45,8 +46,6 @@ export function ExportOrdersDialog({ tab }: Props) {
       setError(
         e instanceof Error ? e.message : "Gagal mengunduh data pesanan.",
       );
-    } finally {
-      setLoading(false);
     }
   };
 

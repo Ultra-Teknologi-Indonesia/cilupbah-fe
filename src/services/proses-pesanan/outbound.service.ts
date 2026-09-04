@@ -1262,12 +1262,28 @@ export const OutboundService = {
     );
   },
 
+  picklistBulkPdfAsync: async (orderIds: string[]) => {
+    const res = await fetchClient<ApiResponse<{ export_id: string; status: string; total: number }>>(
+      `/outbound/picklists/documents/bulk/pdf/async`,
+      { method: "POST", data: { order_ids: orderIds } },
+    );
+    return res.data;
+  },
+
   invoiceBulkPdf: async (orderIds: string[]): Promise<Blob> => {
     return fetchBlobPost(
       `/sales/invoices/bulk-pdf`,
       { order_ids: orderIds },
       "application/pdf",
     );
+  },
+
+  invoiceBulkPdfAsync: async (orderIds: string[]) => {
+    const res = await fetchClient<ApiResponse<{ export_id: string; status: string; total: number }>>(
+      `/sales/invoices/bulk-pdf/async`,
+      { method: "POST", data: { order_ids: orderIds } },
+    );
+    return res.data;
   },
 
   createBulkShippingLabelBatch: async (
@@ -1376,6 +1392,14 @@ export const OutboundService = {
       { order_ids: orderIds },
       "application/pdf",
     );
+  },
+
+  manifestBulkPdfAsync: async (orderIds: string[]) => {
+    const res = await fetchClient<ApiResponse<{ export_id: string; status: string; total: number }>>(
+      `/outbound/shipments/documents/bulk/manifest-pdf/async`,
+      { method: "POST", data: { order_ids: orderIds } },
+    );
+    return res.data;
   },
 
   manifestExcel: async (shipmentId: string): Promise<Blob> => {

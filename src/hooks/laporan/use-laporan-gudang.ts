@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 import { useAsyncExport } from "@/hooks/laporan/use-async-export";
 import { LaporanGudangService } from "@/services/laporan/laporan-gudang.service";
@@ -15,15 +15,6 @@ import type {
   TransferReportParams,
 } from "@/types/laporan/laporan-gudang";
 
-function downloadBlob(blob: Blob, filename: string) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
 export function useExportTransferReport() {
   return useAsyncExport((params: TransferReportParams) =>
     LaporanGudangService.exportTransferAsync(params),
@@ -31,12 +22,9 @@ export function useExportTransferReport() {
 }
 
 export function useExportPicklistReport() {
-  return useMutation({
-    mutationFn: async (params: PicklistExportParams) => {
-      const blob = await LaporanGudangService.exportPicklist(params);
-      downloadBlob(blob, `daftar-picklist-${params.from}-${params.to}.xlsx`);
-    },
-  });
+  return useAsyncExport((params: PicklistExportParams) =>
+    LaporanGudangService.exportPicklistAsync(params),
+  );
 }
 
 export function useExportShipmentList() {

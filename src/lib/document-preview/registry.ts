@@ -95,17 +95,23 @@ export type DocumentTypeKey =
   | "bin-qr"
   | "putaway"
   | "putaway-bulk"
+  | "putaway-bulk-export"
   | "stock-adjustment"
   | "stock-adjustment-bulk"
+  | "stock-adjustment-bulk-export"
   | "invoice"
   | "invoice-bulk"
+  | "invoice-bulk-export"
   | "order-breakdown"
   | "manifest"
   | "surat-jalan-bulk"
+  | "surat-jalan-bulk-export"
+  | "picklist-by-orders-export"
   | "inbound-barcodes"
   | "inbound-receipt"
   | "transfer-out"
   | "transfer-out-bulk"
+  | "transfer-out-bulk-export"
   | "bin-transfer-out"
   | "purchase-order"
   | "laporan-barcode"
@@ -163,6 +169,17 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
     },
   },
 
+  "picklist-by-orders-export": {
+    title: "Picklist (Pesanan Terpilih)",
+    subtitle: () => "Export sedang diproses",
+    fetchPdf: async (id, _query, onProgress) => {
+      const result = await ExportJobService.waitForBlob(id, "application/pdf", onProgress);
+      return { blob: result.blob, meta: { file_name: result.fileName } };
+    },
+    backUrl: () => "/dashboard/proses-pesanan/picking",
+    filename: (_id, meta) => (meta?.file_name as string | undefined) ?? "Picklist-Bulk.pdf",
+  },
+
   "invoice-bulk": {
     title: "Faktur (Pesanan Terpilih)",
     subtitle: (id) => {
@@ -182,6 +199,17 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
       return `Faktur-Bulk-${stamp}.pdf`;
     },
+  },
+
+  "invoice-bulk-export": {
+    title: "Faktur (Pesanan Terpilih)",
+    subtitle: () => "Export sedang diproses",
+    fetchPdf: async (id, _query, onProgress) => {
+      const result = await ExportJobService.waitForBlob(id, "application/pdf", onProgress);
+      return { blob: result.blob, meta: { file_name: result.fileName } };
+    },
+    backUrl: () => "/dashboard/proses-pesanan/packing",
+    filename: (_id, meta) => (meta?.file_name as string | undefined) ?? "Faktur-Bulk.pdf",
   },
 
   "shipping-label": {
@@ -319,6 +347,17 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
     },
   },
 
+  "putaway-bulk-export": {
+    title: "Laporan Putaway (Bulk)",
+    subtitle: () => "Export sedang diproses",
+    fetchPdf: async (id, _query, onProgress) => {
+      const result = await ExportJobService.waitForBlob(id, "application/pdf", onProgress);
+      return { blob: result.blob, meta: { file_name: result.fileName } };
+    },
+    backUrl: () => "/dashboard/barang-masuk/penempatan",
+    filename: (_id, meta) => (meta?.file_name as string | undefined) ?? "Putaway-Bulk.pdf",
+  },
+
   "stock-adjustment": {
     title: "Laporan Penyesuaian",
     subtitle: (id, meta) =>
@@ -353,6 +392,17 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
       const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
       return `Laporan-Penyesuaian-Bulk-${stamp}.pdf`;
     },
+  },
+
+  "stock-adjustment-bulk-export": {
+    title: "Laporan Penyesuaian (Bulk)",
+    subtitle: () => "Export sedang diproses",
+    fetchPdf: async (id, _query, onProgress) => {
+      const result = await ExportJobService.waitForBlob(id, "application/pdf", onProgress);
+      return { blob: result.blob, meta: { file_name: result.fileName } };
+    },
+    backUrl: () => "/dashboard/transaksi-stok?tab=penyesuaian",
+    filename: (_id, meta) => (meta?.file_name as string | undefined) ?? "Laporan-Penyesuaian-Bulk.pdf",
   },
 
   invoice: {
@@ -416,6 +466,17 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
     },
   },
 
+  "surat-jalan-bulk-export": {
+    title: "Surat Jalan (Pesanan Terpilih)",
+    subtitle: () => "Export sedang diproses",
+    fetchPdf: async (id, _query, onProgress) => {
+      const result = await ExportJobService.waitForBlob(id, "application/pdf", onProgress);
+      return { blob: result.blob, meta: { file_name: result.fileName } };
+    },
+    backUrl: () => "/dashboard/proses-pesanan/shipping",
+    filename: (_id, meta) => (meta?.file_name as string | undefined) ?? "Manifest-Bulk.pdf",
+  },
+
   "inbound-barcodes": {
     title: "Barcode Barang Masuk",
     subtitle: (id) => `Inbound ${id.slice(0, 8)}…`,
@@ -464,6 +525,27 @@ export const DOCUMENT_TYPES: Record<DocumentTypeKey, DocumentTypeConfig> = {
     },
     backUrl: () => "/dashboard/barang-keluar?tab=transfer",
     filename: () => {
+      const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+      return `Surat-Jalan-Bulk-${stamp}.pdf`;
+    },
+  },
+
+  "transfer-out-bulk-export": {
+    title: "Transfer Keluar (Bulk)",
+    subtitle: () => "Export sedang diproses",
+    fetchPdf: async (id, _query, onProgress) => {
+      const result = await ExportJobService.waitForBlob(
+        id,
+        "application/pdf",
+        onProgress,
+      );
+      return { blob: result.blob, meta: { file_name: result.fileName } };
+    },
+    backUrl: () => "/dashboard/barang-keluar?tab=transfer",
+    filename: (_id, meta) => {
+      if (typeof meta?.file_name === "string" && meta.file_name) {
+        return meta.file_name;
+      }
       const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
       return `Surat-Jalan-Bulk-${stamp}.pdf`;
     },

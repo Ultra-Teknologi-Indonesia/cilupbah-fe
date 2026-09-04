@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { PutawayService } from "@/services/barang-masuk/putaway.service";
 import type { PutawayListParams } from "@/types/barang-masuk/putaway";
 
@@ -12,5 +13,11 @@ export function usePutaways(params: PutawayListParams = {}) {
     placeholderData: keepPreviousData,
     queryFn: () => PutawayService.list(params),
     staleTime: STALE,
+  });
+}
+
+export function usePutawayBulkPdfAsync() {
+  return useMutation({
+    mutationFn: (ids: string[]) => PutawayService.bulkPdfAsync(ids),
   });
 }

@@ -61,15 +61,15 @@ export const InventorySettingService = {
       locationId?: string;
       search?: string;
     } = {},
-  ): Promise<void> => {
+  ): Promise<string> => {
     const q = new URLSearchParams();
     if (params.locationId) q.set("location_id", params.locationId);
     if (params.search) q.set("search", params.search);
     const qs = q.toString();
-    await fetchBlob(
-      `/inventory/settings/export/rack-allocation${qs ? `?${qs}` : ""}`,
-      `alokasi-rak-${new Date().toISOString().slice(0, 10)}.xlsx`,
+    const res = await fetchClient<ApiResponse<{ export_id: string }>>(
+      `/inventory/settings/export/rack-allocation/async${qs ? `?${qs}` : ""}`,
     );
+    return res.data.export_id;
   },
 
   downloadTemplate: (type: ImportSettingType): Promise<void> =>

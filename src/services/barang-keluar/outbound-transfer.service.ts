@@ -239,6 +239,16 @@ export const OutboundTransferService = {
     );
   },
 
+  bulkPdfAsync: async (ids: string[]): Promise<{ export_id: string; total: number }> => {
+    const res = await fetchClient<
+      ApiResponse<{ export_id: string; total: number }>
+    >("/inventory/transfers/bulk/pdf/async", {
+      method: "POST",
+      data: { ids },
+    });
+    return res.data;
+  },
+
   bulkDelete: async (ids: string[]): Promise<BulkTransferDeleteResult> => {
     const res = await fetchClient<ApiResponse<BulkTransferDeleteResult>>(
       "/inventory/transfers/bulk/delete",

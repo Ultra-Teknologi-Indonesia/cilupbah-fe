@@ -16,6 +16,7 @@ import {
   createResourceKeys,
 } from "@/hooks/create-crud-hooks";
 import { STOCK_VIEW_KEYS } from "@/lib/stock-cache";
+import { useAsyncExport } from "@/hooks/laporan/use-async-export";
 
 export const stockAdjustmentKeys = createResourceKeys("stock-adjustment");
 
@@ -68,23 +69,13 @@ export const useDeleteStockAdjustment = createMutationHook({
   invalidates: () => [stockAdjustmentKeys.lists, ...STOCK_VIEW_KEYS],
 });
 
-function downloadBlob(blob: Blob, filename: string) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
+export function useExportStockAdjustments() {
+  return useAsyncExport(StockAdjustmentService.exportXlsx);
 }
 
-export function useExportStockAdjustments() {
+export function useStockAdjustmentBulkPdfAsync() {
   return useMutation({
-    mutationFn: async (params: StockAdjustmentListParams = {}) => {
-      const blob = await StockAdjustmentService.exportXlsx(params);
-      const filename = `koreksi-stok-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}.xlsx`;
-      downloadBlob(blob, filename);
-      return filename;
-    },
+    mutationFn: (ids: string[]) => StockAdjustmentService.bulkPdfAsync(ids),
   });
 }
 

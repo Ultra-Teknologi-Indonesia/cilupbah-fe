@@ -7,7 +7,7 @@ import { apiError } from "@/lib/toast";
 import { ExportJobService } from "@/services/laporan/export-job.service";
 
 const POLL_INTERVAL_MS = 1500;
-const MAX_ATTEMPTS = 160; // ~4 menit
+const MAX_ATTEMPTS = 1600; // sampai sekitar 40 menit; pekerjaan berjalan di worker
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 

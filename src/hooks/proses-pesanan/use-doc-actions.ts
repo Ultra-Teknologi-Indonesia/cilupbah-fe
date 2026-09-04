@@ -85,21 +85,38 @@ async function runShippingLabel(orders: PrintLabelOrderInput[]) {
   }
 }
 
+async function openQueuedPdf(
+  title: string,
+  previewType: string,
+  queue: () => Promise<{ export_id: string }>,
+) {
+  const popup = window.open("about:blank", "_blank", "noopener,noreferrer");
+  try {
+    const { export_id: exportId } = await queue();
+    const url = `/dashboard/document-preview/${previewType}/${encodeURIComponent(exportId)}`;
+    if (popup) {
+      popup.location.href = url;
+    } else {
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+  } catch (err) {
+    popup?.close();
+    apiError(err, `Gagal memulai ${title}.`);
+  }
+}
+
 export const DocActions = {
   shippingLabel: (input: PrintLabelOrderInput[] | string[]) =>
     runShippingLabel(toOrderInputs(input)),
-  pickList: (ids: string[]) => {
-    window.open(
-      `/dashboard/document-preview/picklist-by-orders/${ids.join(",")}`,
-      "_blank",
-      "noopener,noreferrer",
-    );
-  },
+  pickList: (ids: string[]) =>
+    openQueuedPdf("export picklist", "picklist-by-orders-export", () =>
+      OutboundService.picklistBulkPdfAsync(ids),
+    ),
   pickListById: (picklistId: string) =>
     run("Picklist", "Menyiapkan picklist…", () =>
       OutboundService.pickListByPicklist(picklistId),
     ),
-  invoice: (ids: string[]) => {
+  invoice: async (ids: string[]) => {
     if (ids.length === 0) return;
     if (ids.length === 1) {
       window.open(
@@ -109,19 +126,14 @@ export const DocActions = {
       );
       return;
     }
-    window.open(
-      `/dashboard/document-preview/invoice-bulk/${ids.join(",")}`,
-      "_blank",
-      "noopener,noreferrer",
+    await openQueuedPdf("export faktur", "invoice-bulk-export", () =>
+      OutboundService.invoiceBulkPdfAsync(ids),
     );
   },
-  suratJalan: (ids: string[]) => {
-    window.open(
-      `/dashboard/document-preview/surat-jalan-bulk/${ids.join(",")}`,
-      "_blank",
-      "noopener,noreferrer",
-    );
-  },
+  suratJalan: (ids: string[]) =>
+    openQueuedPdf("export manifest", "surat-jalan-bulk-export", () =>
+      OutboundService.manifestBulkPdfAsync(ids),
+    ),
   manifest: (shipmentId: string) => {
     window.open(
       `/dashboard/document-preview/manifest/${shipmentId}`,

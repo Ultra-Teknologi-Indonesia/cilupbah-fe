@@ -1,25 +1,22 @@
-import { fetchBlobRaw, fetchClient } from "@/lib/api-client";
-import type { ApiPaginated } from "@/types/api.types";
+import { fetchClient } from "@/lib/api-client";
+import type { ApiPaginated, ApiResponse } from "@/types/api.types";
 import type {
   SalesProductParams,
   SkuOption,
 } from "@/types/laporan/laporan-produk";
 
-const XLSX_MIME =
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-
 export const LaporanProdukService = {
-  exportSalesProduct: async (params: SalesProductParams): Promise<Blob> => {
+  exportSalesProduct: async (params: SalesProductParams): Promise<string> => {
     const sp = new URLSearchParams();
     sp.set("from", params.from);
     sp.set("to", params.to);
     params.location_ids?.forEach((id) => sp.append("location_ids[]", id));
     params.item_ids?.forEach((id) => sp.append("item_ids[]", id));
 
-    return fetchBlobRaw(
-      `/reports/sales/product/export?${sp.toString()}`,
-      XLSX_MIME,
+    const response = await fetchClient<ApiResponse<{ export_id: string }>>(
+      `/reports/sales/product/export/async?${sp.toString()}`,
     );
+    return response.data.export_id;
   },
 
   searchSkuOptions: async (

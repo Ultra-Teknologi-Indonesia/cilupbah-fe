@@ -1,4 +1,4 @@
-import { fetchBlob, fetchClient } from "@/lib/api-client";
+import { fetchClient } from "@/lib/api-client";
 import type { ApiPaginated, ApiResponse } from "@/types/api.types";
 import type {
   ContactChannel,
@@ -79,7 +79,7 @@ export const OrderService = {
     date_from?: string;
     date_to?: string;
     status?: string[];
-  }) => {
+  }): Promise<ApiResponse<Array<{ name: string; count: number }>>> => {
     const sp = new URLSearchParams();
     if (params?.tab && params.tab !== "all") sp.set("tab", params.tab);
     if (params?.sub) sp.set("sub", params.sub);
@@ -231,7 +231,7 @@ export const OrderService = {
     );
   },
 
-  exportOrders: (params: {
+  exportOrders: async (params: {
     tab?: string;
     date_from?: string;
     date_to?: string;
@@ -239,7 +239,7 @@ export const OrderService = {
     search?: string;
     store_id?: string;
     location_id?: string;
-  }) => {
+  }): Promise<string> => {
     const sp = new URLSearchParams();
     if (params.tab) sp.set("tab", params.tab);
     if (params.date_from) sp.set("date_from", params.date_from);
@@ -249,34 +249,28 @@ export const OrderService = {
     if (params.store_id) sp.set("store_id", params.store_id);
     if (params.location_id) sp.set("location_id", params.location_id);
 
-    const filename = `pesanan-${params.tab ?? "semua"}-${new Date().toISOString().slice(0, 10)}.xlsx`;
-
-    return fetchBlob(
-      `/sales/orders/export?${sp}`,
-      filename,
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    const response = await fetchClient<ApiResponse<{ export_id: string }>>(
+      `/sales/orders/export/async?${sp}`,
     );
+    return response.data.export_id;
   },
 
-  exportCancelled: (params: {
+  exportCancelled: async (params: {
     date_from?: string;
     date_to?: string;
     post_pack_only?: boolean;
     source?: string;
-  }) => {
+  }): Promise<string> => {
     const sp = new URLSearchParams();
     if (params.date_from) sp.set("date_from", params.date_from);
     if (params.date_to) sp.set("date_to", params.date_to);
     if (params.post_pack_only) sp.set("post_pack_only", "1");
     if (params.source) sp.set("source", params.source);
 
-    const filename = `cancel-orders-${params.date_from ?? "all"}-${params.date_to ?? "now"}.xlsx`;
-
-    return fetchBlob(
-      `/sales/orders/cancelled/export?${sp}`,
-      filename,
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    const response = await fetchClient<ApiResponse<{ export_id: string }>>(
+      `/sales/orders/cancelled/export/async?${sp}`,
     );
+    return response.data.export_id;
   },
 
   saveReceivedDate: (orderId: string, receivedDate?: string) => {

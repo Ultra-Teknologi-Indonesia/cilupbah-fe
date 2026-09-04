@@ -190,4 +190,24 @@ export const PurchaseOrderService = {
     const sp = buildListParams(params);
     return fetchBlobRaw(`/purchase/orders/export/detail?${sp}`, "text/csv");
   },
+
+  exportListAsync: async (
+    params: PurchaseOrderListParams = {},
+  ): Promise<string> => {
+    const sp = buildListParams(params);
+    const res = await fetchClient<ApiResponse<{ export_id: string }>>(
+      "/purchase/orders/export/list/async?" + sp.toString(),
+    );
+    return res.data.export_id;
+  },
+
+  exportDetailAsync: async (
+    params: PurchaseOrderListParams = {},
+  ): Promise<string> => {
+    const sp = buildListParams(params);
+    const res = await fetchClient<ApiResponse<{ export_id: string }>>(
+      "/purchase/orders/export/detail/async?" + sp.toString(),
+    );
+    return res.data.export_id;
+  },
 };

@@ -33,7 +33,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { usePutaways } from "@/hooks/barang-masuk/use-putaway";
+import { usePutaways, usePutawayBulkPdfAsync } from "@/hooks/barang-masuk/use-putaway";
 import {
   useDeletePutaway,
   useBulkDeletePutaway,
@@ -45,8 +45,6 @@ import { getStatusMeta } from "@/lib/status";
 import type { Putaway } from "@/types/barang-masuk/putaway";
 import { formatDateTimeWib } from "@/lib/format";
 import { usePermissions } from "@/hooks/auth/use-permissions";
-
-const BULK_PDF_MAX = 50;
 
 function ProgressBar({ placed, total }: { placed: number; total: number }) {
   const pct = total > 0 ? Math.round((placed / total) * 100) : 0;
@@ -158,6 +156,7 @@ export function PenempatanBarangTab() {
   const canDeletePutaway = can("delete-penempatan");
   const canExportPutaway = can("export-penempatan");
   const router = useRouter();
+  const bulkPdfMut = usePutawayBulkPdfAsync();
   const [statusTab, setStatusTab] = useUrlTab<StatusTab>(
     "status",
     "NOT_STARTED",
@@ -468,27 +467,21 @@ export function PenempatanBarangTab() {
   const bulkActions = useCallback(
     (selected: Putaway[], table: TableInstance<Putaway>) => {
       const ids = selected.map((r) => r.id);
-      const disablePdf = ids.length > BULK_PDF_MAX;
       return (
         <>
           {canExportPutaway && <Button
             size="sm"
             variant="outline"
-            disabled={disablePdf}
+            disabled={bulkPdfMut.isPending || ids.length === 0}
             onClick={() => {
-              if (disablePdf) {
-                toast.warning(`Maksimal ${BULK_PDF_MAX} dokumen per cetak`);
-                return;
-              }
-              router.push(
-                `/dashboard/document-preview/putaway-bulk/${ids.join(",")}`,
-              );
+              bulkPdfMut.mutate(ids, {
+                onSuccess: ({ export_id }) => router.push(
+                  `/dashboard/document-preview/putaway-bulk-export/${encodeURIComponent(export_id)}`,
+                ),
+                onError: (error) => toast.error(error instanceof Error ? error.message : "Gagal memulai export putaway."),
+              });
             }}
-            title={
-              disablePdf
-                ? `Maksimal ${BULK_PDF_MAX} dokumen per cetak`
-                : undefined
-            }
+            title="Cetak dokumen terpilih"
           >
             <PrinterIcon className="mr-1.5 size-4" />
             Cetak {ids.length}
@@ -509,7 +502,7 @@ export function PenempatanBarangTab() {
         </>
       );
     },
-    [canDeletePutaway, canExportPutaway, router],
+    [canDeletePutaway, canExportPutaway, router, bulkPdfMut],
   );
 
   return (

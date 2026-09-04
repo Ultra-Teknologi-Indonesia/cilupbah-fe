@@ -14,6 +14,7 @@ import {
 } from "@/services/persediaan/inventory-setting.service";
 import type { ImportSettingType } from "@/types/persediaan/inventory-setting";
 import { apiError } from "@/lib/toast";
+import { useAsyncExport } from "@/hooks/laporan/use-async-export";
 
 const KEY = "inventory-settings";
 
@@ -24,12 +25,7 @@ export const downloadImportSettingTemplate = (type: ImportSettingType) =>
   InventorySettingService.downloadTemplate(type);
 
 export function useExportRackAllocation() {
-  return useMutation({
-    mutationFn: (params: { search?: string } = {}) =>
-      InventorySettingService.exportRackAllocation(params),
-    onSuccess: () => toast.success("Berhasil mengekspor alokasi rak"),
-    onError: (err) => apiError(err, "Gagal mengekspor alokasi rak"),
-  });
+  return useAsyncExport(InventorySettingService.exportRackAllocation);
 }
 
 export function useInventorySettingProducts(

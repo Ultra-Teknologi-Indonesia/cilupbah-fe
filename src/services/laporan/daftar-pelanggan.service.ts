@@ -1,20 +1,18 @@
-import { fetchBlobRaw } from "@/lib/api-client";
+import { fetchClient } from "@/lib/api-client";
+import type { ApiResponse } from "@/types/api.types";
 import type { SalesListParams } from "@/types/laporan/laporan-penjualan";
-
-const XLSX_MIME =
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
 export const DaftarPelangganService = {
   exportCustomerList: async (
     params: Pick<SalesListParams, "from" | "to">,
-  ): Promise<Blob> => {
+  ): Promise<string> => {
     const sp = new URLSearchParams();
     sp.set("from", params.from);
     sp.set("to", params.to);
 
-    return fetchBlobRaw(
-      `/reports/sales/customer/export?${sp.toString()}`,
-      XLSX_MIME,
+    const response = await fetchClient<ApiResponse<{ export_id: string }>>(
+      `/reports/sales/customer/export/async?${sp.toString()}`,
     );
+    return response.data.export_id;
   },
 };

@@ -165,6 +165,14 @@ export const PutawayService = {
     return fetchBlobPost("/putaway/bulk/pdf", { ids }, "application/pdf");
   },
 
+  bulkPdfAsync: async (ids: string[]) => {
+    const res = await fetchClient<ApiResponse<{ export_id: string; status: string; total: number }>>(
+      "/putaway/bulk/pdf/async",
+      { method: "POST", data: { ids } },
+    );
+    return res.data;
+  },
+
   remove: async (id: string) => {
     const res = await fetchClient<ApiResponse<PutawayDeleteResult>>(
       `/putaway/${encodeURIComponent(id)}`,

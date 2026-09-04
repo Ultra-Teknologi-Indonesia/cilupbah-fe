@@ -81,6 +81,16 @@ export const ReportService = {
     );
   },
 
+  returExportAsync: async (
+    params: LaporanReturParams = {},
+  ): Promise<string> => {
+    const sp = buildReturQuery(params);
+    const res = await fetchClient<ApiResponse<{ export_id: string }>>(
+      "/sales/returns/report/export/async?" + sp.toString(),
+    );
+    return res.data.export_id;
+  },
+
   settlement: async (params: SettlementParams = {}) => {
     const sp = buildSettlementQuery(params);
     const res = await fetchClient<SettlementListResponse>(
@@ -115,6 +125,16 @@ export const ReportService = {
       `/sales/settlements/export?${sp.toString()}`,
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     );
+  },
+
+  settlementExportAsync: async (
+    params: SettlementParams = {},
+  ): Promise<string> => {
+    const sp = buildSettlementQuery(params);
+    const res = await fetchClient<ApiResponse<{ export_id: string }>>(
+      "/sales/settlements/export/async?" + sp.toString(),
+    );
+    return res.data.export_id;
   },
 
   barcodePdf: (params: BarcodeReportParams): Promise<Blob> => {

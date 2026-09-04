@@ -15,7 +15,6 @@ import {
   ChevronDownIcon,
 } from "lucide-react";
 import { toast } from "sonner";
-import { apiError } from "@/lib/toast";
 
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
@@ -35,8 +34,8 @@ import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-col
 import { DateRangePicker } from "@/components/ui/date-picker";
 import { ImportPesananDialog } from "@/components/dashboard/transaksi-pembelian/import-pesanan-dialog";
 import {
-  downloadPurchaseOrderListExport,
-  downloadPurchaseOrderExportDetail,
+  usePurchaseOrderListExport,
+  usePurchaseOrderDetailExport,
 } from "@/hooks/transaksi-pembelian/use-purchase-order-import-export";
 import type { ColumnDef } from "@tanstack/react-table";
 
@@ -87,11 +86,10 @@ export function PesananListView() {
     PurchaseOrder[] | null
   >(null);
   const [importOpen, setImportOpen] = useState(false);
-  const [isExportingList, setIsExportingList] = useState(false);
-  const [isExportingDetail, setIsExportingDetail] = useState(false);
-
   const deleteMut = useDeletePurchaseOrder();
   const bulkDeleteMut = useBulkDeletePurchaseOrder();
+  const exportList = usePurchaseOrderListExport();
+  const exportDetail = usePurchaseOrderDetailExport();
 
   function handleDelete() {
     if (!deleteTarget) return;
@@ -132,27 +130,11 @@ export function PesananListView() {
   }, [debouncedSearch, page, perPage, filters, list.sorting]);
 
   const handleExportList = async () => {
-    try {
-      setIsExportingList(true);
-      await downloadPurchaseOrderListExport(params);
-      toast.success("Export ringkasan pesanan berhasil diunduh");
-    } catch (err: unknown) {
-      apiError(err, "Gagal mengekspor data ringkasan pesanan");
-    } finally {
-      setIsExportingList(false);
-    }
+    await exportList.mutateAsync(params);
   };
 
   const handleExportDetail = async () => {
-    try {
-      setIsExportingDetail(true);
-      await downloadPurchaseOrderExportDetail(params);
-      toast.success("Export rincian item pesanan berhasil diunduh");
-    } catch (err: unknown) {
-      apiError(err, "Gagal mengekspor rincian item pesanan");
-    } finally {
-      setIsExportingDetail(false);
-    }
+    await exportDetail.mutateAsync(params);
   };
 
   const { data, isLoading, isFetching } = usePurchaseOrders(params);
@@ -299,10 +281,10 @@ export function PesananListView() {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
-                      disabled={isExportingList || isExportingDetail}
+                      disabled={exportList.isPending || exportDetail.isPending}
                       className="gap-2"
                     >
-                      {isExportingList || isExportingDetail ? (
+                      {exportList.isPending || exportDetail.isPending ? (
                         <Loader2Icon className="size-4 animate-spin" />
                       ) : (
                         <DownloadIcon className="size-4" />
@@ -314,7 +296,7 @@ export function PesananListView() {
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem
                       onClick={handleExportList}
-                      disabled={isExportingList}
+                      disabled={exportList.isPending}
                       className="cursor-pointer gap-2"
                     >
                       <FileSpreadsheetIcon className="size-4 text-emerald-600 dark:text-emerald-400" />
@@ -322,7 +304,7 @@ export function PesananListView() {
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={handleExportDetail}
-                      disabled={isExportingDetail}
+                      disabled={exportDetail.isPending}
                       className="cursor-pointer gap-2"
                     >
                       <FileSpreadsheetIcon className="size-4 text-emerald-600 dark:text-emerald-400" />

@@ -128,6 +128,19 @@ export const LaporanGudangService = {
     return res.data.export_id;
   },
 
+  exportPicklistAsync: async (
+    params: PicklistExportParams,
+  ): Promise<string> => {
+    const sp = new URLSearchParams();
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+
+    const res = await fetchClient<ApiResponse<{ export_id: string }>>(
+      "/reports/wms/pick-list/export/async?" + sp.toString(),
+    );
+    return res.data.export_id;
+  },
+
   exportOrderPerformanceAsync: async (
     params: OrderPerformanceParams,
   ): Promise<string> => {

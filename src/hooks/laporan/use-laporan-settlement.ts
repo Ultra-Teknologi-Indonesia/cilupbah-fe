@@ -1,7 +1,8 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
+import { useAsyncExport } from "@/hooks/laporan/use-async-export";
 import { ReportService } from "@/services/laporan/report.service";
 import type { SettlementParams } from "@/types/laporan/settlement";
 
@@ -32,18 +33,7 @@ export function useLaporanSettlementSummary(
 }
 
 export function useLaporanSettlementExport() {
-  return useMutation({
-    mutationFn: async (params: SettlementParams) => {
-      const blob = await ReportService.settlementExport(params);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      const stamp = new Date().toISOString().slice(0, 10);
-      const from = params.date_from ?? "semua";
-      const to = params.date_to ?? stamp;
-      a.download = `laporan-settlement-${from}-${to}.xlsx`;
-      a.click();
-      URL.revokeObjectURL(url);
-    },
-  });
+  return useAsyncExport((params: SettlementParams) =>
+    ReportService.settlementExportAsync(params),
+  );
 }

@@ -29,6 +29,7 @@ import {
   useDeleteStockAdjustment,
   useBulkDeleteStockAdjustment,
   useExportStockAdjustments,
+  useStockAdjustmentBulkPdfAsync,
 } from "@/hooks/transaksi-stok/use-stock-adjustments";
 import { useLocations } from "@/hooks/manajemen-rak/use-locations";
 import type {
@@ -50,8 +51,6 @@ const EMPTY_FILTERS: FilterState = {
   date_from: "",
   date_to: "",
 };
-
-const BULK_PDF_MAX = 50;
 
 function toDateStr(d?: Date): string {
   if (!d) return "";
@@ -260,6 +259,7 @@ export function PenyesuaianTab() {
   }
 
   const exportMut = useExportStockAdjustments();
+  const bulkPdfMut = useStockAdjustmentBulkPdfAsync();
 
   const handleExport = useCallback(() => {
     const params: StockAdjustmentListParams = {};
@@ -291,26 +291,21 @@ export function PenyesuaianTab() {
         getRowId={(row) => row.id}
         bulkActions={(selected, table) => {
           const ids = selected.map((r) => r.id);
-          const disablePdf = ids.length > BULK_PDF_MAX;
           return (
             <>
               <Button
                 size="sm"
                 variant="outline"
-                disabled={disablePdf}
+                disabled={bulkPdfMut.isPending || ids.length === 0}
                 onClick={() => {
-                  if (disablePdf) {
-                    toast.warning(`Maksimal ${BULK_PDF_MAX} dokumen per cetak`);
-                    return;
-                  }
-                  const path = `/dashboard/document-preview/stock-adjustment-bulk/${ids.join(",")}`;
-                  router.push(path);
+                  bulkPdfMut.mutate(ids, {
+                    onSuccess: ({ export_id }) => router.push(
+                      `/dashboard/document-preview/stock-adjustment-bulk-export/${encodeURIComponent(export_id)}`,
+                    ),
+                    onError: (error) => apiError(error, "Gagal memulai export penyesuaian."),
+                  });
                 }}
-                title={
-                  disablePdf
-                    ? `Maksimal ${BULK_PDF_MAX} dokumen per cetak`
-                    : undefined
-                }
+                title="Cetak dokumen terpilih"
               >
                 <PrinterIcon className="mr-1.5 size-4" />
                 Cetak {ids.length}

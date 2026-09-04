@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAsyncExport } from "@/hooks/laporan/use-async-export";
 import { PurchaseOrderService } from "@/services/transaksi-pembelian/purchase-order.service";
 import type {
   PurchaseImportPreview,
@@ -38,18 +39,14 @@ export async function downloadPurchaseOrderTemplate() {
   triggerBlobDownload(blob, "template-import-pesanan-pembelian.xlsx");
 }
 
-export async function downloadPurchaseOrderListExport(
-  params?: PurchaseOrderListParams,
-) {
-  const blob = await PurchaseOrderService.exportList(params);
-  const dateStr = new Date().toISOString().slice(0, 10);
-  triggerBlobDownload(blob, `purchase-orders-list-${dateStr}.csv`);
+export function usePurchaseOrderListExport() {
+  return useAsyncExport((params: PurchaseOrderListParams = {}) =>
+    PurchaseOrderService.exportListAsync(params),
+  );
 }
 
-export async function downloadPurchaseOrderExportDetail(
-  params?: PurchaseOrderListParams,
-) {
-  const blob = await PurchaseOrderService.exportDetail(params);
-  const dateStr = new Date().toISOString().slice(0, 10);
-  triggerBlobDownload(blob, `purchase-orders-details-${dateStr}.csv`);
+export function usePurchaseOrderDetailExport() {
+  return useAsyncExport((params: PurchaseOrderListParams = {}) =>
+    PurchaseOrderService.exportDetailAsync(params),
+  );
 }

@@ -1,7 +1,8 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
+import { useAsyncExport } from "@/hooks/laporan/use-async-export";
 import { ReportService } from "@/services/laporan/report.service";
 import type { LaporanReturParams } from "@/types/laporan/retur";
 
@@ -18,18 +19,7 @@ export function useLaporanRetur(params: LaporanReturParams, enabled = true) {
 }
 
 export function useLaporanReturExport() {
-  return useMutation({
-    mutationFn: async (params: LaporanReturParams) => {
-      const blob = await ReportService.returExport(params);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      const stamp = new Date().toISOString().slice(0, 10);
-      const from = params.date_from ?? "semua";
-      const to = params.date_to ?? stamp;
-      a.download = `laporan-retur-${from}-${to}.xlsx`;
-      a.click();
-      URL.revokeObjectURL(url);
-    },
-  });
+  return useAsyncExport((params: LaporanReturParams) =>
+    ReportService.returExportAsync(params),
+  );
 }

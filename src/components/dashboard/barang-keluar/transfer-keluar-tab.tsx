@@ -41,6 +41,7 @@ import {
   useSubmitDraft,
   useDeleteTransfer,
   useBulkDeleteTransfer,
+  useBulkPdfTransferAsync,
 } from "@/hooks/barang-keluar/use-outbound-transfers";
 import { useMe } from "@/hooks/auth/use-auth";
 import { toast } from "sonner";
@@ -308,6 +309,7 @@ export function TransferKeluarTab() {
     onDone: () => void;
   } | null>(null);
   const bulkDeleteMutation = useBulkDeleteTransfer();
+  const bulkPdfMutation = useBulkPdfTransferAsync();
   const [bulkPrinting, setBulkPrinting] = useState(false);
 
   const handleEdit = useCallback(
@@ -368,13 +370,24 @@ export function TransferKeluarTab() {
     [openTransferPdf],
   );
 
-  const openBulkTransferPdf = useCallback((ids: string[]) => {
-    window.open(
-      `/dashboard/document-preview/transfer-out-bulk/${encodeURIComponent(ids.join(","))}`,
-      "_blank",
-      "noopener,noreferrer",
-    );
-  }, []);
+  const openBulkTransferPdf = useCallback(async (ids: string[]) => {
+    const previewWindow = window.open("about:blank", "_blank");
+
+    try {
+      const result = await bulkPdfMutation.mutateAsync(ids);
+      const previewUrl =
+        `/dashboard/document-preview/transfer-out-bulk-export/${encodeURIComponent(result.export_id)}`;
+
+      if (previewWindow && !previewWindow.closed) {
+        previewWindow.location.href = previewUrl;
+      } else {
+        window.open(previewUrl, "_blank", "noopener,noreferrer");
+      }
+    } catch (error) {
+      previewWindow?.close();
+      apiError(error, "Gagal menyiapkan PDF transfer bulk");
+    }
+  }, [bulkPdfMutation]);
 
   const handleBulkPrint = useCallback(
     async (items: InventoryTransfer[], resetSelection: () => void) => {
@@ -417,7 +430,7 @@ export function TransferKeluarTab() {
           );
         }
         if (succeeded.length > 0) {
-          openBulkTransferPdf(succeeded);
+          await openBulkTransferPdf(succeeded);
           resetSelection();
         }
       } finally {

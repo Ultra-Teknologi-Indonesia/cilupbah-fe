@@ -88,6 +88,14 @@ export const StockAdjustmentService = {
     return fetchBlobPost(`${BASE}/bulk/pdf`, { ids }, "application/pdf");
   },
 
+  bulkPdfAsync: async (ids: string[]) => {
+    const res = await fetchClient<ApiResponse<{ export_id: string; status: string; total: number }>>(
+      `${BASE}/bulk/pdf/async`,
+      { method: "POST", data: { ids } },
+    );
+    return res.data;
+  },
+
   bulkDelete: async (ids: string[]): Promise<BulkDeleteResult> => {
     const res = await fetchClient<ApiResponse<BulkDeleteResult>>(
       `${BASE}/bulk/delete`,
@@ -96,7 +104,7 @@ export const StockAdjustmentService = {
     return res.data;
   },
 
-  exportXlsx: async (params: StockAdjustmentListParams = {}): Promise<Blob> => {
+  exportXlsx: async (params: StockAdjustmentListParams = {}): Promise<string> => {
     const sp = new URLSearchParams();
     if (params.search) sp.set("search", params.search);
     if (params["filter[location_id]"])
@@ -106,9 +114,9 @@ export const StockAdjustmentService = {
     if (params["filter[date_to]"])
       sp.set("filter[date_to]", params["filter[date_to]"]);
 
-    return fetchBlobRaw(
-      `${BASE}/export/xlsx?${sp}`,
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    const res = await fetchClient<ApiResponse<{ export_id: string }>>(
+      `${BASE}/export/xlsx/async?${sp}`,
     );
+    return res.data.export_id;
   },
 };

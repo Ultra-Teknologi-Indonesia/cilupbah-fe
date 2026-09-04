@@ -233,6 +233,12 @@ export function useBulkDeleteTransfer() {
   });
 }
 
+export function useBulkPdfTransferAsync() {
+  return useMutation({
+    mutationFn: (ids: string[]) => OutboundTransferService.bulkPdfAsync(ids),
+  });
+}
+
 export function useMarkTransferPrinted() {
   const qc = useQueryClient();
   return useMutation({
