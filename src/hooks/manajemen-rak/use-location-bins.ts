@@ -11,6 +11,7 @@ import { toast } from "sonner";
 
 import { apiError } from "@/lib/toast";
 import { LocationBinService } from "@/services/manajemen-rak/location-bin.service";
+import { inventoryKeys } from "@/hooks/persediaan/use-stock-position";
 import type {
   BinListParams,
   GenerateBinsPayload,
@@ -127,6 +128,7 @@ export function useRemoveSkuBin(locationId?: string) {
           : "SKU berhasil dikeluarkan dari rak",
       );
       qc.invalidateQueries({ queryKey: locationBinKeys.all });
+      qc.invalidateQueries({ queryKey: inventoryKeys.all });
     },
     onError: (err) => apiError(err, "Gagal mengeluarkan SKU"),
   });
