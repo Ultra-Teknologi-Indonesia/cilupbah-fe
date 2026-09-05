@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatDateTime } from "@/lib/format";
+import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import {
   FulfillmentFilterBar,
   type FulfillmentFilterValue,
@@ -199,6 +200,20 @@ export function PreManifestCancelTable() {
           <span className="font-mono text-xs">
             {row.original.trackingNumber ?? "—"}
           </span>
+        ),
+      },
+      {
+        id: "channel_status",
+        accessorFn: (row) => row.channelStatus,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Status Channel" />
+        ),
+        cell: ({ row }) => (
+          <StatusBadge
+            domain="channel-status"
+            status={row.original.channelStatus}
+            className="text-xs"
+          />
         ),
       },
       {
