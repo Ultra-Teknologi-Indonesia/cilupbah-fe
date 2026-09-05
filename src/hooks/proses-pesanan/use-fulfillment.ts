@@ -2,6 +2,7 @@
 
 import { useCallback } from "react";
 import {
+  keepPreviousData,
   useMutation,
   useQueries,
   useQuery,
@@ -63,6 +64,7 @@ export function useOrdersByStage(
     queryKey: fulfillmentKeys.ordersByStage(stage, params),
     queryFn: () => OutboundService.ordersByStage(stage, params),
     staleTime: STALE,
+    placeholderData: keepPreviousData,
     enabled,
   });
 }
@@ -72,6 +74,7 @@ export function usePicklists(params: FulfillmentListParams, enabled = true) {
     queryKey: fulfillmentKeys.picklists(params),
     queryFn: () => OutboundService.picklists(params),
     staleTime: STALE,
+    placeholderData: keepPreviousData,
     enabled,
   });
 }
@@ -81,6 +84,7 @@ export function usePacklists(params: FulfillmentListParams, enabled = true) {
     queryKey: fulfillmentKeys.packlists(params),
     queryFn: () => OutboundService.packlists(params),
     staleTime: STALE,
+    placeholderData: keepPreviousData,
     enabled,
   });
 }
@@ -90,6 +94,7 @@ export function useShipments(params: FulfillmentListParams, enabled = true) {
     queryKey: fulfillmentKeys.shipments(params),
     queryFn: () => OutboundService.shipments(params),
     staleTime: STALE,
+    placeholderData: keepPreviousData,
     enabled,
   });
 }
@@ -734,6 +739,7 @@ export function useShipmentOrdersPaginated(
   return useQuery({
     queryKey: fulfillmentKeys.shipmentOrders(id, params),
     queryFn: () => OutboundService.shipmentOrdersPaginated(id, params),
+    placeholderData: keepPreviousData,
     enabled: enabled && !!id,
   });
 }
@@ -885,6 +891,7 @@ export function usePreManifestCancelList(
     queryKey: [...fulfillmentKeys.board, "pre-manifest-cancel-list", params],
     queryFn: () => OutboundService.preManifestCancelList(params),
     staleTime: STALE,
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -979,6 +986,7 @@ export function useCompletedShipments(
     queryKey: [...fulfillmentKeys.board, "completed-shipments", params],
     queryFn: () => OutboundService.completedShipments(params),
     staleTime: STALE,
+    placeholderData: keepPreviousData,
     enabled,
   });
 }

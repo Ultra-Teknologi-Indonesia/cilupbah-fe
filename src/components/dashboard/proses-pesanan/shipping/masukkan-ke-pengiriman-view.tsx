@@ -26,6 +26,7 @@ import {
   useShipments,
 } from "@/hooks/proses-pesanan/use-fulfillment";
 import { formatShipmentLabel } from "@/lib/proses-pesanan/shipment-type";
+import { formatDateTime } from "@/lib/format";
 import {
   playScanFeedback,
   primeScanAudio,
@@ -262,6 +263,7 @@ export function MasukkanKePengirimanView() {
                 <TableRow>
                   <TableHead>No. Resi</TableHead>
                   <TableHead>No. Pesanan</TableHead>
+                  <TableHead>Tgl. Pesanan</TableHead>
                   <TableHead>Channel</TableHead>
                   <TableHead>Pelanggan</TableHead>
                   <TableHead className="w-16 text-right">Aksi</TableHead>
@@ -286,6 +288,9 @@ export function MasukkanKePengirimanView() {
                       )}
                     </TableCell>
                     <TableCell>{it.orderNo ?? "—"}</TableCell>
+                    <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
+                      {formatDateTime(it.transactionDate)}
+                    </TableCell>
                     <TableCell>
                       <ChannelBadge source={it.source ?? null} />
                     </TableCell>

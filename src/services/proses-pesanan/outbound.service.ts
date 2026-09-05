@@ -67,6 +67,14 @@ const FALLBACK_META: Meta = {
   total: 0,
 };
 
+type LegacyPaginator<T> = {
+  data?: T[];
+  current_page?: number;
+  last_page?: number;
+  per_page?: number;
+  total?: number;
+};
+
 function buildQuery(
   params: FulfillmentListParams,
   extra?: Record<string, string>,
@@ -205,6 +213,7 @@ function mapPacklist(raw: RawPacklist): Packlist {
     orderId: raw.order_id ?? raw.order?.id ?? null,
     orderNo: raw.order?.salesorder_no ?? null,
     customerName: raw.order?.customer_name ?? null,
+    transactionDate: raw.order?.transaction_date ?? null,
     status: (raw.status ?? "DRAFT") as Packlist["status"],
     packageCount: raw.package_count ?? 1,
     isInstant: Boolean(raw.order?.is_instant),
@@ -288,6 +297,7 @@ function mapShipmentOrderItem(raw: RawShipmentOrder): ShipmentOrderItem {
     id: raw.id,
     orderId: raw.order_id,
     orderNo: o?.salesorder_no ?? null,
+    transactionDate: o?.transaction_date ?? null,
     customerName: o?.customer_name ?? null,
     trackingNumber: raw.tracking_number ?? o?.tracking_number ?? null,
     shippingProvider: o?.shipping_provider ?? null,
@@ -471,12 +481,25 @@ export const OutboundService = {
     stage: string,
     params: FulfillmentListParams,
   ): Promise<ListResult<FulfillmentOrder>> => {
-    const res = await fetchClient<ApiPaginated<RawFulfillmentOrder>>(
+    const res = await fetchClient<
+      ApiPaginated<RawFulfillmentOrder> | ApiResponse<LegacyPaginator<RawFulfillmentOrder>>
+    >(
       `/outbound/orders/${stage}?${buildQuery(params)}`,
     );
+    const payload = res.data;
+    const items = Array.isArray(payload) ? payload : payload?.data ?? [];
+    const legacyMeta = Array.isArray(payload)
+      ? null
+      : {
+          current_page: payload?.current_page ?? 1,
+          last_page: payload?.last_page ?? 1,
+          per_page: payload?.per_page ?? 20,
+          total: payload?.total ?? items.length,
+        };
+
     return {
-      items: (res.data ?? []).map(mapOrder),
-      meta: res.meta ?? FALLBACK_META,
+      items: items.map(mapOrder),
+      meta: ("meta" in res ? res.meta : null) ?? legacyMeta ?? FALLBACK_META,
     };
   },
 

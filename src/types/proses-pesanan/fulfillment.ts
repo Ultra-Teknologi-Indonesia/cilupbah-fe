@@ -532,6 +532,7 @@ export interface RawPacklist {
     id: string;
     salesorder_no?: string | null;
     customer_name?: string | null;
+    transaction_date?: string | null;
     is_instant?: boolean;
     shipping_provider?: string | null;
     shipping_type?: string | null;
@@ -550,6 +551,7 @@ export interface Packlist {
   orderId: string | null;
   orderNo: string | null;
   customerName: string | null;
+  transactionDate: string | null;
   status: PacklistStatus;
   packageCount: number;
   isInstant: boolean;
@@ -752,6 +754,7 @@ export interface RawShipmentOrder {
     channel_order_no?: string | null;
     order_weight_gram?: number | null;
     channel_status?: string | null;
+    transaction_date?: string | null;
   } | null;
   packlist?: {
     id: string;
@@ -774,6 +777,7 @@ export interface ShipmentOrderItem {
   id: string;
   orderId: string;
   orderNo: string | null;
+  transactionDate: string | null;
   customerName: string | null;
   trackingNumber: string | null;
   shippingProvider: string | null;

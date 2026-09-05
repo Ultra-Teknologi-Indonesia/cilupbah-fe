@@ -178,6 +178,18 @@ export function PreManifestCancelTable() {
         ),
       },
       {
+        id: "transaction_date",
+        accessorFn: (row) => row.transactionDate,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Tgl. Pesanan" />
+        ),
+        cell: ({ row }) => (
+          <span className="whitespace-nowrap text-xs text-muted-foreground">
+            {formatDateTime(row.original.transactionDate)}
+          </span>
+        ),
+      },
+      {
         id: "tracking_number",
         accessorFn: (row) => row.trackingNumber,
         header: ({ column }) => (

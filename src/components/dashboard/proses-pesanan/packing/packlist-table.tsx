@@ -27,6 +27,7 @@ import {
 import { type Packlist } from "@/types/proses-pesanan/fulfillment";
 import { StatusBadge } from "@/components/dashboard/shared/status-badge";
 import { useListState } from "@/hooks/use-list-state";
+import { formatDateTime } from "@/lib/format";
 
 import { DeleteOrderDialog } from "../shared/delete-order-dialog";
 import { FulfillmentBulkActionBar } from "../shared/fulfillment-bulk-action-bar";
@@ -298,6 +299,18 @@ export function PacklistTable() {
         cell: ({ row }) => (
           <span className="text-foreground">
             {row.original.customerName ?? "—"}
+          </span>
+        ),
+      },
+      {
+        id: "transaction_date",
+        accessorFn: (row) => row.transactionDate,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Tgl. Pesanan" />
+        ),
+        cell: ({ row }) => (
+          <span className="whitespace-nowrap text-xs text-muted-foreground">
+            {formatDateTime(row.original.transactionDate)}
           </span>
         ),
       },

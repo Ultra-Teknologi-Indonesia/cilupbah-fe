@@ -29,6 +29,7 @@ import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PageTitle } from "@/components/dashboard/page-title";
 import { SimplePagination } from "@/components/ui/simple-pagination";
+import { formatDateTime } from "@/lib/format";
 import {
   Table,
   TableBody,
@@ -847,6 +848,7 @@ export function ShipmentDetailView({ id }: { id: string }) {
                   <TableRow className="bg-muted/40">
                     <TableHead className="w-10 text-center">No</TableHead>
                     <TableHead>No. Pesanan</TableHead>
+                    <TableHead>Tgl. Pesanan</TableHead>
                     <TableHead>Customer</TableHead>
                     <TableHead>No. Resi</TableHead>
                     <TableHead className="text-center">Status Ambil</TableHead>
@@ -859,7 +861,7 @@ export function ShipmentDetailView({ id }: { id: string }) {
                   {filteredOrders.length === 0 ? (
                     <TableRow>
                       <TableCell
-                        colSpan={isScheduled ? 8 : 7}
+                        colSpan={isScheduled ? 9 : 8}
                         className="py-16 text-center text-sm text-muted-foreground"
                       >
                         {searchQuery.trim()
@@ -887,6 +889,9 @@ export function ShipmentDetailView({ id }: { id: string }) {
                               {o.orderNo ?? "—"}
                             </span>
                           </div>
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
+                          {formatDateTime(o.transactionDate)}
                         </TableCell>
                         <TableCell className="text-xs">
                           {o.customerName ?? "—"}
