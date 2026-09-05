@@ -22,6 +22,7 @@ import {
 } from "@/services/proses-pesanan/outbound.service";
 import type {
   FulfillmentListParams,
+  FulfillmentBoardCounts,
   PicklistItem,
   PacklistDetail,
 } from "@/types/proses-pesanan/fulfillment";
@@ -42,6 +43,7 @@ export const fulfillmentKeys = {
   packlists: (p: FulfillmentListParams) => [...board, "packlists", p] as const,
   shipments: (p: FulfillmentListParams) => [...board, "shipments", p] as const,
   count: (key: string) => [...board, "count", key] as const,
+  counts: () => [...board, "counts"] as const,
   monitoring: () => [...board, "monitoring"] as const,
   pickers: (locationId?: string, role?: string) =>
     [...all, "pickers", locationId ?? "", role ?? ""] as const,
@@ -138,70 +140,13 @@ export function useStageCourierOptions(
   });
 }
 
-export function usePickingCounts() {
-  const belum = useQuery({
-    queryKey: fulfillmentKeys.count("picking-belum"),
-    queryFn: () =>
-      OutboundService.ordersByStage("ready-to-process", { per_page: 1 }).then(
-        (r) => r.meta.total,
-      ),
+export function useFulfillmentCounts(enabled = true) {
+  return useQuery<FulfillmentBoardCounts>({
+    queryKey: fulfillmentKeys.counts(),
+    queryFn: () => OutboundService.counts(),
     staleTime: STALE,
+    enabled,
   });
-  const diproses = useQuery({
-    queryKey: fulfillmentKeys.count("picking-diproses"),
-    queryFn: () =>
-      OutboundService.picklists({
-        per_page: 1,
-        status: "DRAFT,IN_PROGRESS",
-      }).then((r) => r.meta.total),
-    staleTime: STALE,
-  });
-  const selesai = useQuery({
-    queryKey: fulfillmentKeys.count("picking-selesai"),
-    queryFn: () =>
-      OutboundService.ordersByStage("finish-pick", { per_page: 1 }).then(
-        (r) => r.meta.total,
-      ),
-    staleTime: STALE,
-  });
-  return {
-    belum: belum.data,
-    diproses: diproses.data,
-    selesai: selesai.data,
-  };
-}
-
-export function usePackingCounts() {
-  const belum = useQuery({
-    queryKey: fulfillmentKeys.count("packing-belum"),
-    queryFn: () =>
-      OutboundService.ordersByStage("finish-pick", { per_page: 1 }).then(
-        (r) => r.meta.total,
-      ),
-    staleTime: STALE,
-  });
-  const diproses = useQuery({
-    queryKey: fulfillmentKeys.count("packing-diproses"),
-    queryFn: () =>
-      OutboundService.packlists({
-        per_page: 1,
-        status: "DRAFT,IN_PROGRESS",
-      }).then((r) => r.meta.total),
-    staleTime: STALE,
-  });
-  const selesai = useQuery({
-    queryKey: fulfillmentKeys.count("packing-selesai"),
-    queryFn: () =>
-      OutboundService.ordersByStage("finish-pack", { per_page: 1 }).then(
-        (r) => r.meta.total,
-      ),
-    staleTime: STALE,
-  });
-  return {
-    belum: belum.data,
-    diproses: diproses.data,
-    selesai: selesai.data,
-  };
 }
 
 export const useCreatePicklist = createMutationHook({
@@ -941,35 +886,6 @@ export function usePreManifestCancelList(
     queryFn: () => OutboundService.preManifestCancelList(params),
     staleTime: STALE,
   });
-}
-
-export function useShippingCounts() {
-  const siapKirim = useQuery({
-    queryKey: fulfillmentKeys.count("shipping-siap-kirim"),
-    queryFn: () =>
-      OutboundService.ordersByStage("finish-pack", { per_page: 1 }).then(
-        (r) => r.meta.total,
-      ),
-    staleTime: STALE,
-  });
-  const jadwal = useQuery({
-    queryKey: fulfillmentKeys.count("shipping-jadwal"),
-    queryFn: () =>
-      OutboundService.shipments({ status: "SCHEDULED", per_page: 1 }).then(
-        (r) => r.meta.total,
-      ),
-    staleTime: STALE,
-  });
-  const batal = useQuery({
-    queryKey: fulfillmentKeys.count("pre-manifest-cancel"),
-    queryFn: () => OutboundService.preManifestCancelCount(),
-    staleTime: STALE,
-  });
-  return {
-    "siap-kirim": siapKirim.data,
-    jadwal: jadwal.data,
-    batal: batal.data,
-  };
 }
 
 export function useRecordDriverCall() {

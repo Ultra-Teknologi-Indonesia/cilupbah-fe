@@ -3,7 +3,7 @@ import type { ApiPaginated, ApiResponse } from "@/types/api.types";
 import type { HistoryError } from "@/services/master-produk/upload.service";
 
 export type DownloadState = "queued" | "downloading" | "done" | "failed";
-export type ChannelDownloadAction = "download" | "none";
+export type ChannelDownloadAction = "download" | "sync_bundle" | "none";
 
 export interface DownloadTransaction {
   trxId: string;
@@ -158,11 +158,15 @@ export interface ChannelSearchItem {
   channelName?: string | null;
   alreadyDownloaded: boolean;
   downloadAction: ChannelDownloadAction;
-  masterStatus?: "missing" | "active" | "deleted" | null;
+  masterStatus?: "missing" | "active" | "deleted" | "bundle" | null;
   mappingStatus?: string | null;
   masterProductId?: string | null;
   masterProductName?: string | null;
   masterProductSku?: string | null;
+  bundleMappingCount: number;
+  regularMappingCount: number;
+  hasBundleMapping: boolean;
+  hasRegularMapping: boolean;
 }
 
 interface RawChannelSearchItem {
@@ -177,11 +181,15 @@ interface RawChannelSearchItem {
   channel_name?: string | null;
   already_downloaded?: boolean;
   download_action?: ChannelDownloadAction;
-  master_status?: "missing" | "active" | "deleted" | null;
+  master_status?: "missing" | "active" | "deleted" | "bundle" | null;
   mapping_status?: string | null;
   master_product_id?: string | null;
   master_product_name?: string | null;
   master_product_sku?: string | null;
+  bundle_mapping_count?: number;
+  regular_mapping_count?: number;
+  has_bundle_mapping?: boolean;
+  has_regular_mapping?: boolean;
 }
 
 interface RawFailedChannelStore {
@@ -210,6 +218,10 @@ function mapSearchItem(raw: RawChannelSearchItem): ChannelSearchItem {
     masterProductId: raw.master_product_id,
     masterProductName: raw.master_product_name,
     masterProductSku: raw.master_product_sku,
+    bundleMappingCount: raw.bundle_mapping_count ?? 0,
+    regularMappingCount: raw.regular_mapping_count ?? 0,
+    hasBundleMapping: raw.has_bundle_mapping ?? false,
+    hasRegularMapping: raw.has_regular_mapping ?? false,
   };
 }
 

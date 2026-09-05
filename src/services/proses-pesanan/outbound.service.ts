@@ -4,6 +4,7 @@ import type { ApiPaginated, ApiResponse } from "@/types/api.types";
 import type {
   Courier,
   FulfillmentListParams,
+  FulfillmentBoardCounts,
   FulfillmentOrder,
   Packlist,
   PacklistDetail,
@@ -477,6 +478,13 @@ export const OutboundService = {
       items: (res.data ?? []).map(mapOrder),
       meta: res.meta ?? FALLBACK_META,
     };
+  },
+
+  counts: async (): Promise<FulfillmentBoardCounts> => {
+    const res = await fetchClient<ApiResponse<FulfillmentBoardCounts>>(
+      "/outbound/orders/counts",
+    );
+    return res.data;
   },
 
   monitoring: async (): Promise<OutboundMonitoring> => {

@@ -36,7 +36,12 @@ export function StageTabs() {
       <TabsList variant="glass" className="max-w-full overflow-x-auto">
         {STAGE_CONFIG.filter(({ key }) => can(STAGE_PERMISSION[key])).map(({ key, label }) => (
           <TabsTrigger key={key} value={key} asChild>
-            <Link href={`/dashboard/proses-pesanan/${key}`}>{label}</Link>
+            <Link
+              href={`/dashboard/proses-pesanan/${key}`}
+              prefetch={false}
+            >
+              {label}
+            </Link>
           </TabsTrigger>
         ))}
       </TabsList>

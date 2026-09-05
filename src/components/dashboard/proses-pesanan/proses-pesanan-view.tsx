@@ -38,9 +38,7 @@ import { usePermissions } from "@/hooks/auth/use-permissions";
 import { Button } from "@/components/ui/button";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import {
-  usePackingCounts,
-  usePickingCounts,
-  useShippingCounts,
+  useFulfillmentCounts,
   useExportProcessOrdersCsv,
 } from "@/hooks/proses-pesanan/use-fulfillment";
 import {
@@ -85,19 +83,19 @@ function FulfillmentBoard({ stage }: { stage: FulfillmentStage }) {
     { validValues: subs.map((s) => s.key) },
   );
   const sub: string | null = subValue || null;
-  const pickingCounts = usePickingCounts();
-  const packingCounts = usePackingCounts();
-  const shippingCounts = useShippingCounts();
+  const countsEnabled =
+    stage === "picking" || stage === "packing" || stage === "shipping";
+  const { data: boardCounts } = useFulfillmentCounts(countsEnabled);
   const { can } = usePermissions();
   const exportProcessOrders = useExportProcessOrdersCsv();
 
   const countsMap =
     stage === "picking"
-      ? pickingCounts
+      ? boardCounts?.picking
       : stage === "packing"
-        ? packingCounts
+        ? boardCounts?.packing
         : stage === "shipping"
-          ? shippingCounts
+          ? boardCounts?.shipping
           : undefined;
 
   const stageLabel = STAGE_CONFIG.find((s) => s.key === stage)?.label ?? "";

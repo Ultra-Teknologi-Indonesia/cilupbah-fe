@@ -5,7 +5,11 @@ import { getServerQueryClient } from "@/lib/api-server";
 import { OutboundService } from "@/services/proses-pesanan/outbound.service";
 import type { FulfillmentListParams } from "@/types/proses-pesanan/fulfillment";
 
-const READY_PARAMS: FulfillmentListParams = { page: 1, per_page: 20 };
+const READY_PARAMS: FulfillmentListParams = {
+  page: 1,
+  per_page: 20,
+  exclude_transit: "1",
+};
 
 export default async function PickingPage() {
   const qc = getServerQueryClient();

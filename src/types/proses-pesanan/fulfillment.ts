@@ -12,6 +12,24 @@ export interface StageConfigItem {
   subs: StageSub[];
 }
 
+export interface FulfillmentBoardCounts {
+  picking: {
+    belum: number;
+    diproses: number;
+    selesai: number;
+  };
+  packing: {
+    belum: number;
+    diproses: number;
+    selesai: number;
+  };
+  shipping: {
+    "siap-kirim": number;
+    jadwal: number;
+    batal: number;
+  };
+}
+
 export const STAGE_CONFIG: readonly StageConfigItem[] = [
   { key: "pantauan", label: "Pantauan", subs: [] },
   {

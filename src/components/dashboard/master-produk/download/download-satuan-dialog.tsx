@@ -475,7 +475,12 @@ export function DownloadSatuanDialog({
                             <p className="line-clamp-1 text-sm font-medium">
                               {item.name}
                             </p>
-                            {item.alreadyDownloaded && (
+                            {item.hasBundleMapping && !item.hasRegularMapping && (
+                              <span className="shrink-0 rounded bg-emerald-500/10 px-1.5 py-0.5 text-3xs font-medium text-emerald-600 dark:text-emerald-400">
+                                Terhubung ke Bundle
+                              </span>
+                            )}
+                            {item.alreadyDownloaded && !item.hasBundleMapping && (
                               <span className="shrink-0 rounded bg-emerald-500/10 px-1.5 py-0.5 text-3xs font-medium text-emerald-600 dark:text-emerald-400">
                                 Terhubung ke Master
                               </span>
@@ -520,7 +525,9 @@ export function DownloadSatuanDialog({
                             ? "Sudah di Master"
                             : isQueued
                               ? "Dalam proses"
-                              : "Download"}
+                              : item.downloadAction === "sync_bundle"
+                                ? "Sinkronkan"
+                                : "Download"}
                         </Button>
                       </li>
                     );
