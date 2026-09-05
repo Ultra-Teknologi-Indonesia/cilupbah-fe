@@ -147,7 +147,6 @@ export function useSubmitDraft() {
       qc.invalidateQueries({ queryKey: ["outbound-transfer", "transit"] });
       invalidateStockViews(qc);
     },
-    onError: (err) => apiError(err, "Gagal mengirim transfer"),
   });
 }
 
@@ -174,7 +173,6 @@ export function useShipTransfer() {
       qc.invalidateQueries({ queryKey: ["outbound-transfer"] });
       invalidateStockViews(qc);
     },
-    onError: (err) => apiError(err, "Gagal mengirim transfer"),
   });
 }
 
