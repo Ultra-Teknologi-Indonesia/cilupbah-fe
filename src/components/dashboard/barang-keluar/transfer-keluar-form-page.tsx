@@ -205,7 +205,9 @@ export function TransferKeluarFormPage({
             bins.unshift({
               id: it.source_bin.id,
               code: it.source_bin.bin_final_code,
-              onHand: it.qty,
+              // rak lama bisa sudah kosong atau stoknya sudah berpindah,
+              // jadi qty transfer tidak boleh dipakai sebagai stok rak.
+              onHand: 0,
             });
           }
           const curBin = bins.find((b) => b.id === it.source_bin?.id);
@@ -226,7 +228,7 @@ export function TransferKeluarFormPage({
               it.product?.product?.media?.[0]?.url ??
               null,
             binId: it.source_bin?.id ?? fifoFallback?.id ?? "",
-            binOnHand: curBin?.onHand ?? fifoFallback?.onHand ?? it.qty,
+            binOnHand: curBin?.onHand ?? fifoFallback?.onHand ?? 0,
             qty: String(it.qty),
             notes: "",
             availableBins: bins,
@@ -873,6 +875,11 @@ export function TransferKeluarFormPage({
                               "border-destructive ring-1 ring-destructive/30",
                           )}
                         />
+                        {noStock && (
+                          <p className="mt-0.5 text-xs text-warning">
+                            Stok rak saat ini 0, pilih rak lain
+                          </p>
+                        )}
                         {qtyOverStock && (
                           <p className="text-destructive text-xs mt-0.5">
                             Maks. sesuai stok tersedia: {l.binOnHand}
