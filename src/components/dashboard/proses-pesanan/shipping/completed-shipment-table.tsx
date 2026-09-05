@@ -138,6 +138,16 @@ export function CompletedShipmentTable() {
         ),
       },
       {
+        id: "transaction_date",
+        accessorFn: (row) => row.transactionDate,
+        header: "Tgl. Pesanan",
+        cell: ({ row }) => (
+          <span className="whitespace-nowrap text-xs">
+            {formatDateTime(row.original.transactionDate)}
+          </span>
+        ),
+      },
+      {
         id: "tracking_number",
         accessorFn: (row) => row.trackingNumber,
         header: "No. Resi",
