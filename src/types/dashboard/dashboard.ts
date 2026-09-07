@@ -11,6 +11,32 @@ export interface DashboardSummary {
   stock_habis: number;
   stock_menipis: number;
   returns_pending: number;
+  integration: DashboardIntegrationOverview;
+}
+
+export type DashboardIntegrationStatus =
+  | "normal"
+  | "warning"
+  | "error"
+  | "inactive";
+
+export interface DashboardIntegrationStore {
+  id: string;
+  shop_name: string | null;
+  channel: {
+    code: string | null;
+    name: string | null;
+  };
+  status: DashboardIntegrationStatus;
+  last_synced_at: string | null;
+}
+
+export interface DashboardIntegrationOverview {
+  total: number;
+  healthy: number;
+  attention: number;
+  inactive: number;
+  stores: DashboardIntegrationStore[];
 }
 
 export interface DashboardSummaryParams {

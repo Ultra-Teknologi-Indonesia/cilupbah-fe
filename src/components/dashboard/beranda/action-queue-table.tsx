@@ -11,7 +11,6 @@ import { formatDateTimeWib } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -39,7 +38,7 @@ interface ActionQueueTableProps {
   locationId?: string;
 }
 
-const PER_PAGE = 10;
+const PER_PAGE = 5;
 
 export function ActionQueueTable({
   queue,
@@ -129,29 +128,27 @@ export function ActionQueueTable({
           description={emptyMessage}
         />
       ) : (
-        <ScrollArea orientation="both" viewportClassName="max-h-[19rem]">
-          <Table className="min-w-[38rem]" scrollContainer={false}>
-            <TableHeader className="[&_tr]:border-b-0">
-              <TableRow className="sticky top-0 z-10 bg-muted/80 backdrop-blur-sm hover:bg-muted/80">
-                <TableHead className="h-10">No. Pesanan</TableHead>
-                <TableHead className="h-10">Channel</TableHead>
-                <TableHead className="h-10">Pelanggan</TableHead>
-                <TableHead className="h-10">Tanggal</TableHead>
-                <TableHead className="h-10 text-right">Aksi</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {items.map((row) => (
-                <QueueRow
-                  key={row.id}
-                  queue={queue}
-                  row={row}
-                  onOpen={router.push}
-                />
-              ))}
-            </TableBody>
-          </Table>
-        </ScrollArea>
+        <Table scrollContainer={false}>
+          <TableHeader className="[&_tr]:border-b-0">
+            <TableRow className="bg-muted/80 hover:bg-muted/80">
+              <TableHead className="h-10">No. Pesanan</TableHead>
+              <TableHead className="hidden h-10 md:table-cell">Channel</TableHead>
+              <TableHead className="hidden h-10 2xl:table-cell">Pelanggan</TableHead>
+              <TableHead className="hidden h-10 lg:table-cell">Tanggal</TableHead>
+              <TableHead className="h-10 text-right">Aksi</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {items.map((row) => (
+              <QueueRow
+                key={row.id}
+                queue={queue}
+                row={row}
+                onOpen={router.push}
+              />
+            ))}
+          </TableBody>
+        </Table>
       )}
     </div>
   );
@@ -171,7 +168,7 @@ function QueueRow({
       className="cursor-pointer"
       onClick={() => onOpen(`/dashboard/pesanan/${row.id}`)}
     >
-      <TableCell>
+      <TableCell className="max-w-36 sm:max-w-none">
         <Link
           href={`/dashboard/pesanan/${row.id}`}
           className="font-mono text-xs font-medium hover:text-primary hover:underline"
@@ -180,7 +177,7 @@ function QueueRow({
           {row.salesorder_no || "—"}
         </Link>
       </TableCell>
-      <TableCell>
+      <TableCell className="hidden md:table-cell">
         {row.source ? (
           <Badge variant="secondary" className="capitalize">
             {row.source}
@@ -189,10 +186,10 @@ function QueueRow({
           <span className="text-muted-foreground">—</span>
         )}
       </TableCell>
-      <TableCell className={cn(!row.customer_name && "text-muted-foreground")}>
+      <TableCell className={cn("hidden 2xl:table-cell", !row.customer_name && "text-muted-foreground")}>
         {row.customer_name || "—"}
       </TableCell>
-      <TableCell className="text-muted-foreground">
+      <TableCell className="hidden text-muted-foreground lg:table-cell">
         {formatDateTimeWib(row.transaction_date)}
       </TableCell>
       <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>

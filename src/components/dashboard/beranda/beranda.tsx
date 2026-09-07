@@ -11,6 +11,7 @@ import {
 import { PageTitle } from "@/components/dashboard/page-title";
 import { useDashboardSummary } from "@/hooks/dashboard/use-dashboard";
 import { KpiRow } from "./kpi-row";
+import { IntegrationStatus } from "./integration-status";
 import { ActionQueueTable } from "./action-queue-table";
 import {
   DashboardControls,
@@ -61,6 +62,8 @@ export function Beranda() {
         isLoading={isLoading}
         periodLabel={periodLabel}
       />
+
+      <IntegrationStatus overview={summary?.integration} isLoading={isLoading} />
 
       <section className="flex flex-col gap-4">
         <div>
